@@ -1,0 +1,12 @@
+Tutorial
+*.tiff
+*.gz
+*.png
+*.cmake
+CMakeFiles
+old.cpp
+ocrs
+CMakeCache.txt
+build.sh
+Makefile
+loop.sh
