@@ -59,13 +59,19 @@ void ImageRecognize::open(char* filename){
   */
 
   oneCM = orignalImage.cols/28;
-  cv::Mat largest = largestContour(orignalImage);
+
+  cv::Mat mat(  orignalImage.cols*2,orignalImage.rows*2, orignalImage.type(), cv::Scalar(0));
+  cv::Rect roi( cv::Point( orignalImage.cols/2, orignalImage.rows/2 ), orignalImage.size() );
+  orignalImage.copyTo( mat( roi ) );
+
+  cv::Mat largest = largestContour(mat);
   cv::Point bc_point = barcode(largest);
   if (bc_point.y>(largest.rows/2)){
     rotateX(largest,180,cv::Point(largest.cols/2,largest.rows/2));
   }
 
   const char* out = text(largest);
+  //std::cout << out << std::endl;
 }
 
 
