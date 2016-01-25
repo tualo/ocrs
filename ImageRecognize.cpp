@@ -43,35 +43,50 @@ void ImageRecognize::showImage(cv::Mat& src,char* title){
   }
 }
 
-void ImageRecognize::open(char* filename){
+void ImageRecognize::open(const char* filename){
   showWindow=false;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
+  tess=new tesseract::TessBaseAPI();
+  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
 
-
-  /*
-  // reduce time approx 20%
-  int x = orignalImage.cols/2;
-  int y = orignalImage.rows/2;
-  cv::Mat minmat = cv::Mat(x, y, CV_32FC3);
-  cv::resize(orignalImage, minmat, cv::Size(x, y), 0, 0, 3);
-  orignalImage=minmat.clone();
-  */
-
+  //std::cout << "######################" << std::endl;
+  //std::cout << filename << std::endl;
+  //std::cout << "image readed " << (orignalImage.rows/2) << "* " << orignalImage.cols << 'x' << orignalImage.rows << std::endl;
   oneCM = orignalImage.cols/28;
+  cv::Mat mat(  orignalImage.rows*2,orignalImage.cols*2, orignalImage.type(), cv::Scalar(0));
+  cv::Rect roi( cv::Point( orignalImage.cols/2, (orignalImage.rows/2) ), orignalImage.size() );
 
-  cv::Mat mat(  orignalImage.cols*2,orignalImage.rows*2, orignalImage.type(), cv::Scalar(0));
-  cv::Rect roi( cv::Point( orignalImage.cols/2, orignalImage.rows/2 ), orignalImage.size() );
   orignalImage.copyTo( mat( roi ) );
+  //std::cout << "image relocated" << std::endl;
 
   cv::Mat largest = largestContour(mat);
-  cv::Point bc_point = barcode(largest);
+  //std::cout << "image largestContour" << std::endl;
+
+  bcResult bcRes = barcode(largest);
+  //cv::Point bc_point = barcode(largest);
+  cv::Point bc_point=bcRes.point;
+
   if (bc_point.y>(largest.rows/2)){
     rotateX(largest,180,cv::Point(largest.cols/2,largest.rows/2));
   }
 
   const char* out = text(largest);
-  //std::cout << out << std::endl;
+
+  std::string s (out);
+  std::smatch m;
+  std::regex e ("[0-9][0-9][0-9][0-9][0-9]");   // matches words beginning by "sub"
+  /*
+  if (std::regex_search (s,m,e)){
+    std::cout << out << std::endl;
+  }else{
+    std::cout << "don't found PLZ" << std::endl;
+  }
+  */
+  std::string output = "";
+  std::replace( s.begin(), s.end(), '"', ' ');
+  output = "{ \"code\": \""+bcRes.code+"\", \"text\": \""+s+"\" }";
+  std::cout << output << std::endl;
 }
 
 
@@ -134,14 +149,14 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
   cv::Scalar color( 255,255,255);
 
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-  std::cout << "largestContour passed in seconds: " << te << std::endl;
+  //std::cout << "largestContour passed in seconds: " << te << std::endl;
 
   std::vector< std::vector<cv::Point> > contours; // Vector for storing contour
   std::vector<cv::Vec4i> hierarchy;
   double angle;
   cv::findContours( thr, contours, hierarchy,CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE ); // Find the contours in the image
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-  std::cout << "largestContour passed in seconds: " << te << std::endl;
+  //std::cout << "largestContour passed in seconds: " << te << std::endl;
 
   for( int i = 0; i< contours.size(); i++ ) // iterate through each contour.
   {
@@ -154,14 +169,14 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
 
   }
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-  std::cout << "largestContour passed in seconds: " << te << std::endl;
+  //std::cout << "largestContour passed in seconds: " << te << std::endl;
 
   angle = getOrientation(contours[largest_contour_index], minmat);
-  std::cout << "largest angle" << angle << std::endl;
+  //std::cout << "largest angle" << angle << std::endl;
   cv::drawContours( dst, contours,largest_contour_index, color, CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
   //rectangle(src, bounding_rect,  Scalar(0,255,0),1, 8,0);
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-  std::cout << "largestContour passed in seconds: " << te << std::endl;
+  //std::cout << "largestContour passed in seconds: " << te << std::endl;
 
   //cv::bitwise_not(img, img);
 
@@ -174,20 +189,21 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
       points.push_back(it.pos());
 
   cv::RotatedRect box = cv::minAreaRect(cv::Mat(points));
-  std::cout << "box angle" << box.angle << std::endl;
+  //std::cout << "box angle" << box.angle << std::endl;
   cv::Size box_size = box.size;
   if (box_size.width<box_size.height){
     box.angle += 90.;
   }
 
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-  std::cout << "largestContour passed in seconds: " << te << std::endl;
+  //std::cout << "largestContour passed in seconds: " << te << std::endl;
 
 
   cv::Mat rot_mat = cv::getRotationMatrix2D(cv::Point(box.center.x*2,box.center.y*2), box.angle, 1);
 
   //cv::Mat rotated;
-  cv::Mat rotated(src.rows*1.5,src.cols*1.5,src.type());
+  //cv::Mat rotated(src.rows*1.5,src.cols*1.5,src.type());
+  cv::Mat rotated(src.rows,src.cols,src.type());
   cv::warpAffine(src, rotated, rot_mat, rotated.size(), cv::INTER_CUBIC);
   /*
   if (box.angle < -45.){
@@ -200,7 +216,7 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
   cv::Mat cropped;
   cv::getRectSubPix(rotated, box_size, box.center, cropped);
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-  std::cout << "largestContour* passed in seconds: " << te << std::endl;
+  //std::cout << "largestContour* passed in seconds: " << te << std::endl;
 
   // ok it`s rotated
   largest_area=0;
@@ -221,12 +237,12 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
 
   }
 
-  showImage(rotated);
+  //showImage(rotated,"LC rotated");
   cv::Rect myROI(bounding_rect.x, bounding_rect.y, bounding_rect.width, bounding_rect.height);
   cv::Mat result = rotated(myROI);
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-  std::cout << "largestContour passed in seconds: " << te << std::endl;
-  showImage(result);
+  //std::cout << "largestContour passed in seconds: " << te << std::endl;
+  //showImage(result, "LC result");
   return result;
 }
 
@@ -268,11 +284,17 @@ double ImageRecognize::getOrientation(std::vector<cv::Point> &pts, cv::Mat &img)
 }
 
 
+bool ImageRecognize::is_digits(const std::string &str)
+{
+    return std::all_of(str.begin(), str.end(), ::isdigit); // C++11
+}
 
+bcResult ImageRecognize::barcode(cv::Mat& im){
+  bcResult res = {cv::Point(0,0),std::string(""),std::string("")};
 
-cv::Point ImageRecognize::barcode(cv::Mat& im){
   int rel=0;
   int tmp=0;
+
   cv::Mat gray;
   bool found=false;
   cv::Mat norm;
@@ -300,67 +322,150 @@ cv::Point ImageRecognize::barcode(cv::Mat& im){
 
     int n = scanner.scan(image);
     for(zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
-      std::cout << "thres" << thres << "Code " << symbol->get_data().c_str() << " Type " << symbol->get_type_name().c_str() << std::endl;
+      //std::cout << "thres " << thres << " Code " << symbol->get_data().c_str() << " Type " << symbol->get_type_name().c_str() << std::endl;
       found = true;
-      int loc_size = symbol->get_location_size();
-      for(int i=0;i<loc_size;i++){
-        tmp = (symbol->get_location_y(i)*100/gray.rows);
-        if (rel<tmp){
-          rel=tmp;
-          point=cv::Point(symbol->get_location_x(i),symbol->get_location_y(i));
+
+      std::string code = std::string(symbol->get_data().c_str());
+
+      if ((code.length() > res.code.length())&&(is_digits(code))){
+        res.code = std::string(symbol->get_data().c_str());
+        res.type = std::string(symbol->get_type_name().c_str());
+        int loc_size = symbol->get_location_size();
+        for(int i=0;i<loc_size;i++){
+          tmp = (symbol->get_location_y(i)*100/gray.rows);
+          if (rel<tmp){
+            rel=tmp;
+            //point=cv::Point(symbol->get_location_x(i),symbol->get_location_y(i));
+            res.point = cv::Point(symbol->get_location_x(i),symbol->get_location_y(i));
+          }
         }
       }
     }
     image.set_data(NULL, 0);
     scanner.recycle_image(image);
   }
-  return point;
+  if (res.type=="I2/5"){
+    //std::cout << res.code << " to ";
+    res.code = res.code.substr(0,res.code.length()-1);
+    //std::cout << res.code << std::endl;
+  }
+  return res;
 }
 
+cv::Rect ImageRecognize::fittingROI(int x,int y,int w,int h, cv::Mat& m1){
+  int rX=x*oneCM;
+  int rY=y*oneCM;
+  int rW=w*oneCM;
+  int rH=h*oneCM;
+  if (rX+rW > m1.cols){
+    rX -= (rX+rW)-m1.rows;
+    if (rX<0){
+      rX=0;
+      rW -= (rX+rW)-m1.rows;
+    }
+  }
+  if (rY+rH > m1.rows){
+    rY -= (rY+rH)-m1.rows;
+    if (rY<0){
+      rY=0;
+      rH -= (rY+rH)-m1.rows;
+    }
+  }
+  return cv::Rect(rX,rY,rW,rH);
+}
 
 const char* ImageRecognize::text(cv::Mat& im){
-  cv::Rect roi2( (int)3*oneCM, (int)5*oneCM, (int)12*oneCM, (int)8.5*oneCM);
-  cv::Mat c2 = im(roi2);
-  showImage(c2);
+  //cv::Rect roi2( (int)3*oneCM, (int)5*oneCM, (int)12*oneCM, (int)8.5*oneCM);
+  cv::Rect roi2 = fittingROI(2,5,12,9,im);
+  const char* out;
+  /*
+  --------------------------------------
+  |                                    |
+  |                                    |
+  |                                    |
+  |   -------                          |
+  |   -------                          |
+  |   -------                          |
+  |                                    |
+  --------------------------------------
+  */
+  int breite = im.cols/oneCM;
+  int hoehe = im.rows/oneCM;
+  //std::cout << "width: " << im.cols / oneCM << std::endl;
+  //std::cout << "height: " << im.rows / oneCM << std::endl;
+  float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
+  //std::cout << "ratio: " << ratio  << std::endl;
 
-  linearize(c2);
-
-  tesseract::TessBaseAPI tess;
-  tess.Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
-  tess.SetImage((uchar*)c2.data, c2.size().width, c2.size().height, c2.channels(), c2.step1());
-
-  tess.SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
-  tess.SetVariable("tessedit_reject_bad_qual_wds","TRUE");
-
-  tess.Recognize(0);
-  const char* out = tess.GetUTF8Text();
-
-  std::string s (out);
-  std::smatch m;
-  std::regex e ("[0-9][0-9][0-9][0-9][0-9]");   // matches words beginning by "sub"
-  if (std::regex_search (s,m,e)){
-    std::cout << "found PLZ";
-  }else{
-    /*
-    cv::Mat large;
-    cv::cvtColor(src, large, CV_BGR2GRAY);
-
-    rotate(large,angle_on_max,large);
-    rotate(large,angle_on_max,large);
-    showImage(large);
-
-    tesseract::TessBaseAPI tess;
-    tess.Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
-    tess.SetImage((uchar*)large.data, large.size().width, large.size().height, large.channels(), large.step1());
-
-    tess.SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
-    tess.SetVariable("tessedit_reject_bad_qual_wds","TRUE");
-
-    tess.Recognize(0);
-    */
+  int letterType = 0;
+  if (hoehe < 15){
+    if (breite > 20){
+      letterType=1;
+    }
   }
 
-  std::cout << "****" << std::endl  << out << "****" << std::endl <<  std::endl;
+  if (hoehe > 15){
+    if (breite > 20){
+      letterType=2;
+    }
+  }
+
+  if (letterType==1){
+    cv::Mat c2 = im(roi2);
+    linearize(c2);
+    showImage(c2);
+
+    tess->SetImage((uchar*)c2.data, c2.size().width, c2.size().height, c2.channels(), c2.step1());
+
+    tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
+    tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
+
+    tess->Recognize(0);
+    out = tess->GetUTF8Text();
+
+    std::string s (out);
+    std::smatch m;
+    std::regex e ("[0-9][0-9][0-9][0-9][0-9]");   // matches words beginning by "sub"
+    if (std::regex_search (s,m,e)){
+      //std::cout << "found PLZ" << std::endl;
+    }else{
+      cv::Rect roi3 = fittingROI(11,5,12,9,im);
+      /*
+      --------------------------------------
+      |                                    |
+      |                                    |
+      |                                    |
+      |                     -------        |
+      |                     -------        |
+      |                     -------        |
+      |                                    |
+      --------------------------------------
+      */
+      cv::Mat c3 = im(roi3);
+      linearize(c3);
+      //this->showWindow =true;
+      showImage(c3);
+      tess->SetImage((uchar*)c3.data, c3.size().width, c3.size().height, c3.channels(), c3.step1());
+      tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
+      tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
+      tess->Recognize(0);
+      out = tess->GetUTF8Text();
+    }
+  }else if (letterType==2){
+    rotateX(im,90,cv::Point(im.cols/2,im.rows/2));
+    linearize(im);
+    tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
+    tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
+    tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
+    tess->Recognize(0);
+    out = tess->GetUTF8Text();
+  }else{
+    linearize(im);
+    tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
+    tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
+    tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
+    tess->Recognize(0);
+    out = tess->GetUTF8Text();
+  }
   return out;
 }
 
