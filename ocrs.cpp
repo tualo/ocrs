@@ -9,6 +9,7 @@
 
 #define NUM_THREADS 100
 
+#define NO_LONGLONG 1
 #include <my_global.h>
 #include <mysql.h>
 

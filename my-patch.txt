@@ -1,0 +1,13 @@
+--- /usr/include/mysql/my_global.h	2016-03-28 20:06:12.000000000 +0200
++++ my_global.h	2016-05-11 08:00:18.364819403 +0200
+@@ -492,8 +492,10 @@
+ */
+ typedef unsigned long long int ulonglong; /* ulong or unsigned long long */
+ typedef long long int	longlong;
++#if !defined(NO_LONGLONG)
+ typedef longlong int64;
+ typedef ulonglong uint64;
++#endif
+
+ #if defined (_WIN32)
+ typedef unsigned __int64 my_ulonglong;
