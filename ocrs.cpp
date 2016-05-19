@@ -9,10 +9,16 @@
 
 #define NUM_THREADS 100
 
+#define HAVE_UINT64 1
+#define HAVE_INT64 1
 #define NO_LONGLONG 1
 #include <my_global.h>
 #include <mysql.h>
 
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/convenience.hpp>
 
 /* MySQL Connector/C++ specific headers */
 /*
@@ -78,9 +84,7 @@ KEY `SVD_DT` (`DATUM`),
 KEY `idx_svd_mod_dt` (`MODELL`,`DATUM`),
 KEY `idx_sv_d_blgs_sg_sf` (`begleitschein`,`sortiergang`,`sortierfach`),
 KEY `idx_sv_d_blgs` (`begleitschein`),
-KEY `idx_sv_daten_dt_fl` (`DATUM`,`flat`),
-CONSTRAINT `sv_daten_modelle` FOREIGN KEY (`MANDANT`, `MODELL`)
-REFERENCES `sv_modelle` (`MANDANT`, `MODELL`) ON UPDATE CASCADE
+KEY `idx_sv_daten_dt_fl` (`DATUM`,`flat`)
 );
 
 CREATE TABLE `fast_access_tour` (
@@ -233,9 +237,7 @@ int main( int argc, char** argv )
 {
   double t = (double)cv::getTickCount();
   int cthread = 0;
-
-  printf("MySQL client version: %s\n", mysql_get_client_info());
-
+  //printf("MySQL client version: %s\n", mysql_get_client_info());
   MYSQL *con = mysql_init(NULL);
 
   if (con == NULL)
@@ -251,76 +253,104 @@ int main( int argc, char** argv )
     exit(1);
   }
 
+  std::cout << "*"  << std::endl;
 
   gl=new glob::Glob(argv[1]);
   if (!gl->hasNext()){
+    std::string sql = "";
     ImageRecognize* ir = new ImageRecognize();
+    std::cout << "*" <<  argv[1] << std::endl;
     ir->open(argv[1]);
 
-    if (ir->addresstext.length()>0){
-      ExtractAddress* ea = new ExtractAddress();
-      ea->setString(ir->addresstext);
-      ea->extract();
+    std::string fullname(argv[1]);
+    boost::filesystem::path bpath(argv[1]);
+    std::string fname = bpath.filename().c_str();
 
-      std::cout << "barcode " << ir->code << std::endl;
-      std::cout << "zip code " << ea->getZipCode() << std::endl;
-      std::cout << "town " << ea->getTown() << std::endl;
-      std::cout << "streetName " << ea->getStreetName() << std::endl;
-      std::cout << "housenumber " << ea->getHouseNumber() << std::endl;
-      // create table ocrs (code varchar(20) primary key, json longtext, processed tinyint default 0);
-      std::string sql = "insert into ocrs (code,ocrtext,street,housenumber,zipcode,town) values ('"+ir->code+"','"+ir->addresstext+"','"+ea->getStreetName()+"','"+ea->getHouseNumber()+"','"+ea->getZipCode()+"','"+ea->getTown()+"') on duplicate key update ocrtext=values(ocrtext),town=values(town),street=values(street),housenumber=values(housenumber),zipcode=values(zipcode), processed=0";
-
-
-      if (mysql_query(con, sql.c_str())){
-          fprintf(stderr, "%s\n", mysql_error(con));
-          mysql_close(con);
-          exit(1);
-      }
-
-      std::string fuzzysql = "select GET_SORTBOX('"+ea->getStreetName()+" "+ea->getZipCode()+" "+ea->getTown()+"','"+ea->getZipCode()+"','"+ea->getHouseNumber()+"') res";
-      std::cout << "fuzzysql " << fuzzysql << std::endl;
-      if (mysql_query(con, fuzzysql.c_str())){
-        fprintf(stderr, "%s\n", mysql_error(con));
-        mysql_close(con);
-        exit(1);
-      }
-
+    if (ir->code.length()>4){
 
       std::string sg = "";
-      std::string sf = "";
+      std::string sf = "NA";
       std::string mandant = "0000";
       std::string modell = "OCR Erfassung";
       std::string login = "sorter";
 
-      std::string strasse = ea->getStreetName();
-      std::string hausnummer = ea->getHouseNumber();
-      std::string plz = ea->getZipCode();
-      std::string ort = ea->getTown();
+      std::string strasse = "";
+      std::string hausnummer = "";
+      std::string plz = "";
+      std::string ort = "";
 
-      MYSQL_RES *result;
-      MYSQL_ROW row;
-      unsigned int num_fields;
-      unsigned int i;
-      result = mysql_use_result(con);
-      num_fields = mysql_num_fields(result);
-      while ((row = mysql_fetch_row(result)))
-      {
-         unsigned long *lengths;
-         lengths = mysql_fetch_lengths(result);
-         for(i = 0; i < num_fields; i++)
-         {
-           if (i==0){
-             std::string box = row[i];
-             std::vector<std::string> elems = osplit(box,'|');
-             if (elems.size()==2){
-               sg = elems.at(0);
-               sf = elems.at(1);
-             }else{
-               sf = box;
+
+      if (ir->addresstext.length()>0){
+        ExtractAddress* ea = new ExtractAddress();
+        ea->setString(ir->addresstext);
+        ea->extract();
+
+        //std::cout << "barcode " << ir->code << std::endl;
+        //std::cout << "zip code " << ea->getZipCode() << std::endl;
+        //std::cout << "town " << ea->getTown() << std::endl;
+        //std::cout << "streetName " << ea->getStreetName() << std::endl;
+        //std::cout << "housenumber " << ea->getHouseNumber() << std::endl;
+        // create table ocrs (code varchar(20) primary key, json longtext, processed tinyint default 0);
+        sql = "insert into ocrs (code,ocrtext,street,housenumber,zipcode,town) values ('"+ir->code+"','"+ir->addresstext+"','"+ea->getStreetName()+"','"+ea->getHouseNumber()+"','"+ea->getZipCode()+"','"+ea->getTown()+"') on duplicate key update ocrtext=values(ocrtext),town=values(town),street=values(street),housenumber=values(housenumber),zipcode=values(zipcode), processed=0";
+
+
+        if (mysql_query(con, sql.c_str())){
+            fprintf(stderr, "%s\n", mysql_error(con));
+            mysql_close(con);
+            exit(1);
+        }
+
+        std::string fuzzysql = "select GET_SORTBOX('"+ea->getStreetName()+" "+ea->getZipCode()+" "+ea->getTown()+"','"+ea->getZipCode()+"','"+ea->getHouseNumber()+"') res";
+        std::cout << "fuzzysql " << fuzzysql << std::endl;
+        if (mysql_query(con, fuzzysql.c_str())){
+          fprintf(stderr, "%s\n", mysql_error(con));
+          mysql_close(con);
+          exit(1);
+        }
+
+
+        sf = "NT";
+        mandant = "0000";
+        modell = "OCR Erfassung";
+        login = "sorter";
+
+        strasse = ea->getStreetName();
+        hausnummer = ea->getHouseNumber();
+        plz = ea->getZipCode();
+        ort = ea->getTown();
+
+        MYSQL_RES *result;
+        MYSQL_ROW row;
+        unsigned int num_fields;
+        unsigned int i;
+        result = mysql_use_result(con);
+        num_fields = mysql_num_fields(result);
+        while ((row = mysql_fetch_row(result)))
+        {
+           unsigned long *lengths;
+           lengths = mysql_fetch_lengths(result);
+           for(i = 0; i < num_fields; i++)
+           {
+             if (i==0){
+               std::string box = row[i];
+               std::vector<std::string> elems = osplit(box,'|');
+               if (elems.size()==2){
+                 sg = elems.at(0);
+                 sf = elems.at(1);
+               }else{
+                 sf = box;
+               }
+               //std::cout << "box " << row[i] << "" << std::endl;
              }
-             std::cout << "box " << row[i] << "" << std::endl;
            }
-         }
+        }
+
+        std::string cmd = "mv "+fullname+" /imagedata/result/good."+ir->code+".tiff";
+        system(cmd.c_str());
+      }else{
+        // there is no adresstext
+        std::string cmd = "mv "+fullname+" /imagedata/result/noaddress."+ir->code+".tiff";
+        system(cmd.c_str());
       }
 
 
@@ -332,7 +362,14 @@ int main( int argc, char** argv )
           exit(1);
       }
 
+    }else{
+      // ok there is no barcode
+      // move that file
+      std::string cmd = "mv "+fullname+" /imagedata/result/nocode."+fname+"";
+      system(cmd.c_str());
     }
+
+
   }else{
 
     while (gl->hasNext()) {

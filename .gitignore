@@ -9,3 +9,4 @@ ocrs
 CMakeCache.txt
 Makefile
 loop.sh
+.DS_Store

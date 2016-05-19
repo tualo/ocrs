@@ -68,6 +68,8 @@ void ImageRecognize::open(const char* filename){
   showWindow=true;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
+
+
   tess=new tesseract::TessBaseAPI();
   tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
 
