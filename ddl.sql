@@ -1,0 +1,157 @@
+
+DROP TABLE IF EXISTS `strassenverzeichnis`;
+CREATE TABLE `strassenverzeichnis` (
+  `id` varchar(32) NOT NULL,
+  `strasse` varchar(255) NOT NULL,
+  `plz` varchar(5) DEFAULT NULL,
+  `ort` varchar(255) DEFAULT NULL,
+  `amtlicher_gemeindeschluessel` varchar(10) DEFAULT NULL,
+  `regionalschluessel` varchar(10) DEFAULT NULL,
+  `landkreis` varchar(100) DEFAULT NULL,
+  `kreis_regionalschluessel` varchar(10) DEFAULT NULL,
+  `create_date` date,
+  PRIMARY KEY (`id`),
+    KEY `idx_strassenverzeichnis_str` (`strasse`),
+    KEY `idx_strassenverzeichnis_plz` (`plz`),
+    KEY `idx_strassenverzeichnis_ort` (`ort`),
+    KEY `idx_strassenverzeichnis_ag` (`amtlicher_gemeindeschluessel`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/strassenverzeichnis';
+
+DROP TABLE IF EXISTS `short_boxes`;
+CREATE TABLE `short_boxes` (
+  `zipcode` varchar(6) NOT NULL,
+  `boxname` varchar(20) NOT NULL,
+  PRIMARY KEY (`zipcode`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/short_boxes';
+
+DROP TABLE IF EXISTS `short_boxes_locked`;
+CREATE TABLE `short_boxes_locked` (
+  `zipcode` varchar(6) NOT NULL,
+  `kundenid` varchar(20) NOT NULL,
+  PRIMARY KEY (`zipcode`,`kundenid`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/short_boxes_locked';
+
+
+DROP TABLE  IF EXISTS `ocrs`;
+CREATE TABLE `ocrs` (
+  `code` varchar(20) NOT NULL,
+  `street` varchar(255) not null,
+  `housenumber` varchar(255) not null,
+  `town` varchar(255) not null,
+  `zipcode` varchar(255) not null,
+  `ocrtext` varchar(4000) not null,
+  `processed` tinyint(4) DEFAULT '0',
+  PRIMARY KEY (`code`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/ocrs';
+
+
+
+DROP TABLE  IF EXISTS `sv_daten`;
+CREATE TABLE `sv_daten` (
+  `MANDANT` varchar(4)  NOT NULL DEFAULT '0000',
+  `MODELL` varchar(50) NOT NULL,
+  `ID` varchar(50) NOT NULL,
+  `DATUM` date NOT NULL,  `ZEIT` time NOT NULL,
+  `LOGIN` varchar(50) DEFAULT NULL,
+  `flat` tinyint(4) DEFAULT '0',
+  `sortiergang` varchar(20) DEFAULT NULL,
+  `sortierfach` varchar(20) DEFAULT NULL,
+  `strasse` varchar(100) DEFAULT NULL,
+  `hausnummer` varchar(10) DEFAULT NULL,
+  `begleitschein` int(11) DEFAULT NULL,  `plz` varchar(10) DEFAULT NULL,
+  `ort` varchar(50) DEFAULT NULL,
+  `strid` int(11) DEFAULT NULL,  `alt_codes` varchar(255) DEFAULT NULL,
+  `width` int(11) DEFAULT '0',  `height` int(11) DEFAULT '0',
+  `weight` int(11) DEFAULT '0',  PRIMARY KEY (`ID`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/sv_daten';
+
+
+
+DROP TABLE  IF EXISTS `fast_access_tour`;
+CREATE TABLE `fast_access_tour` (
+  `strid` varchar(32) DEFAULT NULL,
+  `mandant` varchar(10) DEFAULT NULL,
+  `regiogruppe` varchar(100) DEFAULT NULL,
+  `bereich` varchar(100) DEFAULT NULL,
+  `sortiergang` varchar(100) DEFAULT NULL,
+  `sortierfach` varchar(100) DEFAULT NULL,
+  `plz` varchar(100) DEFAULT NULL,
+  `ort` varchar(100) DEFAULT NULL,
+  `ortsteil` varchar(100) DEFAULT NULL,
+  `hnvon` varchar(4) DEFAULT NULL,
+  `hnbis` varchar(4) DEFAULT NULL,
+  `zuvon` varchar(10) DEFAULT NULL,
+  `zubis` varchar(10) DEFAULT NULL,
+  `gerade` varchar(3) DEFAULT NULL,
+  `ungerade` varchar(3) DEFAULT NULL,
+  `strasse` varchar(255) DEFAULT NULL,
+  KEY `idx_fat_id` (`strid`),  KEY `idx_fat_mnd` (`mandant`),
+  KEY `idx_fat_rg` (`regiogruppe`),
+  KEY `idx_fat_be` (`bereich`),
+  KEY `idx_fat_sf` (`sortierfach`),
+  KEY `idx_fat_sg` (`sortiergang`),
+  KEY `idx_fat_plz` (`plz`),
+  KEY `idx_fat_str` (`strasse`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/fast_access_tour';
+
+
+DROP TABLE  IF EXISTS ocrhash_complex;
+create table ocrhash_complex (id varchar(32) primary key, date_added timestamp ,adr text ) engine myisam;
+insert into ocrhash_complex (id,date_added,adr)
+  select id, UNIX_TIMESTAMP(now()), concat(strasse,' ',plz,' ',ort) adr
+  from strassenverzeichnis
+  group by ort,plz,strasse;
+create fulltext index id_ft_hash_complex on ocrhash_complex(adr);
+
+
+DROP FUNCTION IF EXISTS  GET_SORTBOX;
+DELIMITER $$
+CREATE FUNCTION GET_SORTBOX(in_short_address varchar(255),in_zipcode varchar(255),in_housenumber varchar(255),in_kundenid varchar(255))
+RETURNS varchar(255)
+READS SQL DATA
+DETERMINISTIC
+BEGIN
+  IF EXISTS(select * from `short_boxes_locked` where zipcode = in_zipcode and kundenid=in_kundenid)
+  THEN
+    RETURN 'DPAG';
+  ELSE
+    IF EXISTS(select * from `short_boxes` where zipcode = in_zipcode)
+    THEN
+      RETURN (select `boxname` from `short_boxes` where zipcode = in_zipcode);
+    ELSE
+     IF EXISTS(SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC LIMIT 10)
+     THEN
+
+      IF (select cast(in_housenumber as UNSIGNED) %2)=1
+      THEN
+        return (
+          SELECT concat('',sortiergang,'|',sortierfach)
+          FROM fast_access_tour
+          WHERE
+            hnvon<=lpad(in_housenumber,4,'0')
+            and hnbis>=lpad(in_housenumber,4,'0')
+            and strid in ( select id from ( SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC) a )
+            and ungerade = 1
+            limit 1
+        );
+      ELSE
+        return (
+          SELECT concat('',sortiergang,'|',sortierfach)
+          FROM fast_access_tour
+          WHERE
+            hnvon<=lpad(in_housenumber,4,'0')
+            and hnbis>=lpad(in_housenumber,4,'0')
+            and strid in ( select id from ( SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC) a )
+            and gerade = 1
+            limit 1
+        );
+      END IF;
+
+     ELSE
+      return "NT";
+     END IF;
+    END IF;
+  END IF;
+END $$
+
+DELIMITER ;

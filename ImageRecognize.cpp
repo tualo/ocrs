@@ -66,6 +66,7 @@ void ImageRecognize::open(const char* filename){
   double te;
   int analysisType = 1;
   showWindow=true;
+  resultThres = 128;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
 
@@ -149,6 +150,65 @@ void ImageRecognize::open(const char* filename){
 
 }
 
+
+void ImageRecognize::openPZA(const char* filename){
+  double t = (double)cv::getTickCount();
+  double te;
+  int analysisType = 1;
+
+
+  tess=new tesseract::TessBaseAPI();
+  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
+
+
+  showWindow=true;
+  fileName = filename;
+  orignalImage = cv::imread( filename, 1 );
+
+  ocr_text="";
+  oneCM = orignalImage.cols/21;
+  //cv::Mat mat(  orignalImage.rows,orignalImage.cols, orignalImage.type(), cv::Scalar(0));
+  cv::Rect roi( 0, 0, orignalImage.cols,orignalImage.rows/3);
+  cv::Mat mat = orignalImage(roi);
+  //orignalImage.copyTo( mat( roi ) );
+  //showImage(mat, "X");
+
+  bcResult bcRes;
+  bcRes = barcode(mat);
+
+  std::string str_barcode (bcRes.code);
+  if (str_barcode.length()>4){
+    std::cout << "Code: " << bcRes.code << std::endl;
+    getPZAText(orignalImage);
+
+  }else{
+    cv::transpose(mat, mat);
+    cv::transpose(orignalImage, orignalImage);
+    bcRes = barcode(mat);
+    str_barcode = (bcRes.code);
+    if (str_barcode.length()>4){
+      std::cout << "Code: " << bcRes.code << std::endl;
+      getPZAText(orignalImage);
+    }else{
+    }
+  }
+/*
+  showImage(mat,"test");
+
+  tess=new tesseract::TessBaseAPI();
+  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
+
+*/
+  te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
+  std::cout << "all passed in seconds: " << te << std::endl;
+}
+
+void ImageRecognize::getPZAText(cv::Mat& src){
+  cv::Rect roi( 0, 0, src.cols,src.rows/3);
+  cv::Mat m = src(roi);
+  usingLetterType1(m);
+  std::cout << "TXT" << ocr_text << std::endl;
+}
 
 void ImageRecognize::rotateX(cv::Mat& src,float angle,cv::Point center){
   cv::Mat rotMatrix(2, 3, CV_32FC1);
@@ -501,6 +561,7 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
             res.code = code;//std::string(symbol->get_data().c_str());
           }
           res.found = true;
+          resultThres = thres;
           res.type = std::string(symbol->get_type_name().c_str());
           int loc_size = symbol->get_location_size();
 
@@ -594,7 +655,8 @@ bcResult ImageRecognize::fast_barcode(cv::Mat& im){
   if (useIMG.cols<useIMG.rows){
     rotateX(useIMG,90,cv::Point(useIMG.cols/2,useIMG.rows/2));
   }
-  cv::Rect roi = fittingROI((useIMG.cols/oneCM)-15 ,1.5,15,4,useIMG);
+  //cv::Rect roi = fittingROI((useIMG.cols/oneCM)-15 ,1.5,15,4,useIMG);
+  cv::Rect roi = fittingROI((useIMG.cols/oneCM)-15 ,2,15,4,useIMG);
   cv::Mat part = useIMG(roi);
 
   res = barcode_internal(part);
@@ -671,7 +733,6 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
   cv::Mat c2 = (im.clone())(roi2);
 
-
   //showImage(c2,"TEST 2_1");
   linearize(c2);
 
@@ -685,7 +746,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
 
   if ((lines.size()<20)&&(boost::regex_search(s1 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
       ocr_text = out;
-      //std::cout << "/* message 1*/"<<ocr_text << std::endl;
+      makeResultImage(im);
       return true;
   }
 
@@ -705,11 +766,35 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   lines = isplit(s2,'\n');
   if ((lines.size()<20)&&(boost::regex_search(s2 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
       ocr_text = out;
-//      std::cout << "/* message 2*/"<<ocr_text << std::endl;
+      makeResultImage(im);
       return true;
   }
+  makeResultImage(im);
 
   return false;
+}
+
+void ImageRecognize::makeResultImage(cv::Mat& src){
+  cv::Mat clone;
+
+
+  cvtColor( src, clone, CV_BGR2GRAY );
+  cv::threshold(clone, resultMat, resultThres, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
+
+  int x=resultMat.cols /2;
+  int y=resultMat.rows /2;
+  cv::Mat res = cv::Mat(x, y, CV_8UC1);
+  cv::resize(resultMat, res, cv::Size(x, y), 0, 0, 3);
+  resultMat = res;
+
+  transpose(resultMat, resultMat);
+  flip(resultMat, resultMat,1);
+  transpose(resultMat, resultMat);
+  flip(resultMat, resultMat,1);
+
+
+
+
 }
 
 bool ImageRecognize::usingLetterType1(cv::Mat& im){

@@ -34,15 +34,20 @@ struct bcResult {
 class ImageRecognize{
 public:
   void open(const char* filename);
+  void openPZA(const char* filename);
   bool showWindow;
   std::string code;
   std::string jsontext;
   std::string addresstext;
   int width;
   int height;
+  cv::Mat resultMat;
+  cv::Mat orignalImage;
+  int resultThres;
 
 private:
   cv::Mat largestContour(cv::Mat& src);
+  void makeResultImage(cv::Mat& src);
   cv::Rect fittingROI(int x,int y,int w,int h, cv::Mat& m1);
   double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
 
@@ -66,6 +71,8 @@ private:
 
   cv::Mat getRectangle(cv::Mat& src);
 
+  void getPZAText(cv::Mat& src);
+
   void rotate(cv::Mat& src, double angle, cv::Mat& dst);
   void showImage(cv::Mat& src);
   void showImage(cv::Mat& src,char* title);
@@ -77,7 +84,6 @@ private:
 
   const char* fileName;
   const char* ocr_text;
-  cv::Mat orignalImage;
   tesseract::TessBaseAPI* tess;
 };
 #endif

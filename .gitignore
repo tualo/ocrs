@@ -10,3 +10,5 @@ CMakeCache.txt
 Makefile
 loop.sh
 .DS_Store
+temp.txt
+ocrs.cpp.temp.cpp
