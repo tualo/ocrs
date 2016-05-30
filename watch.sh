@@ -1,6 +1,6 @@
 #! /bin/sh
 
-$FILES=/imagedata
+FILES=/imagedata
 for f in $FILES/*.tiff
 do
 	echo "Processing $f"
