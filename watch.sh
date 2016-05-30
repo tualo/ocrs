@@ -1,7 +1,7 @@
 #! /bin/sh
 
-$FILES='/imagedata'
-for f in "$FILES/*.tiff"
+$FILES=/imagedata
+for f in $FILES/*.tiff
 do
 	echo "Processing $f"
 done
