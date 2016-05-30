@@ -170,11 +170,11 @@ int main( int argc, char** argv )
       ea->setString(ir->addresstext);
       ea->extract();
 
-      sql = "insert into ocrs (code,ocrtext,street,housenumber,zipcode,town) values ('"+ir->code+"','"+ir->addresstext+"','"+ea->getStreetName()+"','"+ea->getHouseNumber()+"','"+ea->getZipCode()+"','"+ea->getTown()+"') on duplicate key update ocrtext=values(ocrtext),town=values(town),street=values(street),housenumber=values(housenumber),zipcode=values(zipcode), processed=0";
+      sql = "insert into ocrs (code,ocrtext,street,housenumber,zipcode,town) values ('"+ir->code+"','"+ir->addresstext+"','"+ea->getStreetName()+"','"+ea->getHouseNumber()+"','"+ea->getZipCode()+"','"+ea->getTown()+"') on duplicate key update ocrtext=values(ocrtext),town=values(town),street=values(street),housenumber=values(housenumber),zipcode=values(zipcode), processed=0 ";
       if (mysql_query(con, sql.c_str())){
-          fprintf(stderr, "%s\n", mysql_error(con));
-          mysql_close(con);
-          exit(1);
+          //fprintf(stderr, "%s\n", mysql_error(con));
+          //mysql_close(con);
+          //exit(1);
       }
 
       std::string fuzzysql = "select GET_SORTBOX('"+ea->getStreetName()+" "+ea->getZipCode()+" "+ea->getTown()+"','"+ea->getZipCode()+"','"+ea->getHouseNumber()+"','"+kundenid+"') res";
