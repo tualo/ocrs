@@ -141,8 +141,8 @@ int main( int argc, char** argv )
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
   params.push_back(10);
 
-  params.push_back(CV_IMWRITE_JPEG_OPTIMIZE);
-  params.push_back(1);
+  //params.push_back(CV_IMWRITE_JPEG_OPTIMIZE);
+  //params.push_back(1);
 
   std::vector<std::string> strs;
   boost::split(strs,fname,boost::is_any_of("N"));
