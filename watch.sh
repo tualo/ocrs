@@ -7,10 +7,15 @@ export IMAGEPATH=Standardbriefsendungen
 export USEPZA=1
 export MANDANT=6575
 FILES=/imagedata
-for f in $FILES/*.tiff
+extension=tiff
+
+for f in $FILES/*.$extension
 do
-	echo "Processing $f"
-  ocrs $f
+  if [ "$f" != "$FILES/*.$extension" ]
+  then
+  	echo "Processing $f"
+    ocrs $f
+  fi
 done
 
 inotifywait -m $FILES -e close_write |

@@ -1,0 +1,14 @@
+[Unit]
+Description=OCR Service
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/ocrs.pid
+Restart=always
+#EnvironmentFile=/etc/sysconfig/grab-environment
+ExecStart=/bin/sh -e "/root/watch.sh"
+User=root
+
+[Install]
+WantedBy=multi-user.target
