@@ -44,11 +44,13 @@ public:
   cv::Mat resultMat;
   cv::Mat orignalImage;
   int resultThres;
+  float scale;
+  float cmWidth;
 
 private:
   cv::Mat largestContour(cv::Mat& src);
   void makeResultImage(cv::Mat& src);
-  cv::Rect fittingROI(int x,int y,int w,int h, cv::Mat& m1);
+  cv::Rect fittingROI(double x,double y,double w,double h, cv::Mat& m1);
   double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
 
   bcResult barcode(cv::Mat& im);
@@ -62,6 +64,7 @@ private:
   bool usingLetterRoi(cv::Mat& im,cv::Rect roi2);
   bool usingLetterType1(cv::Mat& im);
   bool usingLetterType1_1(cv::Mat& im);
+  bool usingLetterType1_2(cv::Mat& im);
 
   bool usingLetterType3(cv::Mat& im);
 

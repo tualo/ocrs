@@ -74,7 +74,7 @@ void ImageRecognize::open(const char* filename){
   tess=new tesseract::TessBaseAPI();
   tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
 
-  float scale = 1.38;
+
   cv::Mat minmat = cv::Mat(orignalImage.cols*scale, orignalImage.rows, CV_32FC3);
   cv::resize(orignalImage, minmat, cv::Size(orignalImage.cols*scale, orignalImage.rows), 0, 0, 3);
   orignalImage = minmat;
@@ -82,7 +82,7 @@ void ImageRecognize::open(const char* filename){
   //std::cout << "######################" << std::endl;
   //std::cout << filename << std::endl;
   //std::cout << "image readed " << (orignalImage.rows/2) << "* " << orignalImage.cols << 'x' << orignalImage.rows << std::endl;
-  oneCM = orignalImage.cols/28;
+  oneCM = orignalImage.cols/cmWidth;
 
 
   cv::Mat mat(  orignalImage.rows*2,orignalImage.cols*2, orignalImage.type(), cv::Scalar(0));
@@ -179,14 +179,15 @@ void ImageRecognize::openPZA(const char* filename){
   std::string str_barcode (bcRes.code);
   if (str_barcode.length()>4){
     std::cout << "Code: " << bcRes.code << std::endl;
+    code = bcRes.code;
     getPZAText(orignalImage);
-
   }else{
     cv::transpose(mat, mat);
     cv::transpose(orignalImage, orignalImage);
     bcRes = barcode(mat);
     str_barcode = (bcRes.code);
     if (str_barcode.length()>4){
+      code = bcRes.code;
       std::cout << "Code: " << bcRes.code << std::endl;
       getPZAText(orignalImage);
     }else{
@@ -206,8 +207,9 @@ void ImageRecognize::openPZA(const char* filename){
 void ImageRecognize::getPZAText(cv::Mat& src){
   cv::Rect roi( 0, 0, src.cols,src.rows/3);
   cv::Mat m = src(roi);
-  usingLetterType1(m);
-  std::cout << "TXT" << ocr_text << std::endl;
+  usingLetterType1_2(m);
+  addresstext = ocr_text;
+  //std::cout << "TXT" << ocr_text << std::endl;
 }
 
 void ImageRecognize::rotateX(cv::Mat& src,float angle,cv::Point center){
@@ -687,11 +689,12 @@ bcResult ImageRecognize::fast_barcode(cv::Mat& im){
   return res;
 }
 
-cv::Rect ImageRecognize::fittingROI(int x,int y,int w,int h, cv::Mat& m1){
+cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat& m1){
   int rX=x*oneCM;
   int rY=y*oneCM;
   int rW=w*oneCM;
   int rH=h*oneCM;
+
   if (rX+rW > m1.cols){
     rX -= (rX+rW)-m1.rows;
     if (rX<0){
@@ -706,6 +709,7 @@ cv::Rect ImageRecognize::fittingROI(int x,int y,int w,int h, cv::Mat& m1){
       rH -= (rY+rH)-m1.rows;
     }
   }
+
   return cv::Rect(rX,rY,rW,rH);
 }
 
@@ -726,13 +730,13 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   const boost::regex no_plz_regex("\\d{6}\\s");
   boost::cmatch char_matches;
 
-  //showImage(im,"T2-111");
 
   int breite = im.cols/oneCM;
   int hoehe = im.rows/oneCM;
   float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
   cv::Mat c2 = (im.clone())(roi2);
 
+  //showImage(c2,"T2-111");
   //showImage(c2,"TEST 2_1");
   linearize(c2);
 
@@ -814,6 +818,7 @@ bool ImageRecognize::usingLetterType1(cv::Mat& im){
 }
 
 
+
 bool ImageRecognize::usingLetterType1_1(cv::Mat& im){
   cv::Rect roi2 = fittingROI(11,5,12,9,im);
   /*
@@ -829,6 +834,24 @@ bool ImageRecognize::usingLetterType1_1(cv::Mat& im){
   */
   return usingLetterRoi(im,roi2);
 }
+
+
+bool ImageRecognize::usingLetterType1_2(cv::Mat& im){
+  cv::Rect roi2 = fittingROI(2.2,2.5,9,4,im);
+  /* PZA
+  --------------------------------------
+  |                                    |
+  |                                    |
+  |                                    |
+  |   -------                          |
+  |   -------                          |
+  |   -------                          |
+  |                                    |
+  --------------------------------------
+  */
+  return usingLetterRoi(im,roi2);
+}
+
 
 bool ImageRecognize::usingLetterType3(cv::Mat& im){
   cv::Rect roi2 = fittingROI( 1 , (im.rows/oneCM)/2 , (im.cols/oneCM) - 2, 6,im);
