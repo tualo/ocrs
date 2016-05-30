@@ -104,6 +104,8 @@ insert into ocrhash_complex (id,date_added,adr)
 create fulltext index id_ft_hash_complex on ocrhash_complex(adr);
 
 
+
+
 DROP FUNCTION IF EXISTS  GET_SORTBOX;
 DELIMITER $$
 CREATE FUNCTION GET_SORTBOX(in_short_address varchar(255),in_zipcode varchar(255),in_housenumber varchar(255),in_kundenid varchar(255))
@@ -113,11 +115,11 @@ DETERMINISTIC
 BEGIN
   IF EXISTS(select * from `short_boxes_locked` where zipcode = in_zipcode and kundenid=in_kundenid)
   THEN
-    RETURN 'DPAG';
+    return 'DPAG';
   ELSE
     IF EXISTS(select * from `short_boxes` where zipcode = in_zipcode)
     THEN
-      RETURN (select `boxname` from `short_boxes` where zipcode = in_zipcode);
+      return (select `boxname` from `short_boxes` where zipcode = in_zipcode);
     ELSE
      IF EXISTS(SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC LIMIT 10)
      THEN
@@ -125,7 +127,7 @@ BEGIN
       IF (select cast(in_housenumber as UNSIGNED) %2)=1
       THEN
         return (
-          SELECT concat('',sortiergang,'|',sortierfach)
+          SELECT if(sortiergang is null,'NT', concat('',sortiergang,'|',sortierfach) )
           FROM fast_access_tour
           WHERE
             hnvon<=lpad(in_housenumber,4,'0')
@@ -135,8 +137,8 @@ BEGIN
             limit 1
         );
       ELSE
-        return (
-          SELECT concat('',sortiergang,'|',sortierfach)
+        return ifnull( (
+          SELECT if(sortiergang is null,'NT', concat('',sortiergang,'|',sortierfach) )
           FROM fast_access_tour
           WHERE
             hnvon<=lpad(in_housenumber,4,'0')
@@ -144,7 +146,7 @@ BEGIN
             and strid in ( select id from ( SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC) a )
             and gerade = 1
             limit 1
-        );
+        ),'NT');
       END IF;
 
      ELSE
@@ -152,6 +154,7 @@ BEGIN
      END IF;
     END IF;
   END IF;
+  return 'NT';
 END $$
 
 DELIMITER ;
