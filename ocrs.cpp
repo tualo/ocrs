@@ -241,7 +241,7 @@ int main( int argc, char** argv )
   }else{
     // ok there is no barcode
     // move that file
-    std::string newfile = imagepath+"result/nocode."+ir->code+".jpg";
+    std::string newfile = imagepath+"result/nocode."+fname+".jpg";
     cv::imwrite(newfile.c_str(),ir->orignalImage,params);
 
   }
