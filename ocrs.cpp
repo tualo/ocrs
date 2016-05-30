@@ -212,7 +212,7 @@ int main( int argc, char** argv )
       while ((row = mysql_fetch_row(result))){
          unsigned long *lengths;
          lengths = mysql_fetch_lengths(result);
-         std::cout << "lengths " << lengths << std::endl;
+         std::cout << "num_fields " << num_fields << std::endl;
          for(i = 0; i < num_fields; i++)
          {
            if (i==0){
