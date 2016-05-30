@@ -78,13 +78,11 @@ int main( int argc, char** argv )
 
 
 
-  std::string imagepath = "/imagedata/result";
+  std::string imagepath = "/imagedata/";
 
   if(const char* env_path = std::getenv("IMAGEPATH")){
     imagepath = std::string(env_path);
   }
-
-
 
 
   const char* db_host = "localhost";
