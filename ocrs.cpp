@@ -212,10 +212,12 @@ int main( int argc, char** argv )
       while ((row = mysql_fetch_row(result))){
          unsigned long *lengths;
          lengths = mysql_fetch_lengths(result);
+         std::cout << "lengths " << lengths << std::endl;
          for(i = 0; i < num_fields; i++)
          {
            if (i==0){
              std::string box = row[i];
+             std::cout << "sf box " << box << std::endl;
              std::vector<std::string> elems = osplit(box,'|');
              if (elems.size()==2){
                sg = elems.at(0);
@@ -223,6 +225,7 @@ int main( int argc, char** argv )
              }else{
                sf = box;
              }
+             std::cout << "sf box **" << box << std::endl;
            }
          }
       }
