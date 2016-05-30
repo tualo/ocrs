@@ -229,10 +229,14 @@ int main( int argc, char** argv )
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
     }
 
-
+    sql = "delete from sv_daten where id = '"+ir->code+"'";
+    if (mysql_query(con, sql.c_str())){
+    }
+    
     sql = "insert into sv_daten (mandant,modell,id,datum,zeit,login,sortiergang,sortierfach,strasse,hausnummer,plz,ort,width,height) ";
     sql = sql + " values ('"+mandant+"','"+modell+"','"+ir->code+"',now(),now(),'"+login+"','"+sg+"','"+sf+"','"+strasse+"','"+hausnummer+"','"+plz+"','"+ort+"','"+boost::lexical_cast<std::string>(ir->width)+"','"+boost::lexical_cast<std::string>(ir->height)+"') ";
     sql = sql + " on duplicate key update id=values(id),mandant=values(mandant),modell=values(modell),datum=values(datum),zeit=values(zeit),login=values(login),sortiergang=values(sortiergang),sortierfach=values(sortierfach),strasse=values(strasse),hausnummer=values(hausnummer),plz=values(plz),ort=values(ort),width=values(width),height=values(height)";
+
     if (mysql_query(con, sql.c_str())){
         fprintf(stderr, "%s\n", mysql_error(con));
         mysql_close(con);
