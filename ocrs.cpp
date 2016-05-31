@@ -232,17 +232,18 @@ int main( int argc, char** argv )
       std::cout << "sf " << sf << " sg " << sg << std::endl;
       std::string newfile = imagepath+"result/good."+ir->code+".jpg";
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
-      if( remove( fullname.c_str() ) != 0 ){
+      /*if( remove( fullname.c_str() ) != 0 ){
 
       }
+      */
 
     }else{
       // there is no adresstext
       std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
-      if( remove( fullname.c_str() ) != 0 ){
+      /*if( remove( fullname.c_str() ) != 0 ){
 
-      }
+      }*/
     }
 
     sql = "delete from sv_daten where id = '"+ir->code+"'";
@@ -264,9 +265,9 @@ int main( int argc, char** argv )
     // move that file
     std::string newfile = imagepath+"result/nocode."+fname+".jpg";
     cv::imwrite(newfile.c_str(),ir->orignalImage,params);
-    if( remove( fullname.c_str() ) != 0 ){
+    /*if( remove( fullname.c_str() ) != 0 ){
 
-    }
+    }*/
       //perror( "Error deleting file" );
     //else
       //puts( "File successfully deleted" );

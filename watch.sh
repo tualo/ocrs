@@ -18,7 +18,7 @@ do
   fi
 done
 
-inotifywait -m $FILES -e close_write |
+inotifywait -d -o /var/log/inotifywait.log -m $FILES -e close_write |
   while read path action file; do
     echo "The file '$file' appeared in directory '$path' via '$action'"
     ocrs $FILES/$file &

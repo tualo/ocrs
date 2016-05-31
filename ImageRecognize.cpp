@@ -36,7 +36,7 @@ void ImageRecognize::showImage(cv::Mat& src){
 
     cv::namedWindow("DEBUG", CV_WINDOW_AUTOSIZE );
     cv::imshow("DEBUG", res );
-    cv::waitKey(1500);
+    cv::waitKey(500);
   }
 }
 
@@ -182,8 +182,19 @@ void ImageRecognize::openPZA(const char* filename){
     code = bcRes.code;
     getPZAText(orignalImage);
   }else{
-    cv::transpose(mat, mat);
-    cv::transpose(orignalImage, orignalImage);
+    std::cout << "Nocode: " << "try flipped" << std::endl;
+
+
+    transpose(orignalImage, orignalImage);
+    flip(orignalImage, orignalImage,1); //transpose+flip(1)=CW
+    transpose(orignalImage, orignalImage);
+    flip(orignalImage, orignalImage,1); //transpose+flip(1)=CW
+
+    cv::Rect roif( 0, 0, orignalImage.cols,orignalImage.rows/3);
+    mat = orignalImage(roif);
+
+//    cv::transpose(mat, mat);
+//    cv::transpose(orignalImage, orignalImage);
     bcRes = barcode(mat);
     str_barcode = (bcRes.code);
     if (str_barcode.length()>4){
