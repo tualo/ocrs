@@ -46,7 +46,7 @@ void ExtractAddress::extract(){
   const boost::regex plz_regex("\\d{5}\\s");
 
   // hausnummer muss am ende sein
-  const boost::regex hn_regex("\\d+\\s{0,1}[a-zA-Z]{0,1}(\\s+[-/]\\d+){0,1}$");
+  const boost::regex hn_regex("\\d+\\s{0,1}[a-zA-Z]{0,1}(\\s+[-/]\\d+){0,1}");
   boost::cmatch char_matches;
   int mode = 0;
 
