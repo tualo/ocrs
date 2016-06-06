@@ -1,10 +1,9 @@
 #ocrs
 
-This program read scanned letter images. It regonizes the barcode, the address
+This program reads scanned letter images. It regonizes the barcode, the address
 text and if possible it find the sort box. It support customer depending sort
-box execptions. So it is possible to block some zip codes for particular
-customers. The customers will be defined by the file name. If the filename
-contains the letter N the textpart before will be used as customer
+box exceptions. So it is possible to block some zip codes for special customers. The customers will be defined by the file name. If the filename
+contains the letter `N` the textpart before will be used as customer
 identification.
 
 This program needs a database for optaining the sort informations. It's
@@ -32,8 +31,10 @@ are not set right.
 
 This program need the folowing tables.
 
-
 This table contains all ZIP Codes that are not splitted by there streets. The box name will be used to retreive the sortrow and sortbox directly.
+
+This script `create_db.sh` will support by configuring the database.
+
 ```
 CREATE TABLE `short_boxes` (
   `zipcode` varchar(6) NOT NULL,
