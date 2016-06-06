@@ -85,6 +85,11 @@ int main( int argc, char** argv ){
     imagepath = std::string(env_path);
   }
 
+  std::string store_original = "";
+  if(const char* env_store_original = std::getenv("STORE_ORIGINAL")){
+    store_original = std::string(env_store_original);
+  }
+
   const char* db_host = "localhost";
   if(const char* env_host = std::getenv("DB_HOST")){
     db_host = env_host;
@@ -229,7 +234,11 @@ int main( int argc, char** argv ){
       std::cout << "sf " << sf << " sg " << sg << std::endl;
       std::string newfile = imagepath+"result/good."+ir->code+".jpg";
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
-      if( remove( fullname.c_str() ) != 0 ) {
+
+      if (store_original!=""){
+        cv::imwrite( ( store_original+"good."+ir->code+".jpg" ).c_str(),ir->orignalImage);
+      }
+      if ( remove( fullname.c_str() ) != 0 ) {
 
       }
 
@@ -238,6 +247,9 @@ int main( int argc, char** argv ){
       // there is no adresstext
       std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
+      if (store_original!=""){
+        cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
+      }
       if( remove( fullname.c_str() ) != 0 ){
 
       }
@@ -262,6 +274,9 @@ int main( int argc, char** argv ){
     // move that file
     std::string newfile = imagepath+"result/nocode."+fname+".jpg";
     cv::imwrite(newfile.c_str(),ir->orignalImage,params);
+    if (store_original!=""){
+      cv::imwrite( ( store_original+"nocode."+fname+".jpg" ).c_str(),ir->orignalImage);
+    }
     if( remove( fullname.c_str() ) != 0 ) {
 
     }
