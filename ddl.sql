@@ -41,6 +41,7 @@ CREATE TABLE `ocrs` (
   `zipcode` varchar(255) not null,
   `ocrtext` varchar(4000) not null,
   `processed` tinyint(4) DEFAULT '0',
+  `insert_time` timestamp DEFAULT NOW(),
   PRIMARY KEY (`code`)
 ) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/ocrs';
 
@@ -96,13 +97,143 @@ CREATE TABLE `fast_access_tour` (
 
 
 DROP TABLE  IF EXISTS ocrhash_complex;
-create table ocrhash_complex (id varchar(32) primary key, date_added timestamp ,adr text ) engine myisam;
-insert into ocrhash_complex (id,date_added,adr)
-  select id, UNIX_TIMESTAMP(now()), concat(strasse,' ',plz,' ',ort) adr
+create table ocrhash_complex (id varchar(32) primary key, date_added timestamp ,adr text,strasse varchar(255),plz varchar(255),ort varchar(255) ) engine myisam;
+insert into ocrhash_complex (id,date_added,strasse,plz,ort,adr)
+  select id, UNIX_TIMESTAMP(now()),strasse,plz,ort, concat(strasse,' ',plz,' ',ort) adr
   from strassenverzeichnis
   group by ort,plz,strasse;
 create fulltext index id_ft_hash_complex on ocrhash_complex(adr);
 
+
+DROP FUNCTION IF EXISTS  GET_SORTBOX;
+DELIMITER $$
+CREATE FUNCTION GET_SORTBOX(in_short_address varchar(255),in_zipcode varchar(255),in_housenumber varchar(255),in_kundenid varchar(255))
+RETURNS varchar(255)
+READS SQL DATA
+DETERMINISTIC
+BEGIN
+  IF EXISTS(select * from `short_boxes_locked` where zipcode = in_zipcode and kundenid=in_kundenid)
+  THEN
+    return 'DPAG';
+  ELSE
+    IF EXISTS(select * from `short_boxes` where zipcode = in_zipcode)
+    THEN
+      return (select `boxname` from `short_boxes` where zipcode = in_zipcode);
+    ELSE
+     IF EXISTS(SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC LIMIT 10)
+     THEN
+
+      IF (select cast(in_housenumber as UNSIGNED) %2)=1
+      THEN
+        return (
+          SELECT if(sortiergang is null,'NT', concat('',sortiergang,'|',sortierfach) )
+          FROM fast_access_tour
+          WHERE
+            hnvon<=lpad(in_housenumber,4,'0')
+            and hnbis>=lpad(in_housenumber,4,'0')
+            and strid in ( select id from (
+              SELECT
+                id,
+                adr,
+                strasse,
+                plz,
+                ort,
+                rel,
+                LEVENSHTEIN_RATIO(in_short_address,adr) lvr
+              FROM (
+
+              select id,adr,strasse,
+              plz,
+              ort,rel from
+                (
+                  SELECT
+                    ocrhash_complex.id,
+                    ocrhash_complex.strasse,
+                    ocrhash_complex.plz,
+                    ocrhash_complex.ort,
+                    ocrhash_complex.adr,
+                    match(adr) against(in_short_address) as rel
+
+                  FROM ocrhash_complex
+                  having rel>0
+                ) o
+                join
+                (
+                  SELECT       match(adr) against(in_short_address) as mrel
+                  FROM ocrhash_complex having mrel > 0
+                  order by mrel desc limit 1
+                ) mx
+                on o.rel = mx.mrel
+              ) b
+              order by lvr desc limit 1
+            ) a )
+            and ungerade = 1
+            and regiogruppe = 'Zustellung PZA EE'
+            limit 1
+        );
+      ELSE
+        return ifnull( (
+          SELECT if(sortiergang is null,'NT', concat('',sortiergang,'|',sortierfach) )
+          FROM fast_access_tour
+          WHERE
+            hnvon<=lpad(in_housenumber,4,'0')
+            and hnbis>=lpad(in_housenumber,4,'0')
+            and strid in ( select id from (
+
+
+               SELECT
+                 id,
+                 adr,
+                 strasse,
+                 plz,
+                 ort,
+                 rel,
+                 LEVENSHTEIN_RATIO(in_short_address,adr) lvr
+               FROM (
+
+               select id,adr,strasse,
+               plz,
+               ort,rel from
+                 (
+                   SELECT
+                     ocrhash_complex.id,
+                     ocrhash_complex.strasse,
+                     ocrhash_complex.plz,
+                     ocrhash_complex.ort,
+                     ocrhash_complex.adr,
+                     match(adr) against(in_short_address) as rel
+
+                   FROM ocrhash_complex
+                   having rel>0
+                 ) o
+                 join
+                 (
+                   SELECT       match(adr) against(in_short_address) as mrel
+                   FROM ocrhash_complex having mrel > 0
+                   order by mrel desc limit 1
+                 ) mx
+                 on o.rel = mx.mrel
+               ) b
+               order by lvr desc limit 1
+
+            ) a )
+            and gerade = 1
+            and regiogruppe = 'Zustellung PZA EE'
+            limit 1
+        ),'NT');
+      END IF;
+
+     ELSE
+      return "NT";
+     END IF;
+    END IF;
+  END IF;
+  return 'NT';
+END $$
+
+DELIMITER ;
+
+select get_sortbox('LmbknechtstraÃŸe35   V 99086 Erfurt 1','99086','21','');
 
 
 
@@ -132,8 +263,9 @@ BEGIN
           WHERE
             hnvon<=lpad(in_housenumber,4,'0')
             and hnbis>=lpad(in_housenumber,4,'0')
-            and strid in ( select id from ( SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC) a )
+            and strid in ( select id from ( SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC limit 1) a )
             and ungerade = 1
+            and regiogruppe = 'Zustellung PZA EE'
             limit 1
         );
       ELSE
@@ -143,8 +275,9 @@ BEGIN
           WHERE
             hnvon<=lpad(in_housenumber,4,'0')
             and hnbis>=lpad(in_housenumber,4,'0')
-            and strid in ( select id from ( SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC) a )
+            and strid in ( select id from ( SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC limit 1) a )
             and gerade = 1
+            and regiogruppe = 'Zustellung PZA EE'
             limit 1
         ),'NT');
       END IF;
@@ -156,5 +289,55 @@ BEGIN
   END IF;
   return 'NT';
 END $$
+
+DELIMITER ;
+
+
+
+
+DELIMITER ;;;
+DROP FUNCTION `LEVENSHTEIN`;;;
+CREATE FUNCTION `LEVENSHTEIN`(s1 VARCHAR(255), s2 VARCHAR(255)) RETURNS int(11) DETERMINISTIC
+BEGIN
+    DECLARE s1_len, s2_len, i, j, c, c_temp, cost INT;
+    DECLARE s1_char CHAR;
+    DECLARE cv0, cv1 VARBINARY(256);
+    SET s1_len = CHAR_LENGTH(s1), s2_len = CHAR_LENGTH(s2), cv1 = 0x00, j = 1, i = 1, c = 0;
+    IF s1 = s2 THEN
+        RETURN 0;
+    ELSEIF s1_len = 0 THEN
+        RETURN s2_len;
+    ELSEIF s2_len = 0 THEN
+        RETURN s1_len;
+    ELSE
+        WHILE j <= s2_len DO
+            SET cv1 = CONCAT(cv1, UNHEX(HEX(j))), j = j + 1;
+        END WHILE;
+        WHILE i <= s1_len DO
+            SET s1_char = SUBSTRING(s1, i, 1), c = i, cv0 = UNHEX(HEX(i)), j = 1;
+            WHILE j <= s2_len DO
+                SET c = c + 1;
+                IF s1_char = SUBSTRING(s2, j, 1) THEN SET cost = 0; ELSE SET cost = 1; END IF;
+                SET c_temp = CONV(HEX(SUBSTRING(cv1, j, 1)), 16, 10) + cost;
+                IF c > c_temp THEN SET c = c_temp; END IF;
+                SET c_temp = CONV(HEX(SUBSTRING(cv1, j+1, 1)), 16, 10) + 1;
+                IF c > c_temp THEN SET c = c_temp; END IF;
+                SET cv0 = CONCAT(cv0, UNHEX(HEX(c))), j = j + 1;
+            END WHILE;
+            SET cv1 = cv0, i = i + 1;
+        END WHILE;
+    END IF;
+    RETURN c;
+END;;;
+
+DELIMITER ;;;
+DROP FUNCTION `LEVENSHTEIN_RATIO`;;;
+CREATE FUNCTION `LEVENSHTEIN_RATIO`(s1 VARCHAR(255), s2 VARCHAR(255)) RETURNS int(11) DETERMINISTIC
+BEGIN
+    DECLARE s1_len, s2_len, max_len INT;
+    SET s1_len = LENGTH(s1), s2_len = LENGTH(s2);
+    IF s1_len > s2_len THEN SET max_len = s1_len; ELSE SET max_len = s2_len; END IF;
+    RETURN ROUND((1 - LEVENSHTEIN(s1, s2) / max_len) * 100);
+END;;;
 
 DELIMITER ;
