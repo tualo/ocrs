@@ -54,14 +54,10 @@ glob::Glob* gl;
 void* processImage(void *data ){
   struct thread_info *tib;
   tib = (struct thread_info *)data;
-
-
   std::cout << " inside thread " << tib->filename << std::endl;
   ImageRecognize* ir = new ImageRecognize();
   const char* fn = tib->filename.c_str();
-
   ir->open( fn );
-
   pthread_exit((void*)42);
 	return 0;
 }
@@ -71,25 +67,28 @@ void* processImage(void *data ){
 /**
  * @function main
  */
-int main( int argc, char** argv )
-{
+int main( int argc, char** argv ){
+  /*
+  std::string test = "  uressat   - \nHerrn  1\nRein-hard Scherf |\nZur Grünen Schildmühle 2 - \n99084 Erfurt";
+  ExtractAddress* eat = new ExtractAddress();
+  eat->setString(test);
+  eat->extract();
+  std::string testsql = "select GET_SORTBOX('"+eat->getStreetName()+" "+eat->getZipCode()+" "+eat->getTown()+"','"+eat->getZipCode()+"','"+eat->getHouseNumber()+"','123') res";
+  std::cout << "testsql " << testsql << std::endl;
+  exit(1);
+  */
   const char* env_pza = std::getenv("USEPZA");
   std::cout << "env_pza" << env_pza << std::endl;
 
-
-
   std::string imagepath = "/imagedata/";
-
   if(const char* env_path = std::getenv("IMAGEPATH")){
     imagepath = std::string(env_path);
   }
-
 
   const char* db_host = "localhost";
   if(const char* env_host = std::getenv("DB_HOST")){
     db_host = env_host;
   }
-
 
   const char* db_user = "sorter";
   if(const char* env_user = std::getenv("DB_USER")){
@@ -179,9 +178,7 @@ int main( int argc, char** argv )
 
       sql = "insert into ocrs (code,ocrtext,street,housenumber,zipcode,town) values ('"+ir->code+"','"+ir->addresstext+"','"+ea->getStreetName()+"','"+ea->getHouseNumber()+"','"+ea->getZipCode()+"','"+ea->getTown()+"') on duplicate key update ocrtext=values(ocrtext),town=values(town),street=values(street),housenumber=values(housenumber),zipcode=values(zipcode), processed=0 ";
       if (mysql_query(con, sql.c_str())){
-          //fprintf(stderr, "%s\n", mysql_error(con));
-          //mysql_close(con);
-          //exit(1);
+
       }
 
       std::string fuzzysql = "select GET_SORTBOX('"+ea->getStreetName()+" "+ea->getZipCode()+" "+ea->getTown()+"','"+ea->getZipCode()+"','"+ea->getHouseNumber()+"','"+kundenid+"') res";
@@ -232,7 +229,7 @@ int main( int argc, char** argv )
       std::cout << "sf " << sf << " sg " << sg << std::endl;
       std::string newfile = imagepath+"result/good."+ir->code+".jpg";
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
-      if( remove( fullname.c_str() ) != 0 ){
+      if( remove( fullname.c_str() ) != 0 ) {
 
       }
 
@@ -265,7 +262,7 @@ int main( int argc, char** argv )
     // move that file
     std::string newfile = imagepath+"result/nocode."+fname+".jpg";
     cv::imwrite(newfile.c_str(),ir->orignalImage,params);
-    if( remove( fullname.c_str() ) != 0 ){
+    if( remove( fullname.c_str() ) != 0 ) {
 
     }
       //perror( "Error deleting file" );
