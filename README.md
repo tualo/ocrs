@@ -29,11 +29,12 @@ are not set right.
 
 ##The Sorting Database
 
+
+This script `create_db.sh` will support by configuring the database.
+
 This program need the folowing tables.
 
 This table contains all ZIP Codes that are not splitted by there streets. The box name will be used to retreive the sortrow and sortbox directly.
-
-This script `create_db.sh` will support by configuring the database.
 
 ```
 CREATE TABLE `short_boxes` (
