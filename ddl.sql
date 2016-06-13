@@ -61,7 +61,7 @@ create table `sortiergaenge_zuordnung`(
   KEY `fk_sortiergaenge_zuordnung_bereiche` (`MANDANT`,`BEREICH`,`REGIOGRUPPE`),
   KEY `fk_sortiergaenge_zuordnung_sortiergang` (`MANDANT`,`REGIOGRUPPE`,`SORTIERGANG`),
   KEY `fk_sortiergaenge_zuordnung_sortierfach` (`MANDANT`,`REGIOGRUPPE`,`SORTIERFACH`)
-);
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/sortiergaenge_zuordnung';
 
 DROP TABLE  IF EXISTS `bereiche_plz`;
 create table `bereiche_plz`(
@@ -219,9 +219,7 @@ BEGIN
   THEN
     return 'DPAG';
   ELSE
-    IF EXISTS(
-        select * from bereiche_plz on (sortiergaenge_zuordnung.bereich,sortiergaenge_zuordnung.mandant,sortiergaenge_zuordnung.regiogruppe) = (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) and bereiche_plz.plz=in_zipcode
-        join bereiche on bereiche.alleplz=1 and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung' where bereiche_plz.plz=in_zipcode)
+    IF EXISTS(select * from bereiche_plz join bereiche on bereiche.alleplz=1 and  bereiche_plz.plz=in_zipcode and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung')
     THEN
       return (select if(sortiergaenge_zuordnung.sortiergang is null,'NT', concat('',sortiergaenge_zuordnung.sortiergang,'|',sortiergaenge_zuordnung.sortierfach) ) from
               sortiergaenge_zuordnung
