@@ -46,6 +46,60 @@ CREATE TABLE `ocrs` (
 ) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/ocrs';
 
 
+DROP TABLE  IF EXISTS `sortiergaenge_zuordnung`;
+create table `sortiergaenge_zuordnung`(
+  `MANDANT` varchar(4) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0000',
+  `REGIOGRUPPE` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `BEREICH` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `SORTIERGANG` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `SORTIERFACH` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `DATUM` date NOT NULL,
+  PRIMARY KEY (`MANDANT`,`REGIOGRUPPE`,`BEREICH`,`SORTIERGANG`,`SORTIERFACH`),
+  KEY `IDX_SORT_BER` (`BEREICH`),
+  KEY `IDX_SORT_MAN` (`MANDANT`),
+  KEY `IDX_SORT_REG` (`REGIOGRUPPE`),
+  KEY `fk_sortiergaenge_zuordnung_bereiche` (`MANDANT`,`BEREICH`,`REGIOGRUPPE`),
+  KEY `fk_sortiergaenge_zuordnung_sortiergang` (`MANDANT`,`REGIOGRUPPE`,`SORTIERGANG`),
+  KEY `fk_sortiergaenge_zuordnung_sortierfach` (`MANDANT`,`REGIOGRUPPE`,`SORTIERFACH`)
+);
+
+DROP TABLE  IF EXISTS `bereiche_plz`;
+create table `bereiche_plz`(
+  `MANDANT` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
+  `REGIOGRUPPE` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `NAME` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `PLZ` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`MANDANT`,`REGIOGRUPPE`,`NAME`,`PLZ`),
+  KEY `BNME_BER` (`MANDANT`,`NAME`,`REGIOGRUPPE`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/bereiche_plz';
+
+
+DROP TABLE  IF EXISTS `bereiche`;
+create table `bereiche`(
+  `MANDANT` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
+  `REGIOGRUPPE` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `NAME` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `PLZ` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`MANDANT`,`REGIOGRUPPE`,`NAME`,`PLZ`),
+  KEY `BNME_BER` (`MANDANT`,`NAME`,`REGIOGRUPPE`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/bereiche';
+
+
+DROP TABLE `bereiche`;
+CREATE TABLE `bereiche` (
+  `MANDANT` varchar(4) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0000',
+  `NAME` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `REGIOGRUPPE` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `KOMMENTAR` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `GUELTIG_AB` date DEFAULT '2001-01-01',
+  `GUELTIG_BIS` date DEFAULT '2099-12-31',
+  `alleplz` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`MANDANT`,`NAME`,`REGIOGRUPPE`),
+  KEY `fk_bereiche_regiogruppen` (`MANDANT`,`REGIOGRUPPE`),
+  CONSTRAINT `fk_bereiche_regiogruppen` FOREIGN KEY (`MANDANT`, `REGIOGRUPPE`) REFERENCES `regiogruppen` (`MANDANT`, `NAME`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/bereiche';
+
+
 
 DROP TABLE  IF EXISTS `sv_daten`;
 CREATE TABLE `sv_daten` (
@@ -165,9 +219,15 @@ BEGIN
   THEN
     return 'DPAG';
   ELSE
-    IF EXISTS(select * from `short_boxes` where zipcode = in_zipcode)
+    IF EXISTS(
+        select * from bereiche_plz on (sortiergaenge_zuordnung.bereich,sortiergaenge_zuordnung.mandant,sortiergaenge_zuordnung.regiogruppe) = (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) and bereiche_plz.plz=in_zipcode
+        join bereiche on bereiche.alleplz=1 and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung' where bereiche_plz.plz=in_zipcode)
     THEN
-      return (select `boxname` from `short_boxes` where zipcode = in_zipcode);
+      return (select if(sortiergaenge_zuordnung.sortiergang is null,'NT', concat('',sortiergaenge_zuordnung.sortiergang,'|',sortiergaenge_zuordnung.sortierfach) ) from
+              sortiergaenge_zuordnung
+              join bereiche_plz on (sortiergaenge_zuordnung.bereich,sortiergaenge_zuordnung.mandant,sortiergaenge_zuordnung.regiogruppe) = (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) and bereiche_plz.plz=in_zipcode
+              join bereiche on bereiche.alleplz=1 and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung'
+            );
     ELSE
      IF EXISTS(SELECT ocrhash_complex.id, ocrhash_complex.adr, match(adr) against(in_short_address) as rel FROM ocrhash_complex HAVING rel > 0 ORDER BY rel DESC LIMIT 10)
      THEN
@@ -217,7 +277,7 @@ BEGIN
               order by lvr desc limit 1
             ) a )
             and ungerade = 1
-            and regiogruppe = 'Zustellung PZA EE'
+            and regiogruppe = 'Zustellung'
             limit 1
         );
       ELSE
@@ -267,7 +327,7 @@ BEGIN
 
             ) a )
             and gerade = 1
-            and regiogruppe = 'Zustellung PZA EE'
+            and regiogruppe = 'Zustellung'
             limit 1
         ),'NT');
       END IF;
@@ -281,5 +341,3 @@ BEGIN
 END $$
 
 DELIMITER ;
-
-select get_sortbox('LmbknechtstraÃŸe35   V 99086 Erfurt 1','99086','21','');
