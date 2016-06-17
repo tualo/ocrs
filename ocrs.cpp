@@ -77,6 +77,7 @@ int main( int argc, char** argv ){
   std::cout << "testsql " << testsql << std::endl;
   exit(1);
   */
+
   const char* env_pza = std::getenv("USEPZA");
   std::cout << "env_pza" << env_pza << std::endl;
 

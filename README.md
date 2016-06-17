@@ -264,3 +264,46 @@ END $$
 
 DELIMITER ;
 ```
+
+
+# running as cronjob
+
+```
+apt install paralell
+```
+
+create the run script
+```
+nano /root/run_ocrs.sh
+```
+
+```
+#!/bin/sh
+mkdir /tmp/result/
+export IMAGEPATH=/tmp/
+export MODELL=Clearing
+export USEPZA=0
+export MANDANT=0000
+
+for f in /tmp/*.tiff
+do
+	echo "checking $f"
+  myfilesize=`stat -c %s $f`
+  if [ $myfilesize -lt 5769678 ];then
+    echo "the file size is to small"
+    rm $f
+  fi
+  if [ $myfilesize -gt 20769678 ];then
+    echo "the file size is to big"
+    rm $f
+  fi
+done
+
+ls /tmp/*.tiff | parallel --round-robin '/root/ocrs/ocrs {}'
+```
+
+adding this line to your crontab
+
+```
+* * * * * /root/run_ocrs.sh > /var/log/ocrs.log
+```
