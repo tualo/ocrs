@@ -552,8 +552,9 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
   int i = 0;
   int rel=0;
   int tmp=0;
+  std::cout << "barcode_internal " << std::endl;
 
-  for (int thres=10;((thres<240)&&(res.found==false));thres+=15){
+  for (int thres=15;((thres<220)&&(res.found==false));thres+=15){
 
     cv::cvtColor(part, gray, CV_BGR2GRAY);
     cv::threshold(gray,gray,thres,150, CV_THRESH_BINARY);
@@ -689,7 +690,7 @@ bcResult ImageRecognize::fast_barcode(cv::Mat& im){
   cv::Rect roi = fittingROI((useIMG.cols/oneCM)-15 ,2,15,4,useIMG);
   cv::Mat part = useIMG(roi);
 
-  res = barcode_internal(part);
+  res = barcode_internal(useIMG);
   if (res.found==false){
 
 
