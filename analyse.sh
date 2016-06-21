@@ -20,7 +20,7 @@ echo "checking $IMAGEPATH";
 while :
 do
   if [ "$(ls -A $IMAGEPATH*.tiff 2> /dev/null )" ]; then
-    ls $IMAGEPATH*.tiff | parallel --round-robin './regonize.sh {}' > /dev/null
+    ls $IMAGEPATH*.tiff | parallel --round-robin '/root/regonize.sh {}' > /dev/null
   else
     sleep 1
   fi

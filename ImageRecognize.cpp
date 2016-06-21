@@ -553,7 +553,7 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
   int rel=0;
   int tmp=0;
 
-  for (int thres=15;((thres<220)&&(res.found==false));thres+=15){
+  for (int thres=10;((thres<240)&&(res.found==false));thres+=15){
 
     cv::cvtColor(part, gray, CV_BGR2GRAY);
     cv::threshold(gray,gray,thres,150, CV_THRESH_BINARY);
