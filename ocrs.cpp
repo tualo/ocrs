@@ -110,7 +110,7 @@ int main( int argc, char** argv ){
   }
 
   std::string mandant = "0000";
-  std::string modell = "OCR Erfassung";
+  std::string modell = "Clearing";
   if(const char* env_mandant = std::getenv("MANDANT")){
     mandant = env_mandant;
   }
