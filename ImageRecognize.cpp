@@ -124,16 +124,11 @@ void ImageRecognize::open(const char* filename){
 
   }else if (analysisType==1){
 
-    std::cout << "5######################" << std::endl;
     largest = getRectangle(mat);
-    std::cout << "6######################" << std::endl;
     bcRes = fast_barcode(largest);
-    std::cout << "7######################" << std::endl;
     code = bcRes.code;
 
-    std::cout << "8######################" << std::endl;
     cv::rectangle(largest,bcRes.rect,cv::Scalar(255,255,255),CV_FILLED);
-    std::cout << "9######################" << std::endl;
     //std::cout << "x*y" << largest.cols/oneCM << "*" << largest.rows/oneCM << std::endl;
 
     rotateX(largest,90,cv::Point(largest.cols/2,largest.rows/2));
@@ -576,7 +571,7 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
     //showImage(norm);
     int n = scanner.scan(image);
     for(zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
-      //std::cout << "thres " << thres << " Code " << symbol->get_data().c_str() << " Type " << symbol->get_type_name().c_str() << std::endl;
+      std::cout << "thres " << thres << " Code " << symbol->get_data().c_str() << " Type " << symbol->get_type_name().c_str() << std::endl;
       //found = true;
       std::string code = std::string(symbol->get_data().c_str());
       std::string type = std::string(symbol->get_type_name().c_str());
