@@ -75,25 +75,19 @@ void ImageRecognize::open(const char* filename){
   tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
 
 
-  std::cout << "######################" << std::endl;
   cv::Mat minmat = cv::Mat(orignalImage.cols*scale, orignalImage.rows, CV_32FC3);
   cv::resize(orignalImage, minmat, cv::Size(orignalImage.cols*scale, orignalImage.rows), 0, 0, 3);
   orignalImage = minmat;
 
-  std::cout << "######################" << std::endl;
   //std::cout << filename << std::endl;
   //std::cout << "image readed " << (orignalImage.rows/2) << "* " << orignalImage.cols << 'x' << orignalImage.rows << std::endl;
   oneCM = orignalImage.cols/cmWidth;
 
 
-  std::cout << "1######################" << std::endl;
   cv::Mat mat(  orignalImage.rows*2,orignalImage.cols*2, orignalImage.type(), cv::Scalar(0));
-  std::cout << "2######################" << std::endl;
   cv::Rect roi( cv::Point( orignalImage.cols/2, (orignalImage.rows/2) ), orignalImage.size() );
-  std::cout << "3######################" << std::endl;
 
   orignalImage.copyTo( mat( roi ) );
-  std::cout << "4######################" << std::endl;
   //std::cout << "image relocated" << std::endl;
 
   std::string output = "";
@@ -548,13 +542,13 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
   int min=0;
   int max=255;
   cv::Point point;
-  cv::Size ksize(5,5);
+  cv::Size ksize(7,7);
   int i = 0;
   int rel=0;
   int tmp=0;
   std::cout << "barcode_internal " << std::endl;
 
-  for (int thres=15;((thres<220)&&(res.found==false));thres+=15){
+  for (int thres=15;((thres<220)&&(res.found==false));thres+=5){
 
     cv::cvtColor(part, gray, CV_BGR2GRAY);
     cv::threshold(gray,gray,thres,150, CV_THRESH_BINARY);
