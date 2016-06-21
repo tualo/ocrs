@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 #pkg-config --libs tesseract
 #pkg-config --libs opencv

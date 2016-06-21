@@ -1,27 +1,27 @@
 #!/bin/sh
-mkdir /imagedata/result/
+#mkdir /imagedata/result/
 
 export STORE_ORIGINAL=/imagedata/original/
 export STORE_ERRORS=/imagedata/error/
 export IMAGEPATH=/imagedata/
+
 export MODELL=Clearing
 export USEPZA=0
 export MANDANT=0000
 
-for f in /tmp/*.tiff
+if [[ $# -eq 0 ]] ; then
+  export X=1
+else
+  export IMAGEPATH=$1
+  export STORE_ERRORS=$1error/
+  export STORE_ORIGINAL=$1original/
+fi
+echo "checking $IMAGEPATH";
+while :
 do
-	echo "checking $f"
-  myfilesize=`stat -c %s $f`
-  if [ $myfilesize -lt 5769678 ];then
-    echo "the file size is to small"
-    fname=`basename $f`
-    mv $f $STORE_ERRORS$fname
-  fi
-  if [ $myfilesize -gt 31457280 ];then
-    echo "the file size is to big"
-    fname=`basename $f`
-    mv $f $STORE_ERRORS$fname
+  if [ "$(ls -A $IMAGEPATH*.tiff 2> /dev/null )" ]; then
+    ls $IMAGEPATH*.tiff | parallel --round-robin './regonize.sh {}' > /dev/null
+  else
+    sleep 1
   fi
 done
-
-ls /tmp/*.tiff | parallel --round-robin '/root/ocrs/ocrs {}'

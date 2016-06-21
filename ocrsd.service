@@ -3,10 +3,10 @@ Description=OCR Service
 After=network.target
 
 [Service]
-Type=forking
-PIDFile=/var/run/ocrs.pid
+#Type=forking
+#PIDFile=/var/run/ocrs.pid
 Restart=always
-ExecStart=/bin/sh -e "/root/watch.sh"
+ExecStart=/bin/sh -e "/root/analyse.sh"
 User=root
 
 [Install]

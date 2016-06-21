@@ -153,7 +153,7 @@ int main( int argc, char** argv ){
 
   std::vector<int> params;
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
-  params.push_back(10);
+  params.push_back(80);
 
   //params.push_back(CV_IMWRITE_JPEG_OPTIMIZE);
   //params.push_back(1);

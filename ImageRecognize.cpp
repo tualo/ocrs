@@ -75,20 +75,25 @@ void ImageRecognize::open(const char* filename){
   tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
 
 
+  std::cout << "######################" << std::endl;
   cv::Mat minmat = cv::Mat(orignalImage.cols*scale, orignalImage.rows, CV_32FC3);
   cv::resize(orignalImage, minmat, cv::Size(orignalImage.cols*scale, orignalImage.rows), 0, 0, 3);
   orignalImage = minmat;
 
-  //std::cout << "######################" << std::endl;
+  std::cout << "######################" << std::endl;
   //std::cout << filename << std::endl;
   //std::cout << "image readed " << (orignalImage.rows/2) << "* " << orignalImage.cols << 'x' << orignalImage.rows << std::endl;
   oneCM = orignalImage.cols/cmWidth;
 
 
+  std::cout << "1######################" << std::endl;
   cv::Mat mat(  orignalImage.rows*2,orignalImage.cols*2, orignalImage.type(), cv::Scalar(0));
+  std::cout << "2######################" << std::endl;
   cv::Rect roi( cv::Point( orignalImage.cols/2, (orignalImage.rows/2) ), orignalImage.size() );
+  std::cout << "3######################" << std::endl;
 
   orignalImage.copyTo( mat( roi ) );
+  std::cout << "4######################" << std::endl;
   //std::cout << "image relocated" << std::endl;
 
   std::string output = "";
@@ -119,11 +124,16 @@ void ImageRecognize::open(const char* filename){
 
   }else if (analysisType==1){
 
+    std::cout << "5######################" << std::endl;
     largest = getRectangle(mat);
+    std::cout << "6######################" << std::endl;
     bcRes = fast_barcode(largest);
+    std::cout << "7######################" << std::endl;
     code = bcRes.code;
 
+    std::cout << "8######################" << std::endl;
     cv::rectangle(largest,bcRes.rect,cv::Scalar(255,255,255),CV_FILLED);
+    std::cout << "9######################" << std::endl;
     //std::cout << "x*y" << largest.cols/oneCM << "*" << largest.rows/oneCM << std::endl;
 
     rotateX(largest,90,cv::Point(largest.cols/2,largest.rows/2));
@@ -308,9 +318,21 @@ cv::Mat ImageRecognize::getRectangle(cv::Mat& src){
     if (bottom_right.y < y2 ){ bottom_right.y = y2; }
 
   }
-
+  if (top_left.x>bottom_right.x){
+    int t = bottom_right.x;
+    bottom_right.x=top_left.x;
+    top_left.x=t;
+  }
+  if (top_left.y>bottom_right.y){
+    int t = bottom_right.y;
+    bottom_right.y=top_left.y;
+    top_left.y=t;
+  }
+  std::cout << "1*" << top_left << bottom_right << std::endl;
   cv::Rect roi(top_left.x,top_left.y,bottom_right.x-top_left.x,bottom_right.y-top_left.y);
+  std::cout << "2*" << std::endl;
   cv::Mat c_a = src(roi);
+  std::cout << "3*" << std::endl;
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
   std::cout << "largestContour (rect) passed in seconds: " << te << std::endl;
   return c_a;
@@ -752,10 +774,11 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   linearize(c2);
 
 
-  cv::Mat showIM = im.clone();
+  //cv::Mat showIM = im.clone();
   //cv::rectangle(showIM,roi2,cv::Scalar(100,100,100),10);
-  //showImage(c2,"T2");
+  //showImage(showIM,"1");
   out = getText(c2);
+  std::cout << out << std::endl;
   std::string s1 (out);
   lines = isplit(s1,'\n');
 
@@ -774,9 +797,10 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   c2 = rotated2(roi2);
   linearize(c2);
 
-
-  //showImage(c2,"TEST 2_1 *");
+  //showIM = rotated2.clone();
+  //showImage(showIM,"1");
   out = getText(c2);
+  std::cout << out << std::endl;
   std::string s2 (out);
   lines = isplit(s2,'\n');
   if ((lines.size()<20)&&(boost::regex_search(s2 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
@@ -1023,6 +1047,26 @@ const char* ImageRecognize::text(cv::Mat& im){
         if (usingLetterType2_2(im)){
           return ocr_text;
         }else{
+
+          if (usingLetterType1(im)){
+            return ocr_text;
+          }else if (usingLetterType1_1(im)){
+            return ocr_text;
+          }else if (usingLetterType2(im)){
+            return ocr_text;
+          }else if (usingLetterType2_1(im)){
+            return ocr_text;
+          }else if (usingLetterType2_2(im)){
+            return ocr_text;
+          }else if (usingLetterType3(im)){
+            return ocr_text;
+          }
+          //cv::Rect roi = cv::Rect(0,0,im.cols,im.rows);
+          //if (usingLetterRoi(im,roi)){
+          //  std::cout << "TXT" << ocr_text << std::endl;
+          //}else{
+
+          //}
           //showImage(im,"do something");
           std::cout << "Lettertype 2, do something" << std::endl;
         }
