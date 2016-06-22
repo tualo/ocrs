@@ -54,6 +54,16 @@ CREATE TABLE `ocrs` (
 ) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/ocrs';
 
 
+
+
+DROP TABLE  IF EXISTS `plz_orte`;
+CREATE TABLE `plz_orte` (
+ plz char(5),
+ ort varchar(50),
+ primary key (plz,ort)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/plz_orte';
+
+
 DROP TABLE  IF EXISTS `sortiergaenge_zuordnung`;
 create table `sortiergaenge_zuordnung`(
   `MANDANT` varchar(4) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0000',
@@ -167,6 +177,11 @@ insert into ocrhash_complex (id,date_added,strasse,plz,ort,adr)
   select id, UNIX_TIMESTAMP(now()),strasse,plz,ort, concat(strasse,' ',plz,' ',ort) adr
   from strassenverzeichnis
   group by ort,plz,strasse;
+
+insert into ocrhash_complex (id,date_added,strasse,plz,ort,adr)
+  select concat('OWN',plz,ort) id, UNIX_TIMESTAMP(now()),'' strasse,plz,ort, concat(plz,' ',ort) adr
+  from plz_orte;
+
 create fulltext index id_ft_hash_complex on ocrhash_complex(adr);
 
 
