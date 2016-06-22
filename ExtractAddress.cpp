@@ -59,6 +59,9 @@ void ExtractAddress::extract(){
   std::vector<std::string> v(elems.rbegin(),elems.rend());
   v.swap(elems);
 
+  town = "";
+  zipCode = "";
+  streetName = "";
 
   for(int i=0; i< elems.size();i++){
     std::string line = elems.at(i);

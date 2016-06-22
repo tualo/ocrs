@@ -86,6 +86,11 @@ int main( int argc, char** argv ){
     imagepath = std::string(env_path);
   }
 
+  int keepfiles = 0;
+  if(const char* env_keep = std::getenv("KEEPFILES")){
+    keepfiles = atoi(env_keep);
+  }
+
   std::string store_original = "";
   if(const char* env_store_original = std::getenv("STORE_ORIGINAL")){
     store_original = std::string(env_store_original);
@@ -150,6 +155,7 @@ int main( int argc, char** argv ){
   boost::filesystem::path bpath(argv[1]);
   std::string fname = bpath.filename().c_str();
   std::string kundenid = "";
+  std::string product = "";
 
   std::vector<int> params;
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
@@ -160,9 +166,16 @@ int main( int argc, char** argv ){
 
   std::vector<std::string> strs;
   boost::split(strs,fname,boost::is_any_of("N"));
+
   if (strs.size()==2){
     kundenid=strs[0];
     fname=strs[1];
+  }
+
+  if (strs.size()==3){
+    kundenid=strs[0];
+    product=strs[1];
+    fname=strs[2];
   }
 
   if (ir->code.length()>4){
@@ -179,70 +192,109 @@ int main( int argc, char** argv ){
 
     if (ir->addresstext.length()>0){
       ExtractAddress* ea = new ExtractAddress();
-      ea->setString(ir->addresstext);
+      std::string sql_addresstext = boost::replace_all_copy(ir->addresstext, "'", " ");
+
+      ea->setString(sql_addresstext);
       ea->extract();
 
-      sql = "insert into ocrs (code,ocrtext,street,housenumber,zipcode,town) values ('"+ir->code+"','"+ir->addresstext+"','"+ea->getStreetName()+"','"+ea->getHouseNumber()+"','"+ea->getZipCode()+"','"+ea->getTown()+"') on duplicate key update ocrtext=values(ocrtext),town=values(town),street=values(street),housenumber=values(housenumber),zipcode=values(zipcode), processed=0 ";
+
+
+      sql = "delete from ocrs where code = '"+ir->code+"'; ";
       if (mysql_query(con, sql.c_str())){
 
       }
 
-      std::string fuzzysql = "select GET_SORTBOX('"+ea->getStreetName()+" "+ea->getZipCode()+" "+ea->getTown()+"','"+ea->getZipCode()+"','"+ea->getHouseNumber()+"','"+kundenid+"') res";
-      std::cout << "fuzzysql " << fuzzysql << std::endl;
-      if (mysql_query(con, fuzzysql.c_str())){
-        fprintf(stderr, "%s\n", mysql_error(con));
-        mysql_close(con);
-        exit(1);
-      }
 
-
-      sf = "NT";
-      sg = "NT";
-
-      login = "sorter";
-
-      strasse = ea->getStreetName();
-      hausnummer = ea->getHouseNumber();
-      plz = ea->getZipCode();
-      ort = ea->getTown();
-
-      MYSQL_RES *result;
-      MYSQL_ROW row;
-      unsigned int num_fields;
-      unsigned int i;
-      result = mysql_use_result(con);
-      num_fields = mysql_num_fields(result);
-      while ((row = mysql_fetch_row(result))){
-         unsigned long *lengths;
-         lengths = mysql_fetch_lengths(result);
-         std::cout << "num_fields " << num_fields << std::endl;
-         for(i = 0; i < num_fields; i++)
-         {
-           if (i==0){
-             std::string box = row[i];
-             std::cout << "sf box " << box << std::endl;
-             std::vector<std::string> elems = osplit(box,'|');
-             if (elems.size()==2){
-               sg = elems.at(0);
-               sf = elems.at(1);
-             }else{
-               sf = box;
-             }
-             std::cout << "sf box **" << box << std::endl;
-           }
-         }
-      }
-      std::cout << "sf " << sf << " sg " << sg << std::endl;
-      std::string newfile = imagepath+"result/good."+ir->code+".jpg";
-      cv::imwrite(newfile.c_str(),ir->resultMat,params);
-
-      if (store_original!=""){
-        cv::imwrite( ( store_original+"good."+ir->code+".jpg" ).c_str(),ir->orignalImage);
-      }
-      if ( remove( fullname.c_str() ) != 0 ) {
+      sql = "insert into ocrs (code,ocrtext,street,housenumber,zipcode,town) values ('"+ir->code+"','"+sql_addresstext+"','"+ea->getStreetName()+"','"+ea->getHouseNumber()+"','"+ea->getZipCode()+"','"+ea->getTown()+"') ";
+      if (mysql_query(con, sql.c_str())){
 
       }
 
+      if (ea->getStreetName().length()>3){
+
+
+
+        std::string fuzzysql = "CALL SET_SORTBOX('"
+          +sql_addresstext
+          +"','"+ea->getZipCode()
+          +"','"+ea->getHouseNumber()
+          +"','"+kundenid
+          +"','"+product
+          +"','"+ir->code
+          +"', @stortiergang"
+          +", @stortierfach"
+          +", @strasse"
+          +", @plz"
+          +", @ort"
+          +")";
+        std::cout << "fuzzysql " << fuzzysql << std::endl;
+        if (mysql_query(con, fuzzysql.c_str())){
+
+          fprintf(stderr, "%s\n", mysql_error(con));
+          mysql_close(con);
+          exit(1);
+
+        }
+
+
+        std::string resultsql = "SELECT @stortiergang sg,@stortierfach sf,@strasse str,@plz plz,@ort ort";
+        if (mysql_query(con, resultsql.c_str())){
+          fprintf(stderr, "%s\n", mysql_error(con));
+          mysql_close(con);
+          exit(1);
+        }
+
+
+        sf = "NT";
+        sg = "NT";
+        login = "sorter";
+
+        MYSQL_RES *result;
+        MYSQL_ROW row;
+        unsigned int num_fields;
+        unsigned int i;
+        result = mysql_use_result(con);
+        num_fields = mysql_num_fields(result);
+        while ((row = mysql_fetch_row(result))){
+           unsigned long *lengths;
+           lengths = mysql_fetch_lengths(result);
+           sg = row[0];
+           sf = row[1];
+           std::cout << "sg " << row[0] << ", sf " << row[1] << std::endl;
+        }
+
+        std::string newfile = imagepath+"result/good."+ir->code+".jpg";
+        cv::imwrite(newfile.c_str(),ir->resultMat,params);
+
+        if (store_original!=""){
+          cv::imwrite( ( store_original+"good."+ir->code+".jpg" ).c_str(),ir->orignalImage);
+        }
+
+        if (keepfiles==0){
+          if ( remove( fullname.c_str() ) != 0 ) {
+            perror( "Error deleting file" );
+            exit(1);
+          }
+        }
+
+      }else{
+
+        // there is no streetname
+        std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
+        cv::imwrite(newfile.c_str(),ir->resultMat,params);
+        if (store_original!=""){
+          cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
+        }
+
+
+        if (keepfiles==0){
+          if( remove( fullname.c_str() ) != 0 ){
+            perror( "Error deleting file" );
+            exit(1);
+          }
+        }
+
+      }
 
     }else{
       // there is no adresstext
@@ -251,23 +303,15 @@ int main( int argc, char** argv ){
       if (store_original!=""){
         cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
       }
-      if( remove( fullname.c_str() ) != 0 ){
 
+
+      if (keepfiles==0){
+        if( remove( fullname.c_str() ) != 0 ){
+          perror( "Error deleting file" );
+          exit(1);
+        }
       }
-    }
 
-    sql = "delete from sv_daten where id = '"+ir->code+"'";
-    if (mysql_query(con, sql.c_str())){
-    }
-
-    sql = "insert into sv_daten (mandant,modell,id,datum,zeit,login,sortiergang,sortierfach,strasse,hausnummer,plz,ort,width,height) ";
-    sql = sql + " values ('"+mandant+"','"+modell+"','"+ir->code+"',now(),now(),'"+login+"','"+sg+"','"+sf+"','"+strasse+"','"+hausnummer+"','"+plz+"','"+ort+"','"+boost::lexical_cast<std::string>(ir->width)+"','"+boost::lexical_cast<std::string>(ir->height)+"') ";
-    sql = sql + " on duplicate key update id=values(id),mandant=values(mandant),modell=values(modell),datum=values(datum),zeit=values(zeit),login=values(login),sortiergang=values(sortiergang),sortierfach=values(sortierfach),strasse=values(strasse),hausnummer=values(hausnummer),plz=values(plz),ort=values(ort),width=values(width),height=values(height)";
-
-    if (mysql_query(con, sql.c_str())){
-        fprintf(stderr, "%s\n", mysql_error(con));
-        mysql_close(con);
-        exit(1);
     }
 
   }else{
@@ -278,12 +322,13 @@ int main( int argc, char** argv ){
     if (store_original!=""){
       cv::imwrite( ( store_original+"nocode."+fname+".jpg" ).c_str(),ir->orignalImage);
     }
-    if( remove( fullname.c_str() ) != 0 ) {
 
+    if (keepfiles==0){
+      if( remove( fullname.c_str() ) != 0 ) {
+        perror( "Error deleting file" );
+        exit(1);
+      }
     }
-      //perror( "Error deleting file" );
-    //else
-      //puts( "File successfully deleted" );
   }
 
 
