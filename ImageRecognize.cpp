@@ -83,7 +83,6 @@ void ImageRecognize::open(const char* filename){
   //std::cout << "image readed " << (orignalImage.rows/2) << "* " << orignalImage.cols << 'x' << orignalImage.rows << std::endl;
   oneCM = orignalImage.cols/cmWidth;
 
-
   cv::Mat mat(  orignalImage.rows*2,orignalImage.cols*2, orignalImage.type(), cv::Scalar(0));
   cv::Rect roi( cv::Point( orignalImage.cols/2, (orignalImage.rows/2) ), orignalImage.size() );
 
@@ -118,8 +117,12 @@ void ImageRecognize::open(const char* filename){
 
   }else if (analysisType==1){
 
+    //std::cout << "L1" << std::endl;
     largest = getRectangle(mat);
-    bcRes = fast_barcode(largest);
+    //std::cout << "L2" << std::endl;
+    //bcRes = fast_barcode(largest);
+    bcRes = barcode(largest);
+    //std::cout << "L3" << std::endl;
     code = bcRes.code;
 
     cv::rectangle(largest,bcRes.rect,cv::Scalar(255,255,255),CV_FILLED);

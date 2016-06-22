@@ -1,4 +1,10 @@
+/*
+/etc/mysql/my.cnf
+[mysqld]
+bind-address                   = 0.0.0.0
+lower_case_table_names=1
 
+*/
 DROP TABLE IF EXISTS `strassenverzeichnis`;
 CREATE TABLE `strassenverzeichnis` (
   `id` varchar(32) NOT NULL,
