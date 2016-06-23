@@ -151,8 +151,8 @@ int main( int argc, char** argv ){
     exit(1);
   }
 
-  mysql_options(&con, MYSQL_SET_CHARSET_NAME, "utf8");
-  mysql_options(&con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
+  mysql_options(con, MYSQL_SET_CHARSET_NAME, "utf8");
+  mysql_options(con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
 
   std::string sql = "";
   ImageRecognize* ir = new ImageRecognize();
