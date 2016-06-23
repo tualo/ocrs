@@ -122,7 +122,7 @@ int main( int argc, char** argv ){
   }
   const char* width = "28";
   if(const char* env_width = std::getenv("WIDTH_CM")){
-    scale = env_width;
+    width = env_width;
   }
 
 
@@ -162,7 +162,6 @@ int main( int argc, char** argv ){
     std::cout << "WIDTH " << width << std::endl;
     std::cout << "SCALE " << scale << std::endl;
     ir->scale = std::atof(scale);
-    std::cout << "SCALE* " << scale << std::endl;
     ir->open(argv[1]);
   }
 
