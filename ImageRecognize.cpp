@@ -105,6 +105,8 @@ void ImageRecognize::open(const char* filename){
     double t1 = (double)cv::getTickCount();
     double te1;
 
+
+    code = bcRes.code;
     out = text(largest);
     te1 = ((double)cv::getTickCount() - t1)/cv::getTickFrequency();
     std::cout << "text passed in seconds: " << te1 << std::endl;
@@ -798,7 +800,11 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   out = getText(c2);
   std::cout << out << std::endl;
   std::string s1 (out);
+
+  boost::replace_all(s1,code,"*****");
+
   lines = isplit(s1,'\n');
+
 
   if ((lines.size()<20)&&(boost::regex_search(s1 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
       ocr_text = out;
@@ -822,6 +828,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   out = getText(c2);
   std::cout << out << std::endl;
   std::string s2 (out);
+  boost::replace_all(s2,code,"#####");
   lines = isplit(s2,'\n');
   if ((lines.size()<20)&&(boost::regex_search(s2 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
       ocr_text = out;
