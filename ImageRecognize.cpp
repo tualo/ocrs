@@ -804,6 +804,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   boost::replace_all(s1,code,"*****");
   std::cout << "<<<<<" << code << "****" << s1 << std::endl;
   lines = isplit(s1,'\n');
+  out = s2.c_str();
 
 
   if ((lines.size()<20)&&(boost::regex_search(s1 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
@@ -829,6 +830,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   std::cout << out << std::endl;
   std::string s2 (out);
   boost::replace_all(s2,code,"#####");
+  out = s2.c_str();
   std::cout << "<<<<<" << code << "****" << s2 << std::endl;
 
   lines = isplit(s2,'\n');
