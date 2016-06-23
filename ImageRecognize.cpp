@@ -784,7 +784,9 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   int breite = im.cols/oneCM;
   int hoehe = im.rows/oneCM;
   float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
+  std::cout << "1-----" << std::endl;
   cv::Mat c2 = (im.clone())(roi2);
+  std::cout << "2-----" << std::endl;
 
   //showImage(c2,"T2-111");
   //showImage(c2,"TEST 2_1");
@@ -805,7 +807,10 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       return true;
   }
 
+  std::cout << "3-----" << std::endl;
   cv::Mat rotated(im.cols,im.rows,im.type());
+  std::cout << "4-----" << std::endl;
+
   transpose(im, rotated);
   flip(rotated, rotated,1); //transpose+flip(1)=CW
   cv::Mat rotated2(rotated.cols,rotated.rows,rotated.type());
@@ -813,6 +818,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   flip(rotated2, rotated2,1); //transpose+flip(1)=CW
   c2 = rotated2(roi2);
   linearize(c2);
+  std::cout << "5-----" << std::endl;
 
   //showIM = rotated2.clone();
   //showImage(showIM,"1");
@@ -826,6 +832,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       return true;
   }
   makeResultImage(im);
+  std::cout << "6-----" << std::endl;
 
   return false;
 }
@@ -1100,6 +1107,8 @@ const char* ImageRecognize::text(cv::Mat& im){
 
       std::string concat = "";
 
+
+      std::cout << "***" << std::endl;
       if (usingLetterType1(im)){
         concat += "\n\n" + std::string(ocr_text);
         //return ocr_text;
