@@ -162,6 +162,7 @@ int main( int argc, char** argv ){
     std::cout << "WIDTH " << width << std::endl;
     std::cout << "SCALE " << scale << std::endl;
     ir->scale = std::atof(scale);
+    std::cout << "SCALE* " << scale << std::endl;
     ir->open(argv[1]);
   }
 
