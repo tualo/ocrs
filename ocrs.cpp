@@ -120,6 +120,7 @@ int main( int argc, char** argv ){
   if(const char* env_scale = std::getenv("SCALE")){
     scale = env_scale;
   }
+
   const char* width = "28";
   if(const char* env_width = std::getenv("WIDTH_CM")){
     width = env_width;
@@ -150,6 +151,8 @@ int main( int argc, char** argv ){
     exit(1);
   }
 
+  mysql_options(&con, MYSQL_SET_CHARSET_NAME, "utf8");
+  mysql_options(&con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
 
   std::string sql = "";
   ImageRecognize* ir = new ImageRecognize();

@@ -11,3 +11,10 @@ do
   b = `basename $f`
   cp $f /server/original/$b && rm $f
 done
+
+
+for f in /imagedata/error/*.tiff
+do
+  b = `basename $f`
+  cp $f /server/error/$b && rm $f
+done
