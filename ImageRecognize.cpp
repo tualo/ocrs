@@ -761,7 +761,6 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   const boost::regex no_plz_regex("\\d{6}\\s");
   boost::cmatch char_matches;
 
-
   int breite = im.cols/oneCM;
   int hoehe = im.rows/oneCM;
   float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
@@ -1046,26 +1045,29 @@ const char* ImageRecognize::text(cv::Mat& im){
           return ocr_text;
         }else{
 
-          if (usingLetterType1(im)){
-            return ocr_text;
-          }else if (usingLetterType1_1(im)){
-            return ocr_text;
-          }else if (usingLetterType2(im)){
-            return ocr_text;
-          }else if (usingLetterType2_1(im)){
-            return ocr_text;
-          }else if (usingLetterType2_2(im)){
-            return ocr_text;
-          }else if (usingLetterType3(im)){
-            return ocr_text;
-          }
-          //cv::Rect roi = cv::Rect(0,0,im.cols,im.rows);
-          //if (usingLetterRoi(im,roi)){
-          //  std::cout << "TXT" << ocr_text << std::endl;
-          //}else{
+          std::string concat = "";
 
-          //}
-          //showImage(im,"do something");
+          if (usingLetterType1(im)){
+            concat += "\n\n" + std::string(ocr_text);
+            //return ocr_text;
+          }else if (usingLetterType1_1(im)){
+            concat += "\n\n" + std::string(ocr_text);
+            //return ocr_text;
+          }else if (usingLetterType2(im)){
+            concat += "\n\n" + std::string(ocr_text);
+            //return ocr_text;
+          }else if (usingLetterType2_1(im)){
+            concat += "\n\n" + std::string(ocr_text);
+            //return ocr_text;
+          }else if (usingLetterType2_2(im)){
+            concat += "\n\n" + std::string(ocr_text);
+            //return ocr_text;
+          }else if (usingLetterType3(im)){
+            concat += "\n\n" + std::string(ocr_text);
+            //return ocr_text;
+          }
+
+          std::cout << "::" << concat << std::endl;
           std::cout << "Lettertype 2, do something" << std::endl;
         }
       }
@@ -1075,6 +1077,30 @@ const char* ImageRecognize::text(cv::Mat& im){
     if (usingLetterType3(im)){
       return ocr_text;
     }else{
+
+      std::string concat = "";
+
+      if (usingLetterType1(im)){
+        concat += "\n\n" + std::string(ocr_text);
+        //return ocr_text;
+      }else if (usingLetterType1_1(im)){
+        concat += "\n\n" + std::string(ocr_text);
+        //return ocr_text;
+      }else if (usingLetterType2(im)){
+        concat += "\n\n" + std::string(ocr_text);
+        //return ocr_text;
+      }else if (usingLetterType2_1(im)){
+        concat += "\n\n" + std::string(ocr_text);
+        //return ocr_text;
+      }else if (usingLetterType2_2(im)){
+        concat += "\n\n" + std::string(ocr_text);
+        //return ocr_text;
+      }else if (usingLetterType3(im)){
+        concat += "\n\n" + std::string(ocr_text);
+        //return ocr_text;
+      }
+
+      std::cout << ":3:" << concat << std::endl;
 
       std::cout << "Lettertype 3, do something" << std::endl;
     }
