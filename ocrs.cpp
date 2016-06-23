@@ -159,8 +159,8 @@ int main( int argc, char** argv ){
     ir->openPZA(argv[1]);
   }else{
     ir->cmWidth =  std::atoi(width);
-    std::cout << "WIDTH " << scale << std::endl;
-    std::cout << "SCALE " << width << std::endl;
+    std::cout << "WIDTH " << width << std::endl;
+    std::cout << "SCALE " << scale << std::endl;
     ir->scale = std::atof(scale);
     ir->open(argv[1]);
   }
