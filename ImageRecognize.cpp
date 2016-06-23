@@ -1070,6 +1070,19 @@ const char* ImageRecognize::text(cv::Mat& im){
     if (usingLetterType3(im)){
       return ocr_text;
     }else{
+      if (usingLetterType1(im)){
+        return ocr_text;
+      }else if (usingLetterType1_1(im)){
+        return ocr_text;
+      }else if (usingLetterType2(im)){
+        return ocr_text;
+      }else if (usingLetterType2_1(im)){
+        return ocr_text;
+      }else if (usingLetterType2_2(im)){
+        return ocr_text;
+      }else if (usingLetterType3(im)){
+        return ocr_text;
+      }
       std::cout << "Lettertype 3, do something" << std::endl;
     }
   }
