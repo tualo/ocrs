@@ -263,6 +263,7 @@ int main( int argc, char** argv ){
            std::cout << "sg " << row[0] << ", sf " << row[1] << std::endl;
         }
 
+        std::cout << "good" << std::endl;
         std::string newfile = imagepath+"result/good."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
 
@@ -280,6 +281,7 @@ int main( int argc, char** argv ){
       }else{
 
         // there is no streetname
+        std::cout << "no address" << std::endl;
         std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
         if (store_original!=""){
@@ -298,6 +300,7 @@ int main( int argc, char** argv ){
 
     }else{
       // there is no adresstext
+      std::cout << "no address *" << std::endl;
       std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
       if (store_original!=""){
@@ -317,6 +320,7 @@ int main( int argc, char** argv ){
   }else{
     // ok there is no barcode
     // move that file
+    std::cout << "no code" << std::endl;
     std::string newfile = imagepath+"result/nocode."+fname+".jpg";
     cv::imwrite(newfile.c_str(),ir->orignalImage,params);
     if (store_original!=""){
