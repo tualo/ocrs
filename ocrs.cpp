@@ -281,7 +281,7 @@ int main( int argc, char** argv ){
       }else{
 
         // there is no streetname
-        std::cout << "no address" << std::endl;
+        std::cout << "no address: " << ea->getStreetName() << ": " << ea->getZipCode() << std::endl;
         std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
         if (store_original!=""){
