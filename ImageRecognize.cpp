@@ -728,6 +728,7 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
       rW -= (rX+rW)-m1.cols;
     }
   }
+  
   if (rY+rH > m1.rows){
     rY -= (rY+rH)-m1.rows;
     if (rY<0){
@@ -735,6 +736,15 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
       rH -= (rY+rH)-m1.rows;
     }
   }
+
+  if (rX<0){
+    rX=0;
+  }
+
+  if (rY<0){
+    rY=0;
+  }
+
   std::cout << "fittingROI rX " << rX << std::endl;
   std::cout << "fittingROI rY " << rY << std::endl;
   std::cout << "fittingROI rW " << rW << std::endl;
