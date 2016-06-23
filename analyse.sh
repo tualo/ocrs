@@ -5,6 +5,8 @@ export STORE_ORIGINAL=/imagedata/original/
 export STORE_ERRORS=/imagedata/error/
 export IMAGEPATH=/imagedata/
 
+export WIDTH_CM=28
+export SCALE=1.3
 export MODELL=Clearing
 export USEPZA=0
 export MANDANT=0000

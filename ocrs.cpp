@@ -114,6 +114,18 @@ int main( int argc, char** argv ){
     db_name = env_dbname;
   }
 
+
+
+  const char* scale = "1.38";
+  if(const char* env_scale = std::getenv("SCALE")){
+    scale = env_scale;
+  }
+  const char* width = "28";
+  if(const char* env_width = std::getenv("WIDTH_CM")){
+    scale = env_width;
+  }
+
+
   std::string mandant = "0000";
   std::string modell = "Clearing";
   if(const char* env_mandant = std::getenv("MANDANT")){
@@ -146,8 +158,8 @@ int main( int argc, char** argv ){
     ir->scale = 1;
     ir->openPZA(argv[1]);
   }else{
-    ir->cmWidth = 28;
-    ir->scale = 1.38;
+    ir->cmWidth =  std::atoi(width);
+    ir->scale = std::atof(scale);
     ir->open(argv[1]);
   }
 
@@ -190,9 +202,11 @@ int main( int argc, char** argv ){
     std::string ort = "";
 
 
+
     if (ir->addresstext.length()>0){
       ExtractAddress* ea = new ExtractAddress();
       std::string sql_addresstext = boost::replace_all_copy(ir->addresstext, "'", " ");
+
 
       ea->setString(sql_addresstext);
       ea->extract();

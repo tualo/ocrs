@@ -98,6 +98,7 @@ void ImageRecognize::open(const char* filename){
 
     largest = largestContour(mat);
     bcRes = barcode(largest);
+    code = bcRes.code;
     bc_point=bcRes.point;
     if (bc_point.y>(largest.rows/2)){
       rotateX(largest,180,cv::Point(largest.cols/2,largest.rows/2));
@@ -105,9 +106,8 @@ void ImageRecognize::open(const char* filename){
     double t1 = (double)cv::getTickCount();
     double te1;
 
-
-    code = bcRes.code;
     out = text(largest);
+
     te1 = ((double)cv::getTickCount() - t1)/cv::getTickFrequency();
     std::cout << "text passed in seconds: " << te1 << std::endl;
     std::string s (out);
@@ -137,6 +137,8 @@ void ImageRecognize::open(const char* filename){
     //showImage(largest,"T1");
 
     out = text(largest);
+
+
     te1 = ((double)cv::getTickCount() - t1)/cv::getTickFrequency();
     std::cout << "text passed in seconds: " << te1 << std::endl;
     std::string s (out);
@@ -702,18 +704,18 @@ bcResult ImageRecognize::fast_barcode(cv::Mat& im){
     part = useIMG(roi);
 
     res = barcode_internal(part);
-//    std::cout << "fast barcode scanned flipped "<< std::endl;
+    std::cout << "fast barcode scanned flipped "<< std::endl;
 
   }
 
   if (res.found==false){
     useIMG = (im.clone());
     res = barcode_internal(part);
-//    std::cout << "fast barcode scanned all "<< std::endl;
+    std::cout << "fast barcode scanned all "<< std::endl;
   }
 
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-//  std::cout << "fast barcode passed in seconds: " << te << std::endl;
+  std::cout << "fast barcode passed in seconds: " << te << std::endl;
   return res;
 }
 
@@ -756,7 +758,7 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
     rY = 0;
     rH = m1.rows;
   }
-/*
+  /*
   std::cout << "fittingROI rX " << rX << std::endl;
   std::cout << "fittingROI rY " << rY << std::endl;
   std::cout << "fittingROI rW " << rW << std::endl;
@@ -798,13 +800,11 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   //cv::rectangle(showIM,roi2,cv::Scalar(100,100,100),10);
   //showImage(showIM,"1");
   out = getText(c2);
-  std::cout << out << std::endl;
+  //std::cout << out << std::endl;
   std::string s1 (out);
+  boost::replace_all(s1,code,"-------------");
 
-  boost::replace_all(s1,code,"*****");
-  std::cout << "<<<<<" << code << "****" << s1 << std::endl;
   lines = isplit(s1,'\n');
-  out = s1.c_str();
 
 
   if ((lines.size()<20)&&(boost::regex_search(s1 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
@@ -827,11 +827,14 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   //showIM = rotated2.clone();
   //showImage(showIM,"1");
   out = getText(c2);
-  std::cout << out << std::endl;
+  //std::cout << out << std::endl;
   std::string s2 (out);
-  boost::replace_all(s2,code,"#####");
-  out = s2.c_str();
-  std::cout << "<<<<<" << code << "****" << s2 << std::endl;
+
+  boost::replace_all(s2,code,"-------------");
+  //out = s2.c_str();
+
+  //boost::replace_all(s2,code,"-------------");
+  //out = s2.c_str();
 
   lines = isplit(s2,'\n');
   if ((lines.size()<20)&&(boost::regex_search(s2 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
@@ -1059,42 +1062,99 @@ const char* ImageRecognize::text(cv::Mat& im){
     //std::cout << "width " << width  << std::endl;
     //std::cout << "height " << height  << std::endl;
   //}
+  if (letterType==1){
 
-  if (usingLetterType1(im)){
-    return ocr_text;
-  }else if (usingLetterType1_1(im)){
-    return ocr_text;
-  }else if (usingLetterType2(im)){
-    return ocr_text;
-  }else if (usingLetterType2_1(im)){
-    return ocr_text;
-  }else if (usingLetterType2_2(im)){
-    return ocr_text;
-  }else if (usingLetterType3(im)){
-    return ocr_text;
+    if (usingLetterType1(im)){
+      std::cout << "usingLetterType1 "  << std::endl;
+      return ocr_text;
+    }else{
+
+      if (usingLetterType1_1(im)){
+        std::cout << "usingLetterType1_1 "  << std::endl;
+        return ocr_text;
+      }else{
+
+
+        if (usingLetterType1(im)){
+          std::cout << "usingLetterType1 "  << std::endl;
+          return ocr_text;
+        }else if (usingLetterType1_1(im)){
+          std::cout << "usingLetterType1_1 "  << std::endl;
+          return ocr_text;
+        }else if (usingLetterType2(im)){
+          std::cout << "usingLetterType2 "  << std::endl;
+          return ocr_text;
+        }else if (usingLetterType2_1(im)){
+          std::cout << "usingLetterType2_1 "  << std::endl;
+          return ocr_text;
+        }else if (usingLetterType2_2(im)){
+          std::cout << "usingLetterType2_2 "  << std::endl;
+          return ocr_text;
+        }else if (usingLetterType3(im)){
+          std::cout << "usingLetterType3 "  << std::endl;
+          return ocr_text;
+        }
+
+        std::cout << "Lettertype 1, do something" << std::endl;
+      }
+    }
+  }else if (letterType==2){
+std::cout << "letterType 2 "  << std::endl;
+    if (usingLetterType2(im)){
+      return ocr_text;
+    }else{
+      if (usingLetterType2_1(im)){
+        return ocr_text;
+      }else{
+        if (usingLetterType2_2(im)){
+          return ocr_text;
+        }else{
+
+          if (usingLetterType1(im)){
+            return ocr_text;
+          }else if (usingLetterType1_1(im)){
+            return ocr_text;
+          }else if (usingLetterType2(im)){
+            return ocr_text;
+          }else if (usingLetterType2_1(im)){
+            return ocr_text;
+          }else if (usingLetterType2_2(im)){
+            return ocr_text;
+          }else if (usingLetterType3(im)){
+            return ocr_text;
+          }
+
+          std::cout << "Lettertype 2, do something" << std::endl;
+        }
+      }
+    }
+  }else if (letterType==3){
+    if (usingLetterType3(im)){
+      return ocr_text;
+    }else{
+      if (usingLetterType1(im)){
+        return ocr_text;
+      }else if (usingLetterType1_1(im)){
+        return ocr_text;
+      }else if (usingLetterType2(im)){
+        return ocr_text;
+      }else if (usingLetterType2_1(im)){
+        return ocr_text;
+      }else if (usingLetterType2_2(im)){
+        return ocr_text;
+      }else if (usingLetterType3(im)){
+        return ocr_text;
+      }
+
+      std::cout << "Lettertype 3, do something" << std::endl;
+    }
   }
 
-  /*
-  linearize(im);
-  tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
-  tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
-  tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
-  tess->Recognize(0);
-  out = tess->GetUTF8Text();
-  ocr_text = out;
-  */
-
-  allTogether="";
-
-  cv::Rect roi( cv::Point( 0, 0 ), im.size() );
-  cv::Mat  ix = (im.clone());
-  if (usingLetterRoi(ix,roi)){
+  cv::Rect roi_im( cv::Point( 0, 0 ), im.size() );
+  cv::Mat n = im.clone();
+  if(usingLetterRoi(n,roi_im)){
     return ocr_text;
   }
-
-  const boost::regex plz_regex("\\d{5}\\s");
-  const boost::regex no_plz_regex("\\d{6}\\s");
-
 
   cv::Mat rotated(im.cols,im.rows,im.type());
   transpose(im, rotated);
@@ -1131,6 +1191,7 @@ const char* ImageRecognize::text(cv::Mat& im){
   out = allTogether.c_str();
 
   std::cout << "found nothing "  << std::endl;
+
   return out;
 }
 
