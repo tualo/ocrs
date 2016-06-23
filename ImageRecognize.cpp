@@ -735,12 +735,12 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
       rH -= (rY+rH)-m1.rows;
     }
   }
-  std::cout << "fittingROI rX " << rX
-  std::cout << "fittingROI rY " << rY
-  std::cout << "fittingROI rW " << rW
-  std::cout << "fittingROI rH " << rH
-  std::cout << "fittingROI m1.rows" << m1.rows
-  std::cout << "fittingROI m1.cols" << m1.cols
+  std::cout << "fittingROI rX " << rX << std::endl;
+  std::cout << "fittingROI rY " << rY << std::endl;
+  std::cout << "fittingROI rW " << rW << std::endl;
+  std::cout << "fittingROI rH " << rH << std::endl;
+  std::cout << "fittingROI m1.rows" << m1.rows << std::endl;
+  std::cout << "fittingROI m1.cols" << m1.cols << std::endl;
   return cv::Rect(rX,rY,rW,rH);
 }
 
