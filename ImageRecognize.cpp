@@ -1114,9 +1114,12 @@ const char* ImageRecognize::text(cv::Mat& im){
   if(usingLetterRoi(rotated3,roi_rotated3)){
     return ocr_text;
   }
+
   allTogether = "";
+  ocr_text = allTogether.c_str();
   out = allTogether.c_str();
 
+  std::cout << "found nothing "  << std::endl;
   return out;
 }
 
