@@ -1096,7 +1096,7 @@ const char* ImageRecognize::text(cv::Mat& im){
   tess->Recognize(0);
   out = tess->GetUTF8Text();
   ocr_text = out;
-
+std::cout << "done all" << ocr_text << std::endl;
   return out;
 }
 
