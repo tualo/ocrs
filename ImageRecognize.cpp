@@ -722,10 +722,10 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
   int rH=h*oneCM;
 
   if (rX+rW > m1.cols){
-    rX -= (rX+rW)-m1.rows;
+    rX -= (rX+rW)-m1.cols;
     if (rX<0){
       rX=0;
-      rW -= (rX+rW)-m1.rows;
+      rW -= (rX+rW)-m1.cols;
     }
   }
   if (rY+rH > m1.rows){
@@ -735,7 +735,12 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
       rH -= (rY+rH)-m1.rows;
     }
   }
-
+  std::cout << "fittingROI rX " << rX
+  std::cout << "fittingROI rY " << rY
+  std::cout << "fittingROI rW " << rW
+  std::cout << "fittingROI rH " << rH
+  std::cout << "fittingROI m1.rows" << m1.rows
+  std::cout << "fittingROI m1.cols" << m1.cols
   return cv::Rect(rX,rY,rW,rH);
 }
 
@@ -1070,7 +1075,7 @@ const char* ImageRecognize::text(cv::Mat& im){
     if (usingLetterType3(im)){
       return ocr_text;
     }else{
-      
+
       std::cout << "Lettertype 3, do something" << std::endl;
     }
   }
