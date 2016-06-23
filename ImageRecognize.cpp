@@ -784,9 +784,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   int breite = im.cols/oneCM;
   int hoehe = im.rows/oneCM;
   float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
-  std::cout << "1-----" << std::endl;
   cv::Mat c2 = (im.clone())(roi2);
-  std::cout << "2-----" << std::endl;
 
   //showImage(c2,"T2-111");
   //showImage(c2,"TEST 2_1");
@@ -806,10 +804,9 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       makeResultImage(im);
       return true;
   }
+  allTogether += "\n\n" + std::string(out);
 
-  std::cout << "3-----" << std::endl;
   cv::Mat rotated(im.cols,im.rows,im.type());
-  std::cout << "4-----" << std::endl;
 
   transpose(im, rotated);
   flip(rotated, rotated,1); //transpose+flip(1)=CW
@@ -818,7 +815,6 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   flip(rotated2, rotated2,1); //transpose+flip(1)=CW
   c2 = rotated2(roi2);
   linearize(c2);
-  std::cout << "5-----" << std::endl;
 
   //showIM = rotated2.clone();
   //showImage(showIM,"1");
@@ -832,7 +828,8 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       return true;
   }
   makeResultImage(im);
-  std::cout << "6-----" << std::endl;
+
+  allTogether += "\n\n" + std::string(out);
 
   return false;
 }
@@ -1042,101 +1039,30 @@ const char* ImageRecognize::text(cv::Mat& im){
   }
 
 
-
-  std::cout << "type " << letterType  << std::endl;
-  if (letterType==0){
-    std::cout << "width " << width  << std::endl;
-    std::cout << "height " << height  << std::endl;
-  }
-  if (letterType==1){
-
-    if (usingLetterType1(im)){
-      return ocr_text;
-    }else{
-
-      if (usingLetterType1_1(im)){
-        return ocr_text;
-      }else{
-        std::cout << "Lettertype 1, do something" << std::endl;
-      }
-    }
-  }else if (letterType==2){
-
-    if (usingLetterType2(im)){
-      return ocr_text;
-    }else{
-      if (usingLetterType2_1(im)){
-        return ocr_text;
-      }else{
-        if (usingLetterType2_2(im)){
-          return ocr_text;
-        }else{
-
-          std::string concat = "";
-
-          if (usingLetterType1(im)){
-            concat += "\n\n" + std::string(ocr_text);
-            //return ocr_text;
-          }else if (usingLetterType1_1(im)){
-            concat += "\n\n" + std::string(ocr_text);
-            //return ocr_text;
-          }else if (usingLetterType2(im)){
-            concat += "\n\n" + std::string(ocr_text);
-            //return ocr_text;
-          }else if (usingLetterType2_1(im)){
-            concat += "\n\n" + std::string(ocr_text);
-            //return ocr_text;
-          }else if (usingLetterType2_2(im)){
-            concat += "\n\n" + std::string(ocr_text);
-            //return ocr_text;
-          }else if (usingLetterType3(im)){
-            concat += "\n\n" + std::string(ocr_text);
-            //return ocr_text;
-          }
-
-          std::cout << "::" << concat << std::endl;
-          std::cout << "Lettertype 2, do something" << std::endl;
-        }
-      }
-    }
-  }else if (letterType==3){
-
-    if (usingLetterType3(im)){
-      return ocr_text;
-    }else{
-
-      std::string concat = "";
+  allTogether = "";
 
 
-      std::cout << "***" << std::endl;
-      if (usingLetterType1(im)){
-        concat += "\n\n" + std::string(ocr_text);
-        //return ocr_text;
-      }else if (usingLetterType1_1(im)){
-        concat += "\n\n" + std::string(ocr_text);
-        //return ocr_text;
-      }else if (usingLetterType2(im)){
-        concat += "\n\n" + std::string(ocr_text);
-        //return ocr_text;
-      }else if (usingLetterType2_1(im)){
-        concat += "\n\n" + std::string(ocr_text);
-        //return ocr_text;
-      }else if (usingLetterType2_2(im)){
-        concat += "\n\n" + std::string(ocr_text);
-        //return ocr_text;
-      }else if (usingLetterType3(im)){
-        concat += "\n\n" + std::string(ocr_text);
-        //return ocr_text;
-      }
+  //std::cout << "type " << letterType  << std::endl;
+  //if (letterType==0){
+    //std::cout << "width " << width  << std::endl;
+    //std::cout << "height " << height  << std::endl;
+  //}
 
-      std::cout << ":3:" << concat << std::endl;
-
-      std::cout << "Lettertype 3, do something" << std::endl;
-    }
+  if (usingLetterType1(im)){
+    return ocr_text;
+  }else if (usingLetterType1_1(im)){
+    return ocr_text;
+  }else if (usingLetterType2(im)){
+    return ocr_text;
+  }else if (usingLetterType2_1(im)){
+    return ocr_text;
+  }else if (usingLetterType2_2(im)){
+    return ocr_text;
+  }else if (usingLetterType3(im)){
+    return ocr_text;
   }
 
-
-
+  /*
   linearize(im);
   tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
   tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
@@ -1144,6 +1070,42 @@ const char* ImageRecognize::text(cv::Mat& im){
   tess->Recognize(0);
   out = tess->GetUTF8Text();
   ocr_text = out;
+  */
+
+  allTogether="";
+
+  cv::Rect roi( cv::Point( 0, 0 ), im.size() );
+  cv::Mat  ix = (im.clone());
+  usingLetterRoi(ix,roi);
+
+
+
+  cv::Mat rotated(im.cols,im.rows,im.type());
+  transpose(im, rotated);
+  flip(rotated, rotated,1); //transpose+flip(1)=CW
+
+  cv::Rect roi_rotated( cv::Point( 0, 0 ), rotated.size() );
+  usingLetterRoi(rotated,roi_rotated);
+
+
+
+  cv::Mat rotated2(rotated.cols,rotated.rows,rotated.type());
+  transpose(rotated, rotated2);
+  flip(rotated2, rotated2,1); //transpose+flip(1)=CW
+
+  cv::Rect roi_rotated2( cv::Point( 0, 0 ), rotated.size() );
+  usingLetterRoi(rotated2,roi_rotated2);
+
+
+  cv::Mat rotated3(rotated2.cols,rotated2.rows,rotated2.type());
+  transpose(rotated2, rotated3);
+  flip(rotated3, rotated3,1); //transpose+flip(1)=CW
+
+  cv::Rect roi_rotated3( cv::Point( 0, 0 ), rotated2.size() );
+  usingLetterRoi(rotated3,roi_rotated3);
+
+  out = allTogether.c_str();
+  out_text =  allTogether.c_str();
 
   return out;
 }

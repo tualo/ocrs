@@ -87,6 +87,7 @@ private:
 
   const char* fileName;
   const char* ocr_text;
+  std::string allTogether;
   tesseract::TessBaseAPI* tess;
 };
 #endif
