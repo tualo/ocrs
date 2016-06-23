@@ -140,6 +140,10 @@ int main( int argc, char** argv ){
   int cthread = 0;
 
   MYSQL *con = mysql_init(NULL);
+
+  mysql_options(con, MYSQL_SET_CHARSET_NAME, "utf8");
+  mysql_options(con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
+  
   if (con == NULL){
     fprintf(stderr, "%s\n", mysql_error(con));
     exit(1);
@@ -151,8 +155,6 @@ int main( int argc, char** argv ){
     exit(1);
   }
 
-  mysql_options(con, MYSQL_SET_CHARSET_NAME, "utf8");
-  mysql_options(con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
 
   std::string sql = "";
   ImageRecognize* ir = new ImageRecognize();
@@ -178,8 +180,6 @@ int main( int argc, char** argv ){
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
   params.push_back(80);
 
-  //params.push_back(CV_IMWRITE_JPEG_OPTIMIZE);
-  //params.push_back(1);
 
   std::vector<std::string> strs;
   boost::split(strs,fname,boost::is_any_of("N"));
