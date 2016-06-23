@@ -1105,7 +1105,7 @@ const char* ImageRecognize::text(cv::Mat& im){
   usingLetterRoi(rotated3,roi_rotated3);
 
   out = allTogether.c_str();
-  out_text =  allTogether.c_str();
+  //out_text =  allTogether.c_str();
 
   return out;
 }
