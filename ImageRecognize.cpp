@@ -700,18 +700,18 @@ bcResult ImageRecognize::fast_barcode(cv::Mat& im){
     part = useIMG(roi);
 
     res = barcode_internal(part);
-    std::cout << "fast barcode scanned flipped "<< std::endl;
+//    std::cout << "fast barcode scanned flipped "<< std::endl;
 
   }
 
   if (res.found==false){
     useIMG = (im.clone());
     res = barcode_internal(part);
-    std::cout << "fast barcode scanned all "<< std::endl;
+//    std::cout << "fast barcode scanned all "<< std::endl;
   }
 
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
-  std::cout << "fast barcode passed in seconds: " << te << std::endl;
+//  std::cout << "fast barcode passed in seconds: " << te << std::endl;
   return res;
 }
 
@@ -754,13 +754,14 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
     rY = 0;
     rH = m1.rows;
   }
-
+/*
   std::cout << "fittingROI rX " << rX << std::endl;
   std::cout << "fittingROI rY " << rY << std::endl;
   std::cout << "fittingROI rW " << rW << std::endl;
   std::cout << "fittingROI rH " << rH << std::endl;
   std::cout << "fittingROI m1.rows" << m1.rows << std::endl;
   std::cout << "fittingROI m1.cols" << m1.cols << std::endl;
+  */
   return cv::Rect(rX,rY,rW,rH);
 }
 
@@ -1076,8 +1077,12 @@ const char* ImageRecognize::text(cv::Mat& im){
 
   cv::Rect roi( cv::Point( 0, 0 ), im.size() );
   cv::Mat  ix = (im.clone());
-  usingLetterRoi(ix,roi);
+  if (usingLetterRoi(ix,roi)){
+    return ocr_text;
+  }
 
+  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex no_plz_regex("\\d{6}\\s");
 
 
   cv::Mat rotated(im.cols,im.rows,im.type());
@@ -1085,7 +1090,9 @@ const char* ImageRecognize::text(cv::Mat& im){
   flip(rotated, rotated,1); //transpose+flip(1)=CW
 
   cv::Rect roi_rotated( cv::Point( 0, 0 ), rotated.size() );
-  usingLetterRoi(rotated,roi_rotated);
+  if(usingLetterRoi(rotated,roi_rotated)){
+    return ocr_text;
+  }
 
 
 
@@ -1094,7 +1101,9 @@ const char* ImageRecognize::text(cv::Mat& im){
   flip(rotated2, rotated2,1); //transpose+flip(1)=CW
 
   cv::Rect roi_rotated2( cv::Point( 0, 0 ), rotated.size() );
-  usingLetterRoi(rotated2,roi_rotated2);
+  if(usingLetterRoi(rotated2,roi_rotated2)){
+    return ocr_text;
+  }
 
 
   cv::Mat rotated3(rotated2.cols,rotated2.rows,rotated2.type());
@@ -1102,10 +1111,11 @@ const char* ImageRecognize::text(cv::Mat& im){
   flip(rotated3, rotated3,1); //transpose+flip(1)=CW
 
   cv::Rect roi_rotated3( cv::Point( 0, 0 ), rotated2.size() );
-  usingLetterRoi(rotated3,roi_rotated3);
-
+  if(usingLetterRoi(rotated3,roi_rotated3)){
+    return ocr_text;
+  }
+  allTogether = "";
   out = allTogether.c_str();
-  //out_text =  allTogether.c_str();
 
   return out;
 }
