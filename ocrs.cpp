@@ -210,7 +210,7 @@ int main( int argc, char** argv ){
 
       }
 
-      if (ea->getStreetName().length()>3){
+      //if (ea->getStreetName().length()>3){
 
 
 
@@ -276,7 +276,7 @@ int main( int argc, char** argv ){
             exit(1);
           }
         }
-
+      /*
       }else{
 
         // there is no streetname
@@ -295,6 +295,7 @@ int main( int argc, char** argv ){
         }
 
       }
+      */
 
     }else{
       // there is no adresstext
