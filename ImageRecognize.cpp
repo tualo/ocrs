@@ -1070,19 +1070,7 @@ const char* ImageRecognize::text(cv::Mat& im){
     if (usingLetterType3(im)){
       return ocr_text;
     }else{
-      if (usingLetterType1(im)){
-        return ocr_text;
-      }else if (usingLetterType1_1(im)){
-        return ocr_text;
-      }else if (usingLetterType2(im)){
-        return ocr_text;
-      }else if (usingLetterType2_1(im)){
-        return ocr_text;
-      }else if (usingLetterType2_2(im)){
-        return ocr_text;
-      }else if (usingLetterType3(im)){
-        return ocr_text;
-      }
+      
       std::cout << "Lettertype 3, do something" << std::endl;
     }
   }
@@ -1096,7 +1084,7 @@ const char* ImageRecognize::text(cv::Mat& im){
   tess->Recognize(0);
   out = tess->GetUTF8Text();
   ocr_text = out;
-std::cout << "done all" << ocr_text << std::endl;
+
   return out;
 }
 
