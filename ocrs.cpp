@@ -143,7 +143,7 @@ int main( int argc, char** argv ){
 
   mysql_options(con, MYSQL_SET_CHARSET_NAME, "utf8");
   mysql_options(con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
-  
+
   if (con == NULL){
     fprintf(stderr, "%s\n", mysql_error(con));
     exit(1);
@@ -277,9 +277,9 @@ int main( int argc, char** argv ){
         while ((row = mysql_fetch_row(result))){
            unsigned long *lengths;
            lengths = mysql_fetch_lengths(result);
-           sg = row[0];
-           sf = row[1];
-           std::cout << "sg " << row[0] << ", sf " << row[1] << std::endl;
+           //sg = row[0];
+           //sf = row[1];
+           //std::cout << "sg " << row[0] << ", sf " << row[1] << std::endl;
         }
 
         std::cout << "good" << std::endl;
