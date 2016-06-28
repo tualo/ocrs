@@ -195,6 +195,11 @@ int main( int argc, char** argv ){
     fname=strs[2];
   }
 
+  
+  std::string sql_modell = "set @svmodell='"+modell+"'";
+  if (mysql_query(con, sql_modell.c_str())){
+  }
+
   if (ir->code.length()>4){
 
     std::string sg = "";

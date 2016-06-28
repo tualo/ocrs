@@ -73,7 +73,7 @@ BEGIN
       DATUM=CURRENT_DATE(),
       ZEIT=CURRENT_TIME(),
       MANDANT='0000',
-      MODELL='Clearing',
+      MODELL=@svmodell,
 
       SORTIERGANG=in_sortiergang,
       SORTIERFACH=in_sortierfach,
@@ -114,7 +114,7 @@ BEGIN
         CURRENT_DATE(),
         CURRENT_TIME(),
         '0000',
-        'Clearing',
+        @svmodell,
 
         in_sortiergang,
         in_sortierfach,
@@ -149,8 +149,8 @@ CREATE PROCEDURE SET_SORTBOX
     IN in_code varchar(20),
 
 
-    OUT out_stortiergang varchar(10),
-    OUT out_stortierfach varchar(10),
+    OUT out_sortiergang varchar(20),
+    OUT out_sortierfach varchar(20),
     OUT out_strasse varchar(255),
     OUT out_plz varchar(255),
     OUT out_ort varchar(255)
@@ -195,13 +195,13 @@ BEGIN
   IF EXISTS(select * from `short_boxes_locked` where zipcode = out_plz and kundenid=in_kundenid)
   THEN
 
-    SET out_stortiergang = 'DPAG';
-    SET out_stortierfach = 'DPAG';
+    SET out_sortiergang = 'DPAG';
+    SET out_sortierfach = 'DPAG';
     CALL SET_SV
     (
       in_code,
-      out_stortiergang,
-      out_stortierfach,
+      out_sortiergang,
+      out_sortierfach,
       '',
       '',
       out_plz,
@@ -213,13 +213,13 @@ BEGIN
   ELSE
     IF EXISTS(select * from `short_boxes_locked_by_product` where zipcode = out_plz and product=in_product)
     THEN
-      SET out_stortiergang = 'DPAG';
-      SET out_stortierfach = 'DPAG';
+      SET out_sortiergang = 'DPAG';
+      SET out_sortierfach = 'DPAG';
       CALL SET_SV
       (
         in_code,
-        out_stortiergang,
-        out_stortierfach,
+        out_sortiergang,
+        out_sortierfach,
         '',
         '',
         out_plz,
@@ -236,7 +236,7 @@ BEGIN
       select
         ifnull(sortiergaenge_zuordnung.sortiergang,'NT') sortiergang,
         ifnull(sortiergaenge_zuordnung.sortierfach,'NT') sortierfach
-        into out_stortiergang,out_stortierfach
+        into out_sortiergang,out_sortierfach
       from
         sortiergaenge_zuordnung
         join bereiche_plz on (sortiergaenge_zuordnung.bereich,sortiergaenge_zuordnung.mandant,sortiergaenge_zuordnung.regiogruppe) = (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) and bereiche_plz.plz=out_plz
@@ -246,8 +246,8 @@ BEGIN
         CALL SET_SV
         (
           in_code,
-          out_stortiergang,
-          out_stortierfach,
+          out_sortiergang,
+          out_sortierfach,
           '',
           '',
           out_plz,
@@ -258,14 +258,14 @@ BEGIN
         );
     ELSE
 
-      SET out_stortiergang = 'NT';
-      SET out_stortierfach = 'NT';
+      SET out_sortiergang = 'NT';
+      SET out_sortierfach = 'NT';
 
       CALL SET_SV
       (
         in_code,
-        out_stortiergang,
-        out_stortierfach,
+        out_sortiergang,
+        out_sortierfach,
         '',
         '',
         out_plz,

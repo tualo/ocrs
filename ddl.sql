@@ -186,6 +186,7 @@ insert into ocrhash_complex (id,date_added,strasse,plz,ort,adr)
 
 insert into ocrhash_complex (id,date_added,strasse,plz,ort,adr)
   select concat('OWN',plz,ort) id, UNIX_TIMESTAMP(now()),'' strasse,plz,ort, concat(plz,' ',ort) adr
-  from plz_orte;
+  from plz_orte
+on duplicate key update ort=values(ort);
 
 create fulltext index id_ft_hash_complex on ocrhash_complex(adr);

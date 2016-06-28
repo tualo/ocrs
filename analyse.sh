@@ -19,6 +19,9 @@ export MANDANT=0000
 #  export STORE_ERRORS=$1error/
 #  export STORE_ORIGINAL=$1original/
 #fi
+
+mysql --force=true -u sorter -psorter sorter < /root/prepare.sql
+
 echo "checking $IMAGEPATH";
 while :
 do
