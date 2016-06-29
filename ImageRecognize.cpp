@@ -1307,10 +1307,11 @@ void ImageRecognize::linearize(cv::Mat& src){
     if (min<0){
       min=0;
     }
-    std::cout << "min" << min << std::endl;
-    std::cout << "max" << max << std::endl;
+
+    //std::cout << "min" << min << std::endl;
+    //std::cout << "max" << max << std::endl;
     //showImage(src,"I");
     //cv::normalize(src, src, min, 255, cv::NORM_MINMAX, CV_8UC1);
-    cv::threshold(src,src,min,max, CV_THRESH_BINARY);
+    cv::threshold(src,src,min+5,max-5, CV_THRESH_BINARY);
     //showImage(src,"I");
 }
