@@ -1305,7 +1305,7 @@ void ImageRecognize::linearize(cv::Mat& src){
     //showImage(src,"I");
     //cv::normalize(src, src, min, 255, cv::NORM_MINMAX, CV_8UC1);
     //cv::threshold(src,src,min+10,max-10, CV_THRESH_BINARY);
-    int minX = min*0.7;
+    int minX = min*0.95;
     if (minX<10){
       minX=10;
     }
