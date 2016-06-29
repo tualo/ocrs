@@ -123,7 +123,8 @@ void ImageRecognize::open(const char* filename){
     largest = getRectangle(mat);
     //std::cout << "L2" << std::endl;
     //bcRes = fast_barcode(largest);
-    bcRes = barcode(largest);
+    //showImage(largest,"largest");
+    bcRes = barcode(mat);
     std::cout << "L3" << std::endl;
     code = bcRes.code;
     std::cout << "L4" << std::endl;
@@ -271,15 +272,23 @@ cv::Mat ImageRecognize::getRectangle(cv::Mat& src){
 
   std::vector<cv::Vec4i> lines;
   int edgeThresh = 1;
+  /*
   int const lowThreshold = 5;
   int const maxThreshold = 200;
+*/
+  int const lowThreshold = 55;
+  int const maxThreshold = 140;
+
   int ratio = 3;
   int kernel_size = 3;
 
   cvtColor( src, src_gray, CV_BGR2GRAY );
+  //showImage(src_gray,"src_gray");
   cv::blur( src_gray, detected_edges, cv::Size(3,3) );
+  //showImage(detected_edges,"detected_edges");
   /// Canny detector
   cv::Canny( detected_edges, detected_edges, lowThreshold, maxThreshold, kernel_size );
+  //showImage(detected_edges,"detected_edges");
   /// Using Canny's output as a mask, we display our result
   src.copyTo( dst, detected_edges);
   cvtColor( dst, cdst, CV_BGR2GRAY );
