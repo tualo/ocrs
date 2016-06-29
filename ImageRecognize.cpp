@@ -124,19 +124,24 @@ void ImageRecognize::open(const char* filename){
     //std::cout << "L2" << std::endl;
     //bcRes = fast_barcode(largest);
     bcRes = barcode(largest);
-    //std::cout << "L3" << std::endl;
+    std::cout << "L3" << std::endl;
     code = bcRes.code;
+    std::cout << "L4" << std::endl;
 
     cv::rectangle(largest,bcRes.rect,cv::Scalar(255,255,255),CV_FILLED);
     //std::cout << "x*y" << largest.cols/oneCM << "*" << largest.rows/oneCM << std::endl;
+    std::cout << "L5" << std::endl;
 
     rotateX(largest,90,cv::Point(largest.cols/2,largest.rows/2));
+    std::cout << "L6" << std::endl;
 
     double t1 = (double)cv::getTickCount();
     double te1;
     //showImage(largest,"T1");
 
+    std::cout << "L7" << std::endl;
     out = text(largest);
+    std::cout << "L8" << std::endl;
 
 
     te1 = ((double)cv::getTickCount() - t1)/cv::getTickFrequency();
@@ -325,10 +330,9 @@ cv::Mat ImageRecognize::getRectangle(cv::Mat& src){
     top_left.y=t;
   }
   std::cout << "1*" << top_left << bottom_right << std::endl;
+
   cv::Rect roi(top_left.x,top_left.y,bottom_right.x-top_left.x,bottom_right.y-top_left.y);
-  std::cout << "2*" << std::endl;
   cv::Mat c_a = src(roi);
-  std::cout << "3*" << std::endl;
   te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
   std::cout << "largestContour (rect) passed in seconds: " << te << std::endl;
   return c_a;
