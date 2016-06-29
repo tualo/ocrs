@@ -124,7 +124,7 @@ void ImageRecognize::open(const char* filename){
     //std::cout << "L2" << std::endl;
     //bcRes = fast_barcode(largest);
     //showImage(largest,"largest");
-    bcRes = barcode(mat);
+    bcRes = barcode(largest);
     std::cout << "L3" << std::endl;
     code = bcRes.code;
     std::cout << "L4" << std::endl;
