@@ -813,7 +813,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
 
   std::cout << "usingLetterRoi 1" << std::endl;
   //showImage(c2,"T2-111");
-  //linearize(c2);
+  linearize(c2);
 
   std::cout << "usingLetterRoi 2" << std::endl;
 
@@ -838,7 +838,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       makeResultImage(im);
       return true;
   }
-
+/*
   linearize(c2);
   out = getText(c2);
   std::string s1_2 (out);
@@ -849,7 +849,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       makeResultImage(im);
       return true;
   }
-
+*/
 
   allTogether += "\n\n" + std::string(out);
 
@@ -861,7 +861,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   transpose(rotated, rotated2);
   flip(rotated2, rotated2,1); //transpose+flip(1)=CW
   c2 = rotated2(roi2);
-  //linearize(c2);
+  linearize(c2);
   //showIM = rotated2.clone();
   //showImage(c2,"1");
   out = getText(c2);
@@ -880,7 +880,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       makeResultImage(im);
       return true;
   }
-
+/*
   linearize(c2);
   out = getText(c2);
   std::string s2_2 (out);
@@ -892,7 +892,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       return true;
   }
 
-
+*/
   makeResultImage(im);
 
   allTogether += "\n\n" + std::string(out);
@@ -1307,5 +1307,10 @@ void ImageRecognize::linearize(cv::Mat& src){
     if (min<0){
       min=0;
     }
-    cv::threshold(src,src,min-1,max+1, CV_THRESH_BINARY);
+    std::cout << "min" << min << std::endl;
+    std::cout << "max" << max << std::endl;
+    //showImage(src,"I");
+    cv::normalize(src, src, min, max, cv::NORM_MINMAX, CV_8UC1);
+    //cv::threshold(src,src,40,255, CV_THRESH_BINARY);
+    //showImage(src,"I");
 }
