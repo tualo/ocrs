@@ -762,11 +762,11 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
     rY = 0;
     rH = m1.rows;
   }
-  if (rW==0){
+  if (rW<=0){
     rX = 0;
     rW = m1.cols;
   }
-  if (rH==0){
+  if (rH<=0){
     rY = 0;
     rH = m1.rows;
   }
