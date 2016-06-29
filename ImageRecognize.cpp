@@ -1171,7 +1171,7 @@ std::cout << "letterType 2 "  << std::endl;
   transpose(rotated, rotated2);
   flip(rotated2, rotated2,1); //transpose+flip(1)=CW
 
-  cv::Rect roi_rotated2( cv::Point( 0, 0 ), rotated.size() );
+  cv::Rect roi_rotated2( cv::Point( 0, 0 ), rotated2.size() );
   if(usingLetterRoi(rotated2,roi_rotated2)){
     return ocr_text;
   }
@@ -1181,7 +1181,7 @@ std::cout << "letterType 2 "  << std::endl;
   transpose(rotated2, rotated3);
   flip(rotated3, rotated3,1); //transpose+flip(1)=CW
 
-  cv::Rect roi_rotated3( cv::Point( 0, 0 ), rotated2.size() );
+  cv::Rect roi_rotated3( cv::Point( 0, 0 ), rotated3.size() );
   if(usingLetterRoi(rotated3,roi_rotated3)){
     return ocr_text;
   }
