@@ -1312,5 +1312,5 @@ void ImageRecognize::linearize(cv::Mat& src){
     //showImage(src,"I");
     cv::normalize(src, src, 0, max, cv::NORM_MINMAX, CV_8UC1);
     //cv::threshold(src,src,40,255, CV_THRESH_BINARY);
-    showImage(src,"I");
+    //showImage(src,"I");
 }
