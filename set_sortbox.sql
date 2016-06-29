@@ -61,7 +61,7 @@ CREATE PROCEDURE SET_SV
   IN in_hausnummer varchar(255),
   IN in_plz varchar(20),
   IN in_ort varchar(255),
-  IN in_ocrtxt varchar(20),
+  IN in_ocrtxt varchar(255),
   IN in_kunde varchar(20),
   IN in_product varchar(20)
 )

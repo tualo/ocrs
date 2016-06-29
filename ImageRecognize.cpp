@@ -21,8 +21,8 @@ void ImageRecognize::showImage(cv::Mat& src){
   if (showWindow){
     cv::Mat rotated=src.clone();
 
-    int x=src.cols /5;
-    int y=src.rows /5;
+    int x=src.cols /2;
+    int y=src.rows /2;
 
     /*
     if ( src.cols < src.rows ){
@@ -44,8 +44,8 @@ void ImageRecognize::showImage(cv::Mat& src,char* title){
   if (showWindow){
     cv::Mat rotated=src.clone();
 
-    int x=src.cols /5;
-    int y=src.rows /5;
+    int x=src.cols /2;
+    int y=src.rows /2;
     /*
     if ( src.cols < src.rows ){
       rotate(src, -90, rotated);
@@ -172,7 +172,9 @@ void ImageRecognize::openPZA(const char* filename){
   tess=new tesseract::TessBaseAPI();
   tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
 
-
+  if(!tess->SetVariable("tessedit_enable_doc_dict", "0")){
+  }
+  
   showWindow=true;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
@@ -835,21 +837,10 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
 
   if ((lines.size()<20)&&(boost::regex_search(s1 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
       ocr_text = out;
+      std::cout << "usingLetterRoi x *" <<  s1 << "*" << std::endl;
       makeResultImage(im);
       return true;
   }
-/*
-  linearize(c2);
-  out = getText(c2);
-  std::string s1_2 (out);
-  boost::replace_all(s1_2,code,"-------------");
-  lines = isplit(s1_2,'\n');
-  if ((lines.size()<20)&&(boost::regex_search(s1_2 , plz_regex)==true)&&(boost::regex_search(s1_2 , no_plz_regex)==false)){
-      ocr_text = out;
-      makeResultImage(im);
-      return true;
-  }
-*/
 
   allTogether += "\n\n" + std::string(out);
 
@@ -877,6 +868,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   lines = isplit(s2,'\n');
   if ((lines.size()<20)&&(boost::regex_search(s2 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
       ocr_text = out;
+      std::cout << "usingLetterRoi y" << std::endl;
       makeResultImage(im);
       return true;
   }
@@ -1312,6 +1304,6 @@ void ImageRecognize::linearize(cv::Mat& src){
     //std::cout << "max" << max << std::endl;
     //showImage(src,"I");
     //cv::normalize(src, src, min, 255, cv::NORM_MINMAX, CV_8UC1);
-    cv::threshold(src,src,min+5,max-5, CV_THRESH_BINARY);
+    cv::threshold(src,src,min+1,max-1, CV_THRESH_BINARY);
     //showImage(src,"I");
 }
