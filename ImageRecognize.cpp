@@ -813,8 +813,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
 
   std::cout << "usingLetterRoi 1" << std::endl;
   //showImage(c2,"T2-111");
-  //showImage(c2,"TEST 2_1");
-  linearize(c2);
+  //linearize(c2);
 
   std::cout << "usingLetterRoi 2" << std::endl;
 
@@ -822,7 +821,9 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   //cv::rectangle(showIM,roi2,cv::Scalar(100,100,100),10);
   //showImage(showIM,"1");
 
+  showImage(c2,"TEST 2_1");
   out = getText(c2);
+  // 23000000889
   //std::cout << out << std::endl;
   std::cout << "usingLetterRoi 3" << std::endl;
 
@@ -847,10 +848,9 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   transpose(rotated, rotated2);
   flip(rotated2, rotated2,1); //transpose+flip(1)=CW
   c2 = rotated2(roi2);
-  linearize(c2);
-
+  //linearize(c2);
   //showIM = rotated2.clone();
-  //showImage(showIM,"1");
+  showImage(c2,"1");
   out = getText(c2);
   //std::cout << out << std::endl;
   std::string s2 (out);
