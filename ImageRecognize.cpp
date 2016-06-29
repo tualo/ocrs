@@ -941,6 +941,7 @@ bool ImageRecognize::usingLetterType3(cv::Mat& im){
   |                                    |
   --------------------------------------
   */
+  std::cout << "/* message */" << std::endl;
   return usingLetterRoi(im,roi2);
 }
 
@@ -1133,6 +1134,7 @@ std::cout << "letterType 2 "  << std::endl;
       }
     }
   }else if (letterType==3){
+    std::cout << "Lettertype 3*" << std::endl;
     if (usingLetterType3(im)){
       return ocr_text;
     }else{
