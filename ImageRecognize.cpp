@@ -795,16 +795,21 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
   cv::Mat c2 = (im.clone())(roi2);
 
+  std::cout << "usingLetterRoi 1" << std::endl;
   //showImage(c2,"T2-111");
   //showImage(c2,"TEST 2_1");
   linearize(c2);
 
+  std::cout << "usingLetterRoi 2" << std::endl;
 
   //cv::Mat showIM = im.clone();
   //cv::rectangle(showIM,roi2,cv::Scalar(100,100,100),10);
   //showImage(showIM,"1");
+
   out = getText(c2);
   //std::cout << out << std::endl;
+  std::cout << "usingLetterRoi 3" << std::endl;
+
   std::string s1 (out);
   boost::replace_all(s1,code,"-------------");
 
