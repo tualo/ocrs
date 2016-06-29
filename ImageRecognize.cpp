@@ -174,7 +174,7 @@ void ImageRecognize::openPZA(const char* filename){
 
   if(!tess->SetVariable("tessedit_enable_doc_dict", "0")){
   }
-  
+
   showWindow=true;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
@@ -1300,10 +1300,11 @@ void ImageRecognize::linearize(cv::Mat& src){
       min=0;
     }
 
-    //std::cout << "min" << min << std::endl;
-    //std::cout << "max" << max << std::endl;
+    std::cout << "min" << min << std::endl;
+    std::cout << "max" << max << std::endl;
     //showImage(src,"I");
     //cv::normalize(src, src, min, 255, cv::NORM_MINMAX, CV_8UC1);
-    cv::threshold(src,src,min+1,max-1, CV_THRESH_BINARY);
+    //cv::threshold(src,src,min+10,max-10, CV_THRESH_BINARY);
+    cv::threshold(src,src,100,255, CV_THRESH_BINARY);
     //showImage(src,"I");
 }
