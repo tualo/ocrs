@@ -549,7 +549,7 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
   int min=0;
   int max=255;
   cv::Point point;
-  cv::Size ksize(7,7);
+  cv::Size ksize(5,5);
   int i = 0;
   int rel=0;
   int tmp=0;
