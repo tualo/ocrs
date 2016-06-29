@@ -1061,7 +1061,7 @@ const char* ImageRecognize::text(cv::Mat& im){
   allTogether = "";
 
 
-  //std::cout << "type " << letterType  << std::endl;
+  std::cout << "type " << letterType  << std::endl;
   //if (letterType==0){
     //std::cout << "width " << width  << std::endl;
     //std::cout << "height " << height  << std::endl;
