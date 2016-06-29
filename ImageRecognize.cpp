@@ -838,6 +838,19 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       makeResultImage(im);
       return true;
   }
+
+  linearize(c2);
+  out = getText(c2);
+  std::string s1_2 (out);
+  boost::replace_all(s1_2,code,"-------------");
+  lines = isplit(s1_2,'\n');
+  if ((lines.size()<20)&&(boost::regex_search(s1_2 , plz_regex)==true)&&(boost::regex_search(s1_2 , no_plz_regex)==false)){
+      ocr_text = out;
+      makeResultImage(im);
+      return true;
+  }
+
+
   allTogether += "\n\n" + std::string(out);
 
   cv::Mat rotated(im.cols,im.rows,im.type());
@@ -867,6 +880,19 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
       makeResultImage(im);
       return true;
   }
+
+  linearize(c2);
+  out = getText(c2);
+  std::string s2_2 (out);
+  boost::replace_all(s2_2,code,"-------------");
+  lines = isplit(s2_2,'\n');
+  if ((lines.size()<20)&&(boost::regex_search(s2_2 , plz_regex)==true)&&(boost::regex_search(s2_2 , no_plz_regex)==false)){
+      ocr_text = out;
+      makeResultImage(im);
+      return true;
+  }
+
+
   makeResultImage(im);
 
   allTogether += "\n\n" + std::string(out);
