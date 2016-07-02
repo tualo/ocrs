@@ -79,7 +79,7 @@ int main( int argc, char** argv ){
   */
 
   const char* env_pza = std::getenv("USEPZA");
-  std::cout << "env_pza" << env_pza << std::endl;
+
 
   std::string imagepath = "/imagedata/";
   if(const char* env_path = std::getenv("IMAGEPATH")){
@@ -112,6 +112,15 @@ int main( int argc, char** argv ){
   const char* db_name = "sorter";
   if(const char* env_dbname = std::getenv("DB_NAME")){
     db_name = env_dbname;
+  }
+
+  bool window = false;
+  if(const char* env_window = std::getenv("DEBUGWINDOW")){
+    window = (atoi(env_window)==1)?true:false;
+  }
+  bool debug = false;
+  if(const char* env_debug = std::getenv("DEBUG")){
+    debug = (atoi(env_debug)==1)?true:false;
   }
 
 
@@ -158,14 +167,19 @@ int main( int argc, char** argv ){
 
   std::string sql = "";
   ImageRecognize* ir = new ImageRecognize();
+  ir->debug=debug;
+  ir->showWindow=window;
+
   if (std::string(env_pza) == "1"){
     ir->cmWidth = 21;
     ir->scale = 1;
     ir->openPZA(argv[1]);
   }else{
     ir->cmWidth =  std::atoi(width);
-    std::cout << "WIDTH " << width << std::endl;
-    std::cout << "SCALE " << scale << std::endl;
+    if (debug){
+      std::cout << "WIDTH_CM " << width << std::endl;
+      std::cout << "SCALE " << scale << std::endl;
+    }
     ir->scale = std::atof(scale);
     ir->open(argv[1]);
   }
@@ -195,7 +209,7 @@ int main( int argc, char** argv ){
     fname=strs[2];
   }
 
-  
+
   std::string sql_modell = "set @svmodell='"+modell+"'";
   if (mysql_query(con, sql_modell.c_str())){
   }
@@ -251,7 +265,9 @@ int main( int argc, char** argv ){
           +", @plz"
           +", @ort"
           +")";
-        std::cout << "fuzzysql " << fuzzysql << std::endl;
+        if (debug){
+          std::cout << "fuzzysql " << fuzzysql << std::endl;
+        }
         if (mysql_query(con, fuzzysql.c_str())){
 
           fprintf(stderr, "%s\n", mysql_error(con));
@@ -287,7 +303,9 @@ int main( int argc, char** argv ){
            //std::cout << "sg " << row[0] << ", sf " << row[1] << std::endl;
         }
 
-        std::cout << "good" << std::endl;
+        if (debug){
+          std::cout << "good" << std::endl;
+        }
         std::string newfile = imagepath+"result/good."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
 
@@ -305,7 +323,9 @@ int main( int argc, char** argv ){
       }else{
 
         // there is no streetname
-        std::cout << "no address: " << ea->getStreetName() << ": " << ea->getZipCode() << std::endl;
+        if (debug){
+          std::cout << "no address: " << ea->getStreetName() << ": " << ea->getZipCode() << std::endl;
+        }
         std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
         if (store_original!=""){
@@ -324,7 +344,9 @@ int main( int argc, char** argv ){
 
     }else{
       // there is no adresstext
-      std::cout << "no address *" << std::endl;
+      if (debug){
+        std::cout << "no address *" << std::endl;
+      }
       std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
       if (store_original!=""){
@@ -344,7 +366,9 @@ int main( int argc, char** argv ){
   }else{
     // ok there is no barcode
     // move that file
-    std::cout << "no code" << std::endl;
+    if (debug){
+      std::cout << "no code" << std::endl;
+    }
     std::string newfile = imagepath+"result/nocode."+fname+".jpg";
     cv::imwrite(newfile.c_str(),ir->orignalImage,params);
     if (store_original!=""){

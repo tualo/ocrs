@@ -36,6 +36,7 @@ public:
   void open(const char* filename);
   void openPZA(const char* filename);
   bool showWindow;
+  bool debug;
   std::string code;
   std::string jsontext;
   std::string addresstext;

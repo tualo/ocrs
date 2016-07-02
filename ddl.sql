@@ -44,6 +44,22 @@ CREATE TABLE `short_boxes_locked_by_product` (
   PRIMARY KEY (`zipcode`,`product`)
 ) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/short_boxes_locked_by_product';
 
+DROP TABLE  IF EXISTS `bbs_data`;
+CREATE TABLE `bbs_data` (
+  `id` bigint(20) NOT NULL,
+  `kundennummer` varchar(10) NOT NULL,
+  `kostenstelle` int(11) NOT NULL,
+  `height` decimal(15,2) DEFAULT NULL,
+  `length` decimal(15,2) DEFAULT NULL,
+  `thickness` decimal(15,2) DEFAULT NULL,
+  `weight` decimal(15,2) DEFAULT NULL,
+  `inserttime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `waregroup` varchar(255) NOT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `machine_no` int(11) DEFAULT NULL,
+  `login` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/bbs_data';
 
 
 DROP TABLE  IF EXISTS `ocrs`;
