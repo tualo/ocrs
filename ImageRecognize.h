@@ -38,22 +38,27 @@ public:
   bool showWindow;
   bool debug;
   bool headOver;
+  bool windowalltogether;
   int analysisType;
   int barcode_algorthim;
+  int window_wait;
+
   std::string code;
   std::string jsontext;
   std::string addresstext;
   int width;
   int height;
   cv::Mat resultMat;
+  cv::Mat debugImage;
   cv::Mat orignalImage;
   int resultThres;
+  int minX;
   float scale;
   float cmWidth;
 
 private:
   cv::Mat largestContour(cv::Mat& src);
-  void makeResultImage(cv::Mat& src);
+  void makeResultImage(cv::Mat& src,float multiply);
   cv::Rect fittingROI(double x,double y,double w,double h, cv::Mat& m1);
   double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
 
@@ -65,6 +70,7 @@ private:
   const char* text(cv::Mat& im);
   std::string getText(cv::Mat& im);
 
+  bool containsZipCode(cv::Mat& im,cv::Mat& orig);
   bool usingLetterRoi(cv::Mat& im,cv::Rect roi2);
   bool usingLetterType1(cv::Mat& im);
   bool usingLetterType1_1(cv::Mat& im);
@@ -83,15 +89,17 @@ private:
   void rotate(cv::Mat& src, double angle, cv::Mat& dst);
   void showImage(cv::Mat& src);
   void showImage(cv::Mat& src,char* title);
+  void showDebugImage();
   void rotateX(cv::Mat& src,float angle,cv::Point center);
   void linearize(cv::Mat& src);
-  void linearize(cv::Mat& src,float multiply);
+  int linearize(cv::Mat& src,float multiply);
 
   int oneCM;
 
 
   const char* fileName;
   const char* ocr_text;
+
   std::string resultText;
   std::string allTogether;
   tesseract::TessBaseAPI* tess;

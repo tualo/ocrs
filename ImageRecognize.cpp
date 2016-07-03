@@ -36,7 +36,30 @@ void ImageRecognize::showImage(cv::Mat& src){
 
     cv::namedWindow("DEBUG", CV_WINDOW_AUTOSIZE );
     cv::imshow("DEBUG", res );
-    cv::waitKey(1000);
+    cv::waitKey(window_wait);
+  }
+}
+
+void ImageRecognize::showDebugImage(){
+  if (showWindow){
+    cv::Mat rotated=debugImage.clone();
+
+    int x=debugImage.cols /8;
+    int y=debugImage.rows /8;
+
+    /*
+    if ( src.cols < src.rows ){
+      rotate(src, -90, rotated);
+    }
+    */
+
+    cv::Mat res = cv::Mat(x, y, CV_32FC3);
+    cv::resize(rotated, res, cv::Size(x, y), 0, 0, 3);
+
+
+    cv::namedWindow("DEBUG Image", CV_WINDOW_AUTOSIZE );
+    cv::imshow("DEBUG Image", res );
+    //cv::waitKey(0);
   }
 }
 
@@ -57,7 +80,7 @@ void ImageRecognize::showImage(cv::Mat& src,char* title){
 
     cv::namedWindow(title, CV_WINDOW_AUTOSIZE );
     cv::imshow(title, res );
-    cv::waitKey(5000);
+    cv::waitKey(window_wait);
   }
 }
 
@@ -72,8 +95,19 @@ void ImageRecognize::open(const char* filename){
 
 
   tess=new tesseract::TessBaseAPI();
-  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
+  //if(!tess->SetVariable("tessedit_enable_doc_dict", "0")){
+  //}
+  //if(!tess->SetVariable("textord_min_linesize", "2.5")){
+  //}
 
+  /*
+  if(!tess->SetVariable("enable_new_segsearch", "1")){
+  }
+  if(!tess->SetVariable("use_new_state_cost", "1")){
+  }
+  */
+
+  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
 
   cv::Mat minmat = cv::Mat(orignalImage.cols*scale, orignalImage.rows, CV_32FC3);
   cv::resize(orignalImage, minmat, cv::Size(orignalImage.cols*scale, orignalImage.rows), 0, 0, 3);
@@ -116,10 +150,15 @@ void ImageRecognize::open(const char* filename){
     }
 
     code = bcRes.code;
+    if (code.length()<4){
+      return;
+    }
     bc_point=bcRes.point;
+    /*
     if (bc_point.y>(largest.rows/2)){
       rotateX(largest,180,cv::Point(largest.cols/2,largest.rows/2));
     }
+    */
     double t1 = (double)cv::getTickCount();
     double te1;
 
@@ -159,6 +198,9 @@ void ImageRecognize::open(const char* filename){
 
 
     code = bcRes.code;
+    if (code.length()<4){
+      return;
+    }
     //cv::rectangle(largest,bcRes.rect,cv::Scalar(255,255,255),CV_FILLED);
     rotateX(largest,90,cv::Point(largest.cols/2,largest.rows/2));
     double t1 = (double)cv::getTickCount();
@@ -449,8 +491,27 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
   cv::RotatedRect box = cv::minAreaRect(cv::Mat(points));
 
   cv::Size box_size = box.size;
+
+  /*
+  if(debug){
+    if ( ( box.angle < 0.01 ) && ( box.angle > -0.01 ) ){
+      std::cout << "angle " << box.angle << std::endl;
+      if (box.angle>0){
+        box.angle = 0.5;
+      }else{
+        box.angle = -0.5;
+      }
+    }
+  }
+  */
   if (box_size.width<box_size.height){
     box.angle += 90.;
+  }
+  int iangle = box.angle;
+  box.angle = iangle;
+
+  if(debug){
+    std::cout << "angle " << box.angle << " BWidth "  << box_size.width << " BHeight " << box_size.height << std::endl;
   }
 
   //te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
@@ -498,6 +559,12 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
   //showImage(rotated,"LC rotated");
   cv::Rect myROI(bounding_rect.x, bounding_rect.y, bounding_rect.width, bounding_rect.height);
   cv::Mat result = rotated(myROI);
+
+  if(debug){
+    std::cout << "myROI " << " BWidth "  << myROI.width << " BHeight " << myROI.height  << std::endl;
+  }
+
+
   if (debug){
     te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
     std::cout << "largestContour passed in seconds: " << te << std::endl;
@@ -812,6 +879,7 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
     rY = 0;
     rH = m1.rows;
   }
+  /*
   if (debug){
     std::cout << "fittingROI rX " << rX << std::endl;
     std::cout << "fittingROI rY " << rY << std::endl;
@@ -820,13 +888,15 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
     std::cout << "fittingROI m1.rows" << m1.rows << std::endl;
     std::cout << "fittingROI m1.cols" << m1.cols << std::endl;
   }
+  */
   return cv::Rect(rX,rY,rW,rH);
 }
 
 std::string ImageRecognize::getText(cv::Mat& im){
   tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
   tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
-  tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
+  tess->SetVariable("tessedit_reject_bad_qual_wds","1");
+  tess->SetVariable("textord_min_linesize","2.0");
   tess->Recognize(0);
 
   const char* out = tess->GetUTF8Text();
@@ -836,6 +906,16 @@ std::string ImageRecognize::getText(cv::Mat& im){
 
   const boost::regex plz_regex("\\d{5}\\s");
   const boost::regex no_plz_regex("\\d{6}\\s");
+
+  /*
+  const boost::regex noise_regex("\\w{4}");
+
+  if ( (boost::regex_search(intermedia , noise_regex)==true) ){
+    if(debug){
+      std::cout << "NOISE" << std::endl;
+    }
+  }
+  */
 
   if ( (boost::regex_search(intermedia , plz_regex)==true)&&(boost::regex_search(intermedia , no_plz_regex)==false) ){
     return intermedia;
@@ -857,14 +937,62 @@ std::string ImageRecognize::getText(cv::Mat& im){
   }
 }
 
-/*
-bool ImageRecognize::usingLetterRoiText(cv::Mat& im){
+
+bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
+  int i=0;
+  int m=0;
+  int lastThreshold=0;
   std::vector<std::string> lines;
   const boost::regex plz_regex("\\d{5}\\s");
   const boost::regex no_plz_regex("\\d{6}\\s");
+  cv::Mat c2 = im.clone();
+  lastThreshold = linearize(im,-0.30);
 
+  std::string s1 = getText(im);//(out);
+  boost::replace_all(s1,code,"-------------");
+  lines = isplit(s1,'\n');
+  /*
+  for(i=0;i<lines.size();i++){
+    std::cout << i << "#" << lines.at(i) << std::endl;
+  }
+  std::cout << "####" << lines.at(4) << "*"<< lines.at(4).at(5) << std::endl;
+  */
+  if ((lines.size()<15)){
+    m = lines.size()-1;
+    for(i=m;i>0;i--){
+      if ((boost::regex_search(lines.at(i) , plz_regex)==true)&&(boost::regex_search(lines.at(i) , no_plz_regex)==false)){
+        resultText=s1;
+        ocr_text = s1.c_str();
+        resultThres = lastThreshold;
+        makeResultImage(orig,0.85);
+        return true;
+      }
+    }
+  }
+  /*
+  //if (false){
+    linearize(c2,0.2);
+    s1 = getText(c2);
+    boost::replace_all(s1,code,"-------------");
+    lines = isplit(s1,'\n');
+    if ((lines.size()<15)){
+      m = lines.size()-1;
+      for(i=m;i>0;i--){
+        if ((boost::regex_search(lines.at(i) , plz_regex)==true)&&(boost::regex_search(lines.at(i) , no_plz_regex)==false)){
+          resultText=s1;
+          ocr_text = s1.c_str();
+          resultThres = lastThreshold;
+          makeResultImage(orig,1.8);
+          return true;
+        }
+      }
+    }
+  //}
+  */
+
+  return false;
 }
-*/
+
 bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   const char* out;
   std::vector<std::string> lines;
@@ -876,13 +1004,17 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   int hoehe = im.rows/oneCM;
   float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
   cv::Mat c2 = (im.clone())(roi2);
+  if (containsZipCode(c2,im)){
+    return true;
+  }
+
+  /*
   linearize(c2);
   std::string s1 = getText(c2);//(out);
   boost::replace_all(s1,code,"-------------");
   std::cout << "********" << std::endl;
   std::cout << s1 << std::endl;
   std::cout << "********" << std::endl;
-
   lines = isplit(s1,'\n');
 
 
@@ -892,8 +1024,8 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
     makeResultImage(im);
     return true;
   }
-
-  allTogether += "\n\n" + std::string(out);
+  */
+  allTogether += "\n\n" + resultText;
 
   cv::Mat rotated(im.cols,im.rows,im.type());
 
@@ -903,6 +1035,11 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   transpose(rotated, rotated2);
   flip(rotated2, rotated2,1); //transpose+flip(1)=CW
   c2 = rotated2(roi2);
+  if (containsZipCode(c2,rotated2)){
+    return true;
+  }
+
+  /*
   linearize(c2);
   //showIM = rotated2.clone();
   //showImage(c2,"1");
@@ -924,19 +1061,23 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
     makeResultImage(im);
     return true;
   }
-  makeResultImage(im);
+  */
+  makeResultImage(im,1.5);
 
-  allTogether += "\n\n" + std::string(out);
+  allTogether += "\n\n" + std::string(resultText);
 
   return false;
 }
 
-void ImageRecognize::makeResultImage(cv::Mat& src){
+void ImageRecognize::makeResultImage(cv::Mat& src,float multiply){
   cv::Mat clone;
 
 
   cvtColor( src, clone, CV_BGR2GRAY );
-  cv::threshold(clone, resultMat, resultThres*1.6, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
+  // 8812
+  //cv::threshold(clone, resultMat, resultThres, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
+//  cv::threshold(clone, resultMat, resultThres, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
+  cv::adaptiveThreshold(clone,resultMat,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,59,10);
 
   int x=resultMat.cols /2;
   int y=resultMat.rows /2;
@@ -956,7 +1097,7 @@ void ImageRecognize::makeResultImage(cv::Mat& src){
 }
 
 bool ImageRecognize::usingLetterType1(cv::Mat& im){
-  cv::Rect roi2 = fittingROI(2,5,11,7,im);
+  cv::Rect roi2 = fittingROI(2,6,10,6,im);
   /*
   --------------------------------------
   |                                    |
@@ -1047,6 +1188,11 @@ bool ImageRecognize::usingLetterType2(cv::Mat& im){
   --------------------------------------
   */
 
+  if (windowalltogether){
+    cv::rectangle(debugImage,roi2,cv::Scalar(255,255,255));
+    showDebugImage();
+  }
+
   cv::Mat  ix = (im.clone())(roi2);
 
   return usingLetterRoi(im,roi2);
@@ -1075,7 +1221,10 @@ bool ImageRecognize::usingLetterType2_1(cv::Mat& im){
   --------------------------------------
   */
   cv::Mat  ix = (im.clone())(roi2);
-
+  if (windowalltogether){
+    cv::rectangle(debugImage,roi2,cv::Scalar(255,255,255));
+    showDebugImage();
+  }
   return usingLetterRoi(im,roi2);
 }
 
@@ -1102,7 +1251,10 @@ bool ImageRecognize::usingLetterType2_2(cv::Mat& im){
   --------------------------------------
   */
   cv::Mat  ix = (im.clone())(roi2);
-
+  if (windowalltogether){
+    cv::rectangle(debugImage,roi2,cv::Scalar(255,255,255));
+    showDebugImage();
+  }
   return usingLetterRoi(im,roi2);
 }
 
@@ -1116,26 +1268,35 @@ const char* ImageRecognize::text(cv::Mat& im){
   height = hoehe;
 
   // din lang
-  if (hoehe < 15){
+  if (hoehe <= 21){
     if (breite >= 20){
       letterType=1;
     }
   }
 
+  if (windowalltogether){
+    debugImage = im.clone();
+    showDebugImage();
+  }
+
+
   // grossbrief
-  if (hoehe > 15){
+  if (hoehe > 21){
     if (breite > 20){
       letterType=2;
     }
   }
 
   // c5 c6
-  if (hoehe < 15){
+  if (hoehe <= 21){
     if (breite < 20){
       letterType=3;
     }
   }
 
+  if (debug){
+    std::cout << "H " << hoehe << " | B " << breite << std::endl;
+  }
 
   allTogether = "";
 
@@ -1154,51 +1315,124 @@ const char* ImageRecognize::text(cv::Mat& im){
       }else{
 
 
-        if (usingLetterType1(im)){
+        /*if (usingLetterType3(im)){
           return ocr_text;
-        }else if (usingLetterType1_1(im)){
-          return ocr_text;
-        }else if (usingLetterType2(im)){
-          return ocr_text;
-        }else if (usingLetterType2_1(im)){
-          return ocr_text;
-        }else if (usingLetterType2_2(im)){
-          return ocr_text;
-        }else if (usingLetterType3(im)){
-          return ocr_text;
-        }
+        }*/
         if (debug){
           std::cout << "Lettertype 1, do something" << std::endl;
         }
       }
     }
   }else if (letterType==2){
-    if (usingLetterType2(im)){
+
+    cv::Mat rotated;
+    transpose(im, rotated);
+    flip(rotated, rotated,1); //transpose+flip(1)=CW
+    // sichtfenster voran
+
+    if (windowalltogether){
+      debugImage = rotated.clone();
+      transpose(rotated, debugImage);
+      flip(debugImage, debugImage,1); //transpose+flip(1)=CW
+      showDebugImage();
+    }
+
+
+    if (usingLetterType2(rotated)){
       return ocr_text;
     }else{
-      if (usingLetterType2_1(im)){
+      if (usingLetterType2_1(rotated)){
         return ocr_text;
       }else{
-        if (usingLetterType2_2(im)){
+        if (usingLetterType2_2(rotated)){
           return ocr_text;
         }else{
 
-          if (usingLetterType1(im)){
-            return ocr_text;
-          }else if (usingLetterType1_1(im)){
-            return ocr_text;
-          }else if (usingLetterType2(im)){
-            return ocr_text;
-          }else if (usingLetterType2_1(im)){
-            return ocr_text;
-          }else if (usingLetterType2_2(im)){
-            return ocr_text;
-          }else if (usingLetterType3(im)){
-            return ocr_text;
+
+
+          rotated = im.clone();
+
+          if (windowalltogether){
+            debugImage = im.clone();
+            showDebugImage();
           }
-          if (debug){
-            std::cout << "Lettertype 2, do something" << std::endl;
+
+
+          if (usingLetterType2(rotated)){
+            return ocr_text;
+          }else{
+            if (usingLetterType2_1(rotated)){
+              return ocr_text;
+            }else{
+              if (usingLetterType2_2(rotated)){
+                return ocr_text;
+              }else{
+
+
+
+
+                    transpose(rotated, rotated);
+                    flip(rotated, rotated,1);
+                    transpose(rotated, rotated);
+                    flip(rotated, rotated,1);
+
+                    if (windowalltogether){
+                      debugImage = rotated.clone();
+                      transpose(rotated, debugImage);
+                      flip(debugImage, debugImage,1); //transpose+flip(1)=CW
+                      showDebugImage();
+                    }
+
+
+                    if (usingLetterType2(rotated)){
+                      return ocr_text;
+                    }else{
+                      if (usingLetterType2_1(rotated)){
+                        return ocr_text;
+                      }else{
+                        if (usingLetterType2_2(rotated)){
+                          return ocr_text;
+                        }else{
+
+
+
+                          transpose(rotated, rotated);
+                          flip(rotated, rotated,1);
+
+                          if (windowalltogether){
+                            debugImage = im.clone();
+                            showDebugImage();
+                          }
+
+
+                          if (usingLetterType2(rotated)){
+                            return ocr_text;
+                          }else{
+                            if (usingLetterType2_1(rotated)){
+                              return ocr_text;
+                            }else{
+                              if (usingLetterType2_2(rotated)){
+                                return ocr_text;
+                              }else{
+
+                                if (debug){
+                                  std::cout << "Lettertype 2, do something" << std::endl;
+                                }
+                              }
+                            }
+                          }
+
+
+                        }
+                      }
+                    }
+
+
+              }
+            }
           }
+
+
         }
       }
     }
@@ -1207,25 +1441,15 @@ const char* ImageRecognize::text(cv::Mat& im){
     if (usingLetterType3(im)){
       return ocr_text;
     }else{
-      if (usingLetterType1(im)){
-        return ocr_text;
-      }else if (usingLetterType1_1(im)){
-        return ocr_text;
-      }else if (usingLetterType2(im)){
-        return ocr_text;
-      }else if (usingLetterType2_1(im)){
-        return ocr_text;
-      }else if (usingLetterType2_2(im)){
-        return ocr_text;
-      }else if (usingLetterType3(im)){
-        return ocr_text;
-      }
+
       if(debug){
         std::cout << "Lettertype 3, do something" << std::endl;
       }
     }
   }
 
+
+  /*
   cv::Rect roi_im( cv::Point( 0, 0 ), im.size() );
   cv::Mat n = im.clone();
   if(usingLetterRoi(n,roi_im)){
@@ -1265,7 +1489,7 @@ const char* ImageRecognize::text(cv::Mat& im){
   allTogether = "";
   ocr_text = allTogether.c_str();
   out = allTogether.c_str();
-
+  */
   if(debug){
     std::cout << "found nothing "  << std::endl;
   }
@@ -1331,26 +1555,28 @@ void ImageRecognize::linearize(cv::Mat& src){
     if (min<0){
       min=0;
     }
+    /*
     if(debug){
       std::cout << "min" << min << std::endl;
       std::cout << "max" << max << std::endl;
-    }
+    }*/
 
     // todo play around with that value
     int minX = min*0.85;
     if (minX<10){
       minX=10;
     }
+    /*
     if (debug){
       std::cout << "minX" << minX << std::endl;
-    }
+    }*/
     cv::threshold(src,src,minX,255, CV_THRESH_BINARY);
     showImage(src);
 }
 
 
-void ImageRecognize::linearize(cv::Mat& src,float multiply){
-
+int ImageRecognize::linearize(cv::Mat& src,float multiply){
+    cv::Mat clone = src.clone();
     std::vector<cv::Mat> bgr_planes;
     cv::split( src, bgr_planes );
     int histSize = 256;
@@ -1397,19 +1623,106 @@ void ImageRecognize::linearize(cv::Mat& src,float multiply){
     if (min<0){
       min=0;
     }
+
     if(debug){
       std::cout << "min" << min << std::endl;
       std::cout << "max" << max << std::endl;
     }
 
+
     // todo play around with that value
-    int minX = min*multiply;
+    minX = (min +((max-min)/2)*multiply );
     if (minX<10){
       minX=10;
     }
-    if (debug){
-      std::cout << "minX" << minX << std::endl;
+
+    if (minX>245){
+      minX=245;
     }
-    cv::threshold(src,src,minX,255, CV_THRESH_BINARY);
+    if (debug){
+      std::cout << "minX" << minX << " d"  << min +((max-min)/2) << std::endl;
+    }
+
+    //cv::blur( src, src, cv::Size(3,3) );
+    cv::Mat bw;
+    cv::Mat thr(src.rows,src.cols,CV_8UC1);
+    cvtColor(src,thr,CV_BGR2GRAY); //Convert to gray
+    int xx =cv::threshold(thr,bw, 0 ,255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+    minX = xx;
+    if (debug){
+      std::cout << "XX" << xx << std::endl;
+    }
+//    cv::threshold(src,src, 0 ,xx-25, CV_THRESH_BINARY);
+
+    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,59,10);
+
+    //showImage(bw);
+    //int x = cv::threshold(src,src, xx-5 ,255, CV_THRESH_BINARY);
+    if (false){
+
+//    cv::threshold(src,src, 100 ,255, CV_THRESH_BINARY);
+    /*
+    std::vector<cv::Mat> bgr_planes_sec;
+    cv::split( src, bgr_planes_sec );
+    int histSize_sec = 256;
+    float range_sec[] = { 0, 256 } ;
+    const float* histRange_sec = { range_sec };
+
+    bool uniform_sec = true;
+    bool accumulate_sec = false;
+
+    cv::Mat b_hist_sec;
+    cv::calcHist( &bgr_planes_sec[0], 1, 0, cv::Mat(), b_hist_sec, 1, &histSize_sec, &histRange_sec, uniform_sec, accumulate_sec );
+    float min_sec=0;
+    float max_sec=255;
+    float sum_sec=0;
+    float avg_sec=0;
+    for(int i=0;i<histSize_sec;i++){
+      sum_sec+=b_hist_sec.at<float>(i);
+    }
+    avg_sec = sum_sec/histSize_sec;
+
+    for(int i=30;i<histSize_sec;i++){
+      if (b_hist_sec.at<float>(i)>avg_sec*0.5){
+        if (min_sec==0){
+          min_sec=i;
+          break;
+        }
+      }
+    }
+    for(int i=255;i>31;i--){
+      if (b_hist_sec.at<float>(i)>avg_sec){
+        if (max_sec==255){
+          max_sec=i;
+          break;
+        }
+      }
+    }
+    if (max_sec-min_sec<40){
+      max_sec+=20;
+      min_sec-=20;
+    }
+    if (max_sec>255){
+      max_sec=255;
+    }
+    if (min_sec<0){
+      min_sec=0;
+    }
+    if(debug){
+      std::cout << "min" << min_sec << std::endl;
+      std::cout << "max" << max_sec << std::endl;
+    }
+    if (min_sec>(min +((max-min)/2))){
+      minX = (min +((max-min)/2) );
+      if(debug){
+        std::cout << "use alternative minX" << minX << std::endl;
+      }
+      cv::threshold(clone,src, minX*0.8 ,255, CV_THRESH_BINARY);
+
+    }
+
+    */
+    }
     showImage(src);
+    return minX;
 }

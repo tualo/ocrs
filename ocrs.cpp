@@ -91,7 +91,6 @@ int main( int argc, char** argv ){
     imagepath_result = std::string(env_pathir);
   }
 
-
   int keepfiles = 0;
   if(const char* env_keep = std::getenv("KEEPFILES")){
     keepfiles = atoi(env_keep);
@@ -124,6 +123,18 @@ int main( int argc, char** argv ){
   if(const char* env_window = std::getenv("DEBUGWINDOW")){
     window = (atoi(env_window)==1)?true:false;
   }
+
+  bool windowalltogether = false;
+  if(const char* env_windowa = std::getenv("DEBUGWINDOW_ALL")){
+    windowalltogether = (atoi(env_windowa)==1)?true:false;
+  }
+
+
+  int window_wait = 500;
+  if(const char* env_windowwait = std::getenv("DEBUGWINDOWWAIT")){
+    window_wait = atoi(env_windowwait);
+  }
+
   bool debug = false;
   if(const char* env_debug = std::getenv("DEBUG")){
     debug = (atoi(env_debug)==1)?true:false;
@@ -183,7 +194,6 @@ int main( int argc, char** argv ){
     exit(1);
   }
 
-
   std::string sql = "";
   ImageRecognize* ir = new ImageRecognize();
   ir->debug=debug;
@@ -191,6 +201,8 @@ int main( int argc, char** argv ){
   ir->analysisType=analysisType;
   ir->headOver = headOver;
   ir->barcode_algorthim = barcode_algorthim;
+  ir->window_wait = window_wait;
+  ir->windowalltogether = windowalltogether;
 
   if (std::string(env_pza) == "1"){
     ir->cmWidth = 21;
