@@ -904,7 +904,7 @@ std::string ImageRecognize::getText(cv::Mat& im){
   std::string intermedia (out);
 
 
-  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex plz_regex("\\d{5}(\\s|\\w)");
   const boost::regex no_plz_regex("\\d{6}\\s");
 
   /*
@@ -943,7 +943,7 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
   int m=0;
   int lastThreshold=0;
   std::vector<std::string> lines;
-  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex plz_regex("\\d{5}(\\s|\\w)");
   const boost::regex no_plz_regex("\\d{6}\\s");
   cv::Mat c2 = im.clone();
   lastThreshold = linearize(im,-0.30);
