@@ -64,8 +64,8 @@ void ImageRecognize::showImage(cv::Mat& src,char* title){
 void ImageRecognize::open(const char* filename){
   double t = (double)cv::getTickCount();
   double te;
-  int analysisType = 1;
-  showWindow=true;
+
+  //showWindow=true;
   resultThres = 128;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
@@ -91,10 +91,30 @@ void ImageRecognize::open(const char* filename){
   cv::Point bc_point;
   cv::Mat largest;
   const char* out;
+  if (debug){
+    std::cout << "analysisType " << analysisType << std::endl;
+  }
   if (analysisType==0){
 
     largest = largestContour(mat);
-    bcRes = barcode(largest);
+    if (headOver){
+      transpose(largest, largest);
+      flip(largest, largest,1); //transpose+flip(1)=CW
+      transpose(largest, largest);
+      flip(largest, largest,1); //transpose+flip(1)=CW
+    }
+
+    if (barcode_algorthim==0){
+      bcRes = barcode(largest);
+    }else if (barcode_algorthim==1){
+      bcRes = fast_barcode(largest);
+    }else if (barcode_algorthim==2){
+      bcRes = fast_barcode(largest);
+      if (bcRes.found==false){
+        bcRes = barcode(largest);
+      }
+    }
+
     code = bcRes.code;
     bc_point=bcRes.point;
     if (bc_point.y>(largest.rows/2)){
@@ -109,7 +129,7 @@ void ImageRecognize::open(const char* filename){
       te1 = ((double)cv::getTickCount() - t1)/cv::getTickFrequency();
       std::cout << "text passed in seconds: " << te1 << std::endl;
     }
-    std::string s (out);
+    std::string s = resultText;
     std::replace( s.begin(), s.end(), '"', ' ');
     code = bcRes.code;
     addresstext = s;
@@ -117,19 +137,40 @@ void ImageRecognize::open(const char* filename){
   }else if (analysisType==1){
 
     largest = getRectangle(mat);
-    bcRes = barcode(largest);
+    if (headOver){
+      if (debug){
+        std::cout << "headOver *************" << std::endl;
+      }
+      transpose(largest, largest);
+      flip(largest, largest,1); //transpose+flip(1)=CW
+      transpose(largest, largest);
+      flip(largest, largest,1); //transpose+flip(1)=CW
+    }
+    if (barcode_algorthim==0){
+      bcRes = barcode(largest);
+    }else if (barcode_algorthim==1){
+      bcRes = fast_barcode(largest);
+    }else if (barcode_algorthim==2){
+      bcRes = fast_barcode(largest);
+      if (bcRes.found==false){
+        bcRes = barcode(largest);
+      }
+    }
+
+
     code = bcRes.code;
-    cv::rectangle(largest,bcRes.rect,cv::Scalar(255,255,255),CV_FILLED);
+    //cv::rectangle(largest,bcRes.rect,cv::Scalar(255,255,255),CV_FILLED);
     rotateX(largest,90,cv::Point(largest.cols/2,largest.rows/2));
     double t1 = (double)cv::getTickCount();
     double te1;
     out = text(largest);
+    //std::cout << ">>>>>>" << resultText << std::endl;
 
     if (debug){
       te1 = ((double)cv::getTickCount() - t1)/cv::getTickFrequency();
       std::cout << "text passed in seconds: " << te1 << std::endl;
     }
-    std::string s (out);
+    std::string s  = resultText;
     std::replace( s.begin(), s.end(), '"', ' ');
     addresstext = s;
     bc_point=bcRes.point;
@@ -689,10 +730,10 @@ bcResult ImageRecognize::fast_barcode(cv::Mat& im){
     rotateX(useIMG,90,cv::Point(useIMG.cols/2,useIMG.rows/2));
   }
   //cv::Rect roi = fittingROI((useIMG.cols/oneCM)-15 ,1.5,15,4,useIMG);
-  cv::Rect roi = fittingROI((useIMG.cols/oneCM)-15 ,2,15,4,useIMG);
+  cv::Rect roi(0,0,useIMG.cols,useIMG.rows/4);//fittingROI((useIMG.cols/oneCM)-15 ,2,15,4,useIMG);
   cv::Mat part = useIMG(roi);
 
-  res = barcode_internal(useIMG);
+  res = barcode_internal(part);
   if (res.found==false){
 
 
@@ -782,16 +823,48 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
   return cv::Rect(rX,rY,rW,rH);
 }
 
-const char* ImageRecognize::getText(cv::Mat& im){
+std::string ImageRecognize::getText(cv::Mat& im){
   tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
   tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
   tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
   tess->Recognize(0);
-  return tess->GetUTF8Text();
+
+  const char* out = tess->GetUTF8Text();
+  const boost::regex number_space("(?<=\\d)([^\\S\\r\\n])+(?=\\d)");
+  std::string intermedia (out);
+
+
+  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex no_plz_regex("\\d{6}\\s");
+
+  if ( (boost::regex_search(intermedia , plz_regex)==true)&&(boost::regex_search(intermedia , no_plz_regex)==false) ){
+    return intermedia;
+  }else{
+
+
+
+    std::string newtext;
+    std::cout << out << std::endl;
+    newtext = boost::regex_replace(intermedia, number_space, "");
+
+    if(debug){
+      std::cout << "##################" << std::endl;
+      std::cout << newtext << std::endl;
+      std::cout << "##################" << std::endl;
+    }
+
+    return newtext;
+  }
 }
 
+/*
+bool ImageRecognize::usingLetterRoiText(cv::Mat& im){
+  std::vector<std::string> lines;
+  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex no_plz_regex("\\d{6}\\s");
 
-
+}
+*/
 bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   const char* out;
   std::vector<std::string> lines;
@@ -804,24 +877,20 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
   cv::Mat c2 = (im.clone())(roi2);
   linearize(c2);
-
-  //cv::Mat showIM = im.clone();
-  //cv::rectangle(showIM,roi2,cv::Scalar(100,100,100),10);
-  //showImage(showIM,"1");
-
-  //showImage(c2,"TEST 2_1");
-  out = getText(c2);
-
-  std::string s1 (out);
+  std::string s1 = getText(c2);//(out);
   boost::replace_all(s1,code,"-------------");
+  std::cout << "********" << std::endl;
+  std::cout << s1 << std::endl;
+  std::cout << "********" << std::endl;
 
   lines = isplit(s1,'\n');
 
 
-  if ((lines.size()<20)&&(boost::regex_search(s1 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
-      ocr_text = out;
-      makeResultImage(im);
-      return true;
+  if ((lines.size()<15)&&(boost::regex_search(s1 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
+    resultText=s1;
+    ocr_text = s1.c_str();
+    makeResultImage(im);
+    return true;
   }
 
   allTogether += "\n\n" + std::string(out);
@@ -837,9 +906,10 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   linearize(c2);
   //showIM = rotated2.clone();
   //showImage(c2,"1");
-  out = getText(c2);
-  //std::cout << out << std::endl;
-  std::string s2 (out);
+  //out = getText(c2);
+
+
+  std::string s2 = getText(c2);// (out);
 
   boost::replace_all(s2,code,"-------------");
   //out = s2.c_str();
@@ -848,10 +918,11 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   //out = s2.c_str();
 
   lines = isplit(s2,'\n');
-  if ((lines.size()<20)&&(boost::regex_search(s2 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
-      ocr_text = out;
-      makeResultImage(im);
-      return true;
+  if ((lines.size()<15)&&(boost::regex_search(s2 , plz_regex)==true)&&(boost::regex_search(s1 , no_plz_regex)==false)){
+    resultText=s2;
+    ocr_text = s2.c_str();
+    makeResultImage(im);
+    return true;
   }
   makeResultImage(im);
 
@@ -865,7 +936,7 @@ void ImageRecognize::makeResultImage(cv::Mat& src){
 
 
   cvtColor( src, clone, CV_BGR2GRAY );
-  cv::threshold(clone, resultMat, resultThres, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
+  cv::threshold(clone, resultMat, resultThres*1.6, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
 
   int x=resultMat.cols /2;
   int y=resultMat.rows /2;
@@ -873,11 +944,12 @@ void ImageRecognize::makeResultImage(cv::Mat& src){
   cv::resize(resultMat, res, cv::Size(x, y), 0, 0, 3);
   resultMat = res;
 
-  transpose(resultMat, resultMat);
-  flip(resultMat, resultMat,1);
-  transpose(resultMat, resultMat);
-  flip(resultMat, resultMat,1);
-
+  if (headOver==false){
+    transpose(resultMat, resultMat);
+    flip(resultMat, resultMat,1);
+    transpose(resultMat, resultMat);
+    flip(resultMat, resultMat,1);
+  }
 
 
 
@@ -1263,10 +1335,75 @@ void ImageRecognize::linearize(cv::Mat& src){
       std::cout << "min" << min << std::endl;
       std::cout << "max" << max << std::endl;
     }
-    //showImage(src,"I");
-    //cv::normalize(src, src, min, 255, cv::NORM_MINMAX, CV_8UC1);
-    //cv::threshold(src,src,min+10,max-10, CV_THRESH_BINARY);
-    int minX = min*0.95;
+
+    // todo play around with that value
+    int minX = min*0.85;
+    if (minX<10){
+      minX=10;
+    }
+    if (debug){
+      std::cout << "minX" << minX << std::endl;
+    }
+    cv::threshold(src,src,minX,255, CV_THRESH_BINARY);
+    showImage(src);
+}
+
+
+void ImageRecognize::linearize(cv::Mat& src,float multiply){
+
+    std::vector<cv::Mat> bgr_planes;
+    cv::split( src, bgr_planes );
+    int histSize = 256;
+    float range[] = { 0, 256 } ;
+    const float* histRange = { range };
+
+    bool uniform = true;
+    bool accumulate = false;
+
+    cv::Mat b_hist;
+    cv::calcHist( &bgr_planes[0], 1, 0, cv::Mat(), b_hist, 1, &histSize, &histRange, uniform, accumulate );
+    float min=0;
+    float max=255;
+    float sum=0;
+    float avg=0;
+    for(int i=0;i<histSize;i++){
+      sum+=b_hist.at<float>(i);
+    }
+    avg = sum/histSize;
+
+    for(int i=30;i<histSize;i++){
+      if (b_hist.at<float>(i)>avg*0.5){
+        if (min==0){
+          min=i;
+          break;
+        }
+      }
+    }
+    for(int i=255;i>31;i--){
+      if (b_hist.at<float>(i)>avg){
+        if (max==255){
+          max=i;
+          break;
+        }
+      }
+    }
+    if (max-min<40){
+      max+=20;
+      min-=20;
+    }
+    if (max>255){
+      max=255;
+    }
+    if (min<0){
+      min=0;
+    }
+    if(debug){
+      std::cout << "min" << min << std::endl;
+      std::cout << "max" << max << std::endl;
+    }
+
+    // todo play around with that value
+    int minX = min*multiply;
     if (minX<10){
       minX=10;
     }

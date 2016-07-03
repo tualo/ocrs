@@ -86,6 +86,12 @@ int main( int argc, char** argv ){
     imagepath = std::string(env_path);
   }
 
+  std::string imagepath_result = "/imagedata/result/";
+  if(const char* env_pathir = std::getenv("IMAGEPATH_RESULT")){
+    imagepath_result = std::string(env_pathir);
+  }
+
+
   int keepfiles = 0;
   if(const char* env_keep = std::getenv("KEEPFILES")){
     keepfiles = atoi(env_keep);
@@ -122,6 +128,19 @@ int main( int argc, char** argv ){
   if(const char* env_debug = std::getenv("DEBUG")){
     debug = (atoi(env_debug)==1)?true:false;
   }
+  bool headOver = false;
+  if(const char* env_hover = std::getenv("HEAD_OVER")){
+    headOver = (atoi(env_hover)==1)?true:false;
+  }
+  int analysisType=1;
+  if(const char* env_atype = std::getenv("ANALYSETYPE")){
+    analysisType = atoi(env_atype);
+  }
+  int barcode_algorthim=0;
+  if(const char* env_ba = std::getenv("BARCODE_ALGORTHIM")){
+    barcode_algorthim = atoi(env_ba);
+  }
+
 
 
 
@@ -169,6 +188,9 @@ int main( int argc, char** argv ){
   ImageRecognize* ir = new ImageRecognize();
   ir->debug=debug;
   ir->showWindow=window;
+  ir->analysisType=analysisType;
+  ir->headOver = headOver;
+  ir->barcode_algorthim = barcode_algorthim;
 
   if (std::string(env_pza) == "1"){
     ir->cmWidth = 21;
@@ -306,7 +328,7 @@ int main( int argc, char** argv ){
         if (debug){
           std::cout << "good" << std::endl;
         }
-        std::string newfile = imagepath+"result/good."+ir->code+".jpg";
+        std::string newfile = imagepath_result+"good."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
 
         if (store_original!=""){
@@ -326,7 +348,7 @@ int main( int argc, char** argv ){
         if (debug){
           std::cout << "no address: " << ea->getStreetName() << ": " << ea->getZipCode() << std::endl;
         }
-        std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
+        std::string newfile = imagepath_result+"noaddress."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
         if (store_original!=""){
           cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
@@ -347,7 +369,7 @@ int main( int argc, char** argv ){
       if (debug){
         std::cout << "no address *" << std::endl;
       }
-      std::string newfile = imagepath+"result/noaddress."+ir->code+".jpg";
+      std::string newfile = imagepath_result+"noaddress."+ir->code+".jpg";
       cv::imwrite(newfile.c_str(),ir->resultMat,params);
       if (store_original!=""){
         cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
@@ -369,7 +391,7 @@ int main( int argc, char** argv ){
     if (debug){
       std::cout << "no code" << std::endl;
     }
-    std::string newfile = imagepath+"result/nocode."+fname+".jpg";
+    std::string newfile = imagepath_result+"nocode."+fname+".jpg";
     cv::imwrite(newfile.c_str(),ir->orignalImage,params);
     if (store_original!=""){
       cv::imwrite( ( store_original+"nocode."+fname+".jpg" ).c_str(),ir->orignalImage);

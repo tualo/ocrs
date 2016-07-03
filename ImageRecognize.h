@@ -37,6 +37,9 @@ public:
   void openPZA(const char* filename);
   bool showWindow;
   bool debug;
+  bool headOver;
+  int analysisType;
+  int barcode_algorthim;
   std::string code;
   std::string jsontext;
   std::string addresstext;
@@ -60,7 +63,7 @@ private:
 
   bool is_digits(const std::string &str);
   const char* text(cv::Mat& im);
-  const char* getText(cv::Mat& im);
+  std::string getText(cv::Mat& im);
 
   bool usingLetterRoi(cv::Mat& im,cv::Rect roi2);
   bool usingLetterType1(cv::Mat& im);
@@ -82,12 +85,14 @@ private:
   void showImage(cv::Mat& src,char* title);
   void rotateX(cv::Mat& src,float angle,cv::Point center);
   void linearize(cv::Mat& src);
+  void linearize(cv::Mat& src,float multiply);
 
   int oneCM;
 
 
   const char* fileName;
   const char* ocr_text;
+  std::string resultText;
   std::string allTogether;
   tesseract::TessBaseAPI* tess;
 };
