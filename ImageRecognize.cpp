@@ -21,8 +21,8 @@ void ImageRecognize::showImage(cv::Mat& src){
   if (showWindow){
     cv::Mat rotated=src.clone();
 
-    int x=src.cols /2;
-    int y=src.rows /2;
+    int x=src.cols /5;
+    int y=src.rows /5;
 
     /*
     if ( src.cols < src.rows ){
@@ -337,16 +337,16 @@ cv::Mat ImageRecognize::getRectangle(cv::Mat& src){
   int const lowThreshold = 5;
   int const maxThreshold = 200;
 */
-  int const lowThreshold = 55;
-  int const maxThreshold = 140;
+  int const lowThreshold = 15;
+  int const maxThreshold = 50;
 
   int ratio = 3;
   int kernel_size = 3;
 
   cvtColor( src, src_gray, CV_BGR2GRAY );
+
   //showImage(src_gray,"src_gray");
   cv::blur( src_gray, detected_edges, cv::Size(3,3) );
-  //showImage(detected_edges,"detected_edges");
   /// Canny detector
   cv::Canny( detected_edges, detected_edges, lowThreshold, maxThreshold, kernel_size );
   //showImage(detected_edges,"detected_edges");
@@ -462,6 +462,8 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
   cv::GaussianBlur(thr, thr, ksize, 0);
   cv::threshold(thr, thr,15, 25,cv::THRESH_BINARY); //Threshold the gray
   cv::normalize(thr, thr, min, max, type, dtype, mask);
+  showImage(thr);
+
   cv::Scalar color( 255,255,255);
   std::vector< std::vector<cv::Point> > contours; // Vector for storing contour
   std::vector<cv::Vec4i> hierarchy;
