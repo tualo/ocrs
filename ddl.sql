@@ -192,6 +192,11 @@ CREATE TABLE `fast_access_tour` (
   KEY `idx_fat_str` (`strasse`)
 ) ENGINE=FEDERATED CONNECTION='mysql://USER:PASSWORD@HOST:PORT/DBNAME/fast_access_tour';
 
+create table IF not EXISTS protokoll (
+  code bigint primary key,
+  job_id integer not null,
+  state varchar(20) not null
+);
 
 DROP TABLE  IF EXISTS ocrhash_complex;
 create table ocrhash_complex (id varchar(32) primary key, date_added timestamp ,adr text,strasse varchar(255),plz varchar(255),ort varchar(255) ) engine myisam;
