@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #bash build.sh
-export DEBUGWINDOW=1
+#export DEBUGWINDOW=1
 export DEBUG=1
 export USEPZA=0
 
