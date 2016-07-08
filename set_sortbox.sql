@@ -61,7 +61,7 @@ CREATE PROCEDURE SET_SV
   IN in_hausnummer varchar(255),
   IN in_plz varchar(20),
   IN in_ort varchar(255),
-  IN in_ocrtxt varchar(255),
+  IN in_ocrtxt varchar(20),
   IN in_kunde varchar(20),
   IN in_product varchar(20)
 )
@@ -149,7 +149,7 @@ CREATE PROCEDURE SET_SORTBOX
     IN in_code varchar(20),
 
 
-    OUT out_sortiergang varchar(20),
+    OUT out_sortiergang varchar(100),
     OUT out_sortierfach varchar(20),
     OUT out_strasse varchar(255),
     OUT out_plz varchar(255),
@@ -158,38 +158,31 @@ CREATE PROCEDURE SET_SORTBOX
 MODIFIES SQL DATA
 BEGIN
   DECLARE lvr INT;
+
+  SET @adr=in_short_address;
+
   SELECT
     strasse,
     plz,
     ort,
-    LEVENSHTEIN_RATIO(in_short_address,adr) lvr
+    LEVENSHTEIN_RATIO(in_short_address,adr) lvrval
   INTO out_strasse,out_plz,out_ort,@lvr
 
   FROM (
-    select id,adr,strasse,
-    plz,
-    ort,rel from
-    (
-      SELECT
-        ocrhash_complex.id,
-        ocrhash_complex.strasse,
-        ocrhash_complex.plz,
-        ocrhash_complex.ort,
-        ocrhash_complex.adr,
-        match(adr) against(in_short_address) as rel
 
-      FROM ocrhash_complex
-      having rel>0
-    ) o
-    join
-    (
-      SELECT       match(adr) against(in_short_address) as mrel
-      FROM ocrhash_complex having mrel > 0
-      order by mrel desc limit 1
-    ) mx
-    on o.rel = mx.mrel
+    SELECT
+      ocrhash_complex.id,
+      ocrhash_complex.strasse,
+      ocrhash_complex.plz,
+      ocrhash_complex.ort,
+      ocrhash_complex.adr,
+      match(adr) against(in_short_address) as rel
+
+    FROM ocrhash_complex
+    having rel>0
+    limit 100
   ) b
-  order by lvr desc limit 1;
+  order by lvrval desc limit 1;
 
 
   IF EXISTS(select * from `short_boxes_locked` where zipcode = out_plz and kundenid=in_kundenid)
@@ -286,11 +279,6 @@ END;
 //
 DELIMITER ;
 
-CALL SET_SORTBOX('Behnerstieg 3 37308 Geisleden','37308','13','101400','Standard','789',@sg,@sf,@str,@plz,@ort);
-SELECT @sg,@sf,@str,@plz,@ort;
 
-CALL SET_SORTBOX('Behnerstieg 3 72379 Hechingen','72379','13','101400','Standard','456',@sg,@sf,@str,@plz,@ort);
-SELECT @sg,@sf,@str,@plz,@ort;
-
-CALL SET_SORTBOX('Behnerstieg 3 50823 Köln','50823','13','101400','Standard','123',@sg,@sf,@str,@plz,@ort);
+CALL SET_SORTBOX('Lucas Mustermann y An den Röthen 71 98611 Erbenhausen','98611','13','101400','Standard','789',@sg,@sf,@str,@plz,@ort);
 SELECT @sg,@sf,@str,@plz,@ort;

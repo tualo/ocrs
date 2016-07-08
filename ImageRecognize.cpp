@@ -942,6 +942,8 @@ std::string ImageRecognize::getText(cv::Mat& im){
 
 bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
   int i=0;
+
+
   int m=0;
   int lastThreshold=0;
   std::vector<std::string> lines;
@@ -953,12 +955,14 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
   std::string s1 = getText(im);//(out);
   boost::replace_all(s1,code,"-------------");
   lines = isplit(s1,'\n');
+
   /*
   for(i=0;i<lines.size();i++){
     std::cout << i << "#" << lines.at(i) << std::endl;
   }
   std::cout << "####" << lines.at(4) << "*"<< lines.at(4).at(5) << std::endl;
   */
+
   if ((lines.size()<15)){
     m = lines.size()-1;
     for(i=m;i>0;i--){
@@ -1656,7 +1660,7 @@ int ImageRecognize::linearize(cv::Mat& src,float multiply){
     }
 //    cv::threshold(src,src, 0 ,xx-25, CV_THRESH_BINARY);
 
-    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,59,10);
+    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,89,20);
 
     //showImage(bw);
     //int x = cv::threshold(src,src, xx-5 ,255, CV_THRESH_BINARY);
