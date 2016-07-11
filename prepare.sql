@@ -4,6 +4,7 @@ create table ocrhash_complex (id varchar(32) primary key, date_added timestamp ,
 insert into ocrhash_complex (id,date_added,strasse,plz,ort,adr)
   select id, UNIX_TIMESTAMP(now()),strasse,plz,ort, concat(strasse,' ',plz,' ',ort) adr
   from strassenverzeichnis
+  where false
   group by ort,plz,strasse;
 
 insert into ocrhash_complex (id,date_added,strasse,plz,ort,adr)

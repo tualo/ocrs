@@ -661,11 +661,15 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
   int i = 0;
   int rel=0;
   int tmp=0;
+  bool codeRetry=false;
   if (debug){
     std::cout << "barcode_internal " << std::endl;
   }
 
-  for (int thres=15;((thres<220)&&(res.found==false));thres+=5){
+  // counting here down
+  for (int thres=15;((thres<220)&&(
+    res.found==false && codeRetry==false
+  ));thres+=5){
 
     cv::cvtColor(part, gray, CV_BGR2GRAY);
     cv::threshold(gray,gray,thres,150, CV_THRESH_BINARY);
@@ -697,13 +701,19 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
             code.substr(0,4) != "0000"
           )
         ){
-          //std::cout << "#" << code.substr(0,3) << std::endl;
+          if (debug){
+            std::cout << "Code Length: " << code.length()-1 << std::endl;
+          }
           if (type=="I2/5"){
             res.code = code.substr(0,code.length()-1);
+            if (code.length()-1<11){
+            }else{
+              res.found = true;
+            }
           }else{
             res.code = code;//std::string(symbol->get_data().c_str());
+            res.found = true;
           }
-          res.found = true;
           resultThres = thres;
           res.type = std::string(symbol->get_type_name().c_str());
           int loc_size = symbol->get_location_size();
@@ -909,6 +919,8 @@ std::string ImageRecognize::getText(cv::Mat& im){
   const boost::regex plz_regex("\\d{5}\\s");
   const boost::regex no_plz_regex("\\d{6}\\s");
 
+
+
   /*
   const boost::regex noise_regex("\\w{4}");
 
@@ -1083,7 +1095,7 @@ void ImageRecognize::makeResultImage(cv::Mat& src,float multiply){
   // 8812
   //cv::threshold(clone, resultMat, resultThres, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
 //  cv::threshold(clone, resultMat, resultThres, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
-  cv::adaptiveThreshold(clone,resultMat,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,59,10);
+  cv::adaptiveThreshold(clone,resultMat,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,159,20);
 
   int x=resultMat.cols /2;
   int y=resultMat.rows /2;
@@ -1660,7 +1672,7 @@ int ImageRecognize::linearize(cv::Mat& src,float multiply){
     }
 //    cv::threshold(src,src, 0 ,xx-25, CV_THRESH_BINARY);
 
-    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,89,20);
+    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,20);
 
     //showImage(bw);
     //int x = cv::threshold(src,src, xx-5 ,255, CV_THRESH_BINARY);

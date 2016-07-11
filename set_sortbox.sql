@@ -134,11 +134,6 @@ END;
 
 
 
-
-
-
-
-
 CREATE PROCEDURE SET_SORTBOX
   (
     IN in_short_address varchar(4000),
@@ -179,10 +174,90 @@ BEGIN
       match(adr) against(in_short_address) as rel
 
     FROM ocrhash_complex
+    WHERE plz = in_zipcode
     having rel>0
     limit 100
   ) b
   order by lvrval desc limit 1;
+
+  IF (out_plz is null)
+  THEN
+    if (@debug=1)
+    THEN
+      select 'try search all' msg;
+      SELECT
+        strasse,
+        plz,
+        ort,
+        LEVENSHTEIN_RATIO(in_short_address,adr) lvrval
+      FROM (
+
+        SELECT
+          ocrhash_complex.id,
+          ocrhash_complex.strasse,
+          ocrhash_complex.plz,
+          ocrhash_complex.ort,
+          ocrhash_complex.adr,
+          match(adr) against(in_short_address) as rel
+
+        FROM ocrhash_complex
+        having rel>0
+        limit 100
+      ) b
+      order by lvrval desc limit 10;
+    END IF;
+
+    SELECT
+      strasse,
+      plz,
+      ort,
+      LEVENSHTEIN_RATIO(in_short_address,adr) lvrval
+    INTO out_strasse,out_plz,out_ort,@lvr
+
+    FROM (
+
+      SELECT
+        ocrhash_complex.id,
+        ocrhash_complex.strasse,
+        ocrhash_complex.plz,
+        ocrhash_complex.ort,
+        ocrhash_complex.adr,
+        match(adr) against(in_short_address) as rel
+
+      FROM ocrhash_complex
+      having rel>0
+      limit 100
+    ) b
+    order by lvrval desc limit 1;
+  ELSE
+    if (@debug=1)
+    THEN
+      select 'found by zip code' msg;
+      SELECT
+        strasse,
+        plz,
+        ort,
+        LEVENSHTEIN_RATIO(in_short_address,adr) lvrval
+      FROM (
+        SELECT
+          ocrhash_complex.id,
+          ocrhash_complex.strasse,
+          ocrhash_complex.plz,
+          ocrhash_complex.ort,
+          ocrhash_complex.adr,
+          match(adr) against(in_short_address) as rel
+
+        FROM ocrhash_complex
+        WHERE plz = in_zipcode
+        having rel>0
+        limit 100
+      ) b
+      order by lvrval desc limit 100;
+    END IF;
+  END IF;
+
+
+
 
 
   IF EXISTS(select * from `short_boxes_locked` where zipcode = out_plz and kundenid=in_kundenid)
@@ -279,6 +354,9 @@ END;
 //
 DELIMITER ;
 
+SET @svmodell='Clearing';
 
 CALL SET_SORTBOX('Lucas Mustermann y An den Röthen 71 98611 Erbenhausen','98611','13','101400','Standard','789',@sg,@sf,@str,@plz,@ort);
+SELECT @sg,@sf,@str,@plz,@ort;
+CALL SET_SORTBOX('- w Norbert Schluze ä Hintergasse 41 1 98590 Kaltennordheim f','98590','41','','','23000007064', @stortiergang, @stortierfach, @strasse, @plz, @ort);
 SELECT @sg,@sf,@str,@plz,@ort;
