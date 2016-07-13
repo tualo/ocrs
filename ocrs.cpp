@@ -201,6 +201,7 @@ int main( int argc, char** argv ){
   ImageRecognize* ir = new ImageRecognize();
   ir->debug=debug;
   ir->showWindow=window;
+  std::cout << "debug window" << window << std::endl;
   ir->analysisType=analysisType;
   ir->headOver = headOver;
   ir->barcode_algorthim = barcode_algorthim;

@@ -18,6 +18,7 @@ std::vector<std::string> isplit(const std::string &s,char delim){
 }
 
 void ImageRecognize::showImage(cv::Mat& src){
+
   if (showWindow){
     cv::Mat rotated=src.clone();
 
@@ -672,10 +673,14 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
   ));thres+=5){
 
     cv::cvtColor(part, gray, CV_BGR2GRAY);
-    cv::threshold(gray,gray,thres,150, CV_THRESH_BINARY);
+
+    cv::threshold(gray,gray,thres,255, CV_THRESH_BINARY);
 
     cv::normalize(gray, norm, min, max, type, dtype, mask);
     cv::GaussianBlur(norm, norm, ksize, 0);
+
+
+    //cv::adaptiveThreshold(gray,norm,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,thres,1);
 
 
     zbar::ImageScanner scanner;
@@ -684,7 +689,10 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
     scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ADD_CHECK, 1);
 
     zbar::Image image(norm.cols, norm.rows, "Y800", (uchar *)norm.data, norm.cols * norm.rows);
-    //showImage(norm);
+    int tmp_window_wait=window_wait;
+    window_wait=50;
+    showImage(norm);
+    window_wait=tmp_window_wait;
     int n = scanner.scan(image);
     for(zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
       if (debug){

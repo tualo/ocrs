@@ -67,6 +67,61 @@ CREATE PROCEDURE SET_SV
 )
 MODIFIES SQL DATA
 BEGIN
+
+  IF EXISTS(SELECT * FROM SV_DATEN WHERE ID=in_code)
+  THEN
+    SELECT
+
+      STRASSE,
+      PLZ,
+      ORT,
+      HAUSNUMMER,
+      OCRTXT,
+      KUNDE,
+      PRODUKT
+
+    INTO
+      @TMP_STRASSE,
+      @TMP_PLZ,
+      @TMP_ORT,
+      @TMP_HAUSNUMMER,
+      @TMP_OCRTXT,
+      @TMP_KUNDE,
+      @TMP_PRODUKT
+    FROM
+      SV_DATEN
+    WHERE ID=in_code;
+
+    IF (in_strasse IS NULL or in_strasse='') THEN
+      SET in_strasse = @TMP_STRASSE;
+    END IF;
+
+    IF (in_hausnummer IS NULL or in_hausnummer='') THEN
+      SET in_hausnummer = @TMP_HAUSNUMMER;
+    END IF;
+
+    IF (in_plz IS NULL or in_plz='') THEN
+      SET in_plz = @TMP_PLZ;
+    END IF;
+
+    IF (in_ort IS NULL or in_ort='') THEN
+      SET in_ort = @TMP_ORT;
+    END IF;
+
+    IF (in_ocrtxt IS NULL or in_ocrtxt='') THEN
+      SET in_ocrtxt = @TMP_OCRTXT;
+    END IF;
+
+    IF (in_kunde IS NULL or in_kunde='') THEN
+      SET in_kunde = @TMP_KUNDE;
+    END IF;
+
+    IF (in_product IS NULL or in_product='') THEN
+      SET in_product = @TMP_PRODUKT;
+    END IF;
+
+  END IF;
+
   IF EXISTS(SELECT * FROM SV_DATEN WHERE ID=in_code)
   THEN
     UPDATE SV_DATEN SET
@@ -131,9 +186,10 @@ BEGIN
   END IF;
 END;
 //
+DELIMITER ;
 
 
-
+DELIMITER //
 CREATE PROCEDURE SET_SORTBOX
   (
     IN in_short_address varchar(4000),
