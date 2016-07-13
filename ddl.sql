@@ -195,7 +195,8 @@ CREATE TABLE `fast_access_tour` (
 create table IF not EXISTS protokoll (
   code bigint primary key,
   job_id integer not null,
-  state varchar(20) not null
+  state varchar(20) not null,
+  createdate datetime default CURRENT_TIMESTAMP()
 );
 
 DROP TABLE  IF EXISTS ocrhash_complex;

@@ -8,7 +8,7 @@ export USEPZA=0
 export KEEPFILES=1
 export HEAD_OVER=1
 export ANALYSETYPE=1
-export BARCODE_ALGORTHIM=1
+export BARCODE_ALGORTHIM=2
 
 ./ocrs $1
 
