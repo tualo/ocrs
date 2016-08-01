@@ -335,8 +335,14 @@ BEGIN
       in_product
     );
   ELSE
+
     IF EXISTS(select * from `short_boxes_locked_by_product` where zipcode = out_plz and product=in_product)
     THEN
+
+      IF (@debug=1) THEN
+        select 'short_boxes_locked_by_product' msg;
+      END IF;
+
       SET out_sortiergang = 'DPAG';
       SET out_sortierfach = 'DPAG';
       CALL SET_SV
