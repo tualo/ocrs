@@ -177,6 +177,11 @@ void ImageRecognize::open(const char* filename){
   }else if (analysisType==1){
 
     largest = getRectangle(mat);
+    if (debug){
+      std::cout << "-------" << std::endl;
+      showImage(largest);
+    }
+
     if (headOver){
       if (debug){
         std::cout << "headOver *************" << std::endl;
