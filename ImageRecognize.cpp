@@ -932,7 +932,7 @@ std::string ImageRecognize::getText(cv::Mat& im){
 
 
   const boost::regex plz_regex("\\d{5}\\s");
-  const boost::regex no_plz_regex("\\d{9}\\s");
+  const boost::regex no_plz_regex("\\d{6}\\s");
 
 
 
