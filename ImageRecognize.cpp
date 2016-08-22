@@ -121,6 +121,8 @@ void ImageRecognize::open(const char* filename){
 
   orignalImage.copyTo( mat( roi ) );
 
+  //cv::Mat mat(orignalImage);
+
   std::string output = "";
   bcResult bcRes;
   cv::Point bc_point;
@@ -151,7 +153,7 @@ void ImageRecognize::open(const char* filename){
     }
 
     code = bcRes.code;
-    if (code.length()<4){
+    if ((forceaddress==0) && (code.length()<4) ){
       return;
     }
     bc_point=bcRes.point;
@@ -204,7 +206,7 @@ void ImageRecognize::open(const char* filename){
 
 
     code = bcRes.code;
-    if (code.length()<4){
+    if ((forceaddress==0) && (code.length()<4) ){
       return;
     }
     //cv::rectangle(largest,bcRes.rect,cv::Scalar(255,255,255),CV_FILLED);
@@ -1311,6 +1313,9 @@ const char* ImageRecognize::text(cv::Mat& im){
   }
 
 
+
+
+
   // grossbrief
   if (hoehe > 21){
     if (breite > 20){
@@ -1479,6 +1484,14 @@ const char* ImageRecognize::text(cv::Mat& im){
     }
   }
 
+  // thomas hoffmann 22.08.
+  // Infosendungen mit fenster rechts unten
+  cv::Rect roi2 = fittingROI((im.cols/oneCM)-12,(im.rows/oneCM)-17,13,7,im);
+  cv::Mat imx = im(roi2);
+  if (usingLetterRoi(im,roi2)){
+    return ocr_text;
+  }
+
 
   /*
   cv::Rect roi_im( cv::Point( 0, 0 ), im.size() );
@@ -1607,6 +1620,7 @@ void ImageRecognize::linearize(cv::Mat& src){
 
 
 int ImageRecognize::linearize(cv::Mat& src,float multiply){
+  /*
     cv::Mat clone = src.clone();
     std::vector<cv::Mat> bgr_planes;
     cv::split( src, bgr_planes );
@@ -1676,15 +1690,16 @@ int ImageRecognize::linearize(cv::Mat& src,float multiply){
 
     //cv::blur( src, src, cv::Size(3,3) );
     cv::Mat bw;
-    cv::Mat thr(src.rows,src.cols,CV_8UC1);
-    cvtColor(src,thr,CV_BGR2GRAY); //Convert to gray
     int xx =cv::threshold(thr,bw, 0 ,255, CV_THRESH_BINARY | CV_THRESH_OTSU);
-    minX = xx;
+    minX = xx/2;
     if (debug){
       std::cout << "XX" << xx << std::endl;
     }
+    */
 //    cv::threshold(src,src, 0 ,xx-25, CV_THRESH_BINARY);
 
+    cv::Mat thr(src.rows,src.cols,CV_8UC1);
+    cvtColor(src,thr,CV_BGR2GRAY); //Convert to gray
     cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,20);
 
     //showImage(bw);

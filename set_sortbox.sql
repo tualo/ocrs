@@ -48,6 +48,7 @@ DELIMITER ;
 
 
 DROP PROCEDURE IF EXISTS SET_SORTBOX;
+
 DROP PROCEDURE IF EXISTS SET_SV;
 
 DELIMITER //
@@ -67,6 +68,15 @@ CREATE PROCEDURE SET_SV
 )
 MODIFIES SQL DATA
 BEGIN
+
+set @datum=CURRENT_DATE();
+set @zeit=CURRENT_TIME();
+
+IF EXISTS(SELECT * FROM BBS_DATA WHERE ID=in_code)
+THEN
+  SELECT substring(inserttime,1,10),substring(inserttime,11,19) into @datum,@zeit FROM BBS_DATA WHERE ID=in_code;
+END IF;
+
 
   IF EXISTS(SELECT * FROM SV_DATEN WHERE ID=in_code)
   THEN
@@ -125,8 +135,6 @@ BEGIN
   IF EXISTS(SELECT * FROM SV_DATEN WHERE ID=in_code)
   THEN
     UPDATE SV_DATEN SET
-      DATUM=CURRENT_DATE(),
-      ZEIT=CURRENT_TIME(),
       MANDANT='0000',
       MODELL=@svmodell,
 
@@ -166,8 +174,8 @@ BEGIN
 
         in_code,
 
-        CURRENT_DATE(),
-        CURRENT_TIME(),
+        @datum,
+        @zeit,
         '0000',
         @svmodell,
 
@@ -313,6 +321,12 @@ BEGIN
   END IF;
 
 
+  if (@debug=1)
+  THEN
+    select in_zipcode msg;
+  END IF;
+
+
 
 
 
@@ -339,6 +353,7 @@ BEGIN
     IF EXISTS(select * from `short_boxes_locked_by_product` where zipcode = out_plz and product=in_product)
     THEN
 
+
       IF (@debug=1) THEN
         select 'short_boxes_locked_by_product' msg;
       END IF;
@@ -363,6 +378,8 @@ BEGIN
 
     IF EXISTS(select * from bereiche_plz join bereiche on bereiche.alleplz=1 and  bereiche_plz.plz=out_plz and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung')
     THEN
+
+
       select
         ifnull(sortiergaenge_zuordnung.sortiergang,'NT') sortiergang,
         ifnull(sortiergaenge_zuordnung.sortierfach,'NT') sortierfach
@@ -372,6 +389,12 @@ BEGIN
         join bereiche_plz on (sortiergaenge_zuordnung.bereich,sortiergaenge_zuordnung.mandant,sortiergaenge_zuordnung.regiogruppe) = (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) and bereiche_plz.plz=out_plz
         join bereiche on bereiche.alleplz=1 and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung'
       limit 1;
+
+
+      if (@debug=1)
+      THEN
+        select out_sortiergang msgsg,out_sortierfach msg;
+      END IF;
 
         CALL SET_SV
         (
@@ -386,6 +409,13 @@ BEGIN
           in_kundenid,
           in_product
         );
+
+
+        if (@debug=1)
+        THEN
+          select out_sortiergang msgsg,out_sortierfach,out_plz;
+        END IF;
+
     ELSE
 
       SET out_sortiergang = 'NT';
@@ -416,9 +446,8 @@ END;
 //
 DELIMITER ;
 
-SET @svmodell='Clearing';
 
-CALL SET_SORTBOX('Lucas Mustermann y An den Röthen 71 98611 Erbenhausen','98611','13','101400','Standard','789',@sg,@sf,@str,@plz,@ort);
-SELECT @sg,@sf,@str,@plz,@ort;
-CALL SET_SORTBOX('- w Norbert Schluze ä Hintergasse 41 1 98590 Kaltennordheim f','98590','41','','','23000007064', @stortiergang, @stortierfach, @strasse, @plz, @ort);
-SELECT @sg,@sf,@str,@plz,@ort;
+SET @svmodell='Clearing';
+SET @debug=1;
+CALL SET_SORTBOX('70191','70191','41','','','TEST', @stortiergang, @stortierfach, @strasse, @plz, @ort);
+SELECT @stortiergang,@stortierfach,@str,@plz,@ort;

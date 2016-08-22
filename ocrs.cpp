@@ -89,14 +89,27 @@ int main( int argc, char** argv ){
     imagepath = std::string(env_path);
   }
 
+
   std::string imagepath_result = "/imagedata/result/";
   if(const char* env_pathir = std::getenv("IMAGEPATH_RESULT")){
     imagepath_result = std::string(env_pathir);
   }
 
+
+  std::string force_customer = "";
+  if(const char* env_force_customer = std::getenv("FORCECUSTOMER")){
+    force_customer = std::string(env_force_customer);
+  }
+
   int keepfiles = 0;
   if(const char* env_keep = std::getenv("KEEPFILES")){
     keepfiles = atoi(env_keep);
+  }
+
+
+  int forceaddress = 0;
+  if(const char* env_forceaddress = std::getenv("FORCEADDRESS")){
+    forceaddress = atoi(env_forceaddress);
   }
 
   std::string store_original = "";
@@ -201,6 +214,7 @@ int main( int argc, char** argv ){
   ImageRecognize* ir = new ImageRecognize();
   ir->debug=debug;
   ir->showWindow=window;
+  ir->forceaddress=forceaddress;
   std::cout << "debug window" << window << std::endl;
   ir->analysisType=analysisType;
   ir->headOver = headOver;
@@ -247,12 +261,24 @@ int main( int argc, char** argv ){
     fname=strs[2];
   }
 
+  if (force_customer.length()>0){
+    kundenid = force_customer;
+  }
 
   std::string sql_modell = "set @svmodell='"+modell+"'";
   if (mysql_query(con, sql_modell.c_str())){
   }
 
-  if (ir->code.length()>4){
+  if ( (forceaddress==1)||(ir->code.length()>4)){
+
+    if ((forceaddress==1)&&(ir->code.length()<=4)){
+      std::string fcode = fname;
+      boost::replace_all(fcode, "nocode.", "");
+      boost::replace_all(fcode, "noaddress.", "");
+      boost::replace_all(fcode, ".tiff", "");
+      boost::replace_all(fcode, ".jpg", "");
+      ir->code=fcode;
+    }
 
     std::string sg = "";
     std::string sf = "NA";

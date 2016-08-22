@@ -36,6 +36,7 @@ public:
   void open(const char* filename);
   void openPZA(const char* filename);
   bool showWindow;
+  int forceaddress;
   bool debug;
   bool headOver;
   bool windowalltogether;
