@@ -423,7 +423,7 @@ int main( int argc, char** argv ){
         std::cout << "no address *" << std::endl;
       }
       std::string newfile = imagepath_result+"noaddress."+ir->code+".jpg";
-      if (ir->resultMat.width>100){
+      if (ir->resultMat.cols>100){
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
       }else{
         cv::imwrite( newfile.c_str(),ir->orignalImage,params);
