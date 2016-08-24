@@ -132,6 +132,17 @@ END IF;
 
   END IF;
 
+
+  IF (@debug=1)
+  THEN
+    select concat('modell',@svmodell) msg;
+    select concat('in_sortiergang',in_sortiergang) msg;
+    select concat('in_sortierfach',in_sortierfach) msg;
+    select concat('in_plz',ifnull(in_plz,' NULL')) msg;
+    select concat('in_kunde',ifnull(in_kunde,' NULL')) msg;
+    select concat('in_product',ifnull(in_product,' NULL')) msg;
+  END IF;
+
   IF EXISTS(SELECT * FROM SV_DATEN WHERE ID=in_code)
   THEN
     UPDATE SV_DATEN SET
@@ -323,14 +334,15 @@ BEGIN
 
   if (@debug=1)
   THEN
-    select in_zipcode msg;
+    select 'PLZ' plz,in_zipcode msg;
+    select 'PLZ out' plz,out_plz msg;
   END IF;
 
 
 
 
 
-  IF EXISTS(select * from `short_boxes_locked` where zipcode = out_plz and kundenid=in_kundenid)
+  IF EXISTS(select * from `short_boxes_locked` where zipcode = ifnull(out_plz,in_zipcode) and kundenid=in_kundenid)
   THEN
 
     SET out_sortiergang = 'DPAG';
@@ -342,7 +354,7 @@ BEGIN
       out_sortierfach,
       '',
       '',
-      out_plz,
+      ifnull(out_plz,in_zipcode),
       '',
       in_short_address,
       in_kundenid,
@@ -350,7 +362,7 @@ BEGIN
     );
   ELSE
 
-    IF EXISTS(select * from `short_boxes_locked_by_product` where zipcode = out_plz and product=in_product)
+    IF EXISTS(select * from `short_boxes_locked_by_product` where zipcode = ifnull(out_plz,in_zipcode) and product=in_product)
     THEN
 
 
@@ -367,7 +379,7 @@ BEGIN
         out_sortierfach,
         '',
         '',
-        out_plz,
+        ifnull(out_plz,in_zipcode),
         '',
         in_short_address,
         in_kundenid,
@@ -386,7 +398,7 @@ BEGIN
         into out_sortiergang,out_sortierfach
       from
         sortiergaenge_zuordnung
-        join bereiche_plz on (sortiergaenge_zuordnung.bereich,sortiergaenge_zuordnung.mandant,sortiergaenge_zuordnung.regiogruppe) = (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) and bereiche_plz.plz=out_plz
+        join bereiche_plz on (sortiergaenge_zuordnung.bereich,sortiergaenge_zuordnung.mandant,sortiergaenge_zuordnung.regiogruppe) = (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) and bereiche_plz.plz=ifnull(out_plz,in_zipcode)
         join bereiche on bereiche.alleplz=1 and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung'
       limit 1;
 
@@ -403,7 +415,7 @@ BEGIN
           out_sortierfach,
           '',
           '',
-          out_plz,
+          ifnull(out_plz,in_zipcode),
           '',
           in_short_address,
           in_kundenid,
@@ -413,7 +425,7 @@ BEGIN
 
         if (@debug=1)
         THEN
-          select out_sortiergang msgsg,out_sortierfach,out_plz;
+          select out_sortiergang msgsg,out_sortierfach,ifnull(out_plz,in_zipcode);
         END IF;
 
     ELSE
@@ -428,7 +440,7 @@ BEGIN
         out_sortierfach,
         '',
         '',
-        out_plz,
+        ifnull(out_plz,in_zipcode),
         '',
         in_short_address,
         in_kundenid,

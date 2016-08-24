@@ -936,6 +936,7 @@ std::string ImageRecognize::getText(cv::Mat& im){
 
 
 
+
   /*
   const boost::regex noise_regex("\\w{4}");
 
