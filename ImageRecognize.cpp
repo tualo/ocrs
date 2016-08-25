@@ -1479,8 +1479,20 @@ const char* ImageRecognize::text(cv::Mat& im){
       return ocr_text;
     }else{
 
+
       if(debug){
         std::cout << "Lettertype 3, do something" << std::endl;
+      }
+
+
+      if (usingLetterType1(im)){
+        return ocr_text;
+      }else{
+
+        if (usingLetterType1_1(im)){
+          return ocr_text;
+        }else{
+        }
       }
     }
   }
