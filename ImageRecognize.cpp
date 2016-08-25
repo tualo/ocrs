@@ -1485,17 +1485,20 @@ const char* ImageRecognize::text(cv::Mat& im){
       }
 
 
-      if (usingLetterType1(im)){
+
+    }
+  }else{
+    if (usingLetterType1(im)){
+      return ocr_text;
+    }else{
+
+      if (usingLetterType1_1(im)){
         return ocr_text;
       }else{
-
-        if (usingLetterType1_1(im)){
-          return ocr_text;
-        }else{
-        }
       }
     }
   }
+
 
   // thomas hoffmann 22.08.
   // Infosendungen mit fenster rechts unten
