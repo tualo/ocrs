@@ -93,7 +93,7 @@ void ImageRecognize::open(const char* filename){
   resultThres = 128;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
-
+  makeResultImage(orignalImage,1);
 
   tess=new tesseract::TessBaseAPI();
   //if(!tess->SetVariable("tessedit_enable_doc_dict", "0")){
