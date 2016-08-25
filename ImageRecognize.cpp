@@ -93,7 +93,6 @@ void ImageRecognize::open(const char* filename){
   resultThres = 128;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
-  makeResultImage(orignalImage,1);
 
   tess=new tesseract::TessBaseAPI();
   //if(!tess->SetVariable("tessedit_enable_doc_dict", "0")){
@@ -120,6 +119,7 @@ void ImageRecognize::open(const char* filename){
   cv::Rect roi( cv::Point( orignalImage.cols/2, (orignalImage.rows/2) ), orignalImage.size() );
 
   orignalImage.copyTo( mat( roi ) );
+  makeResultImage(orignalImage,1);
 
   //cv::Mat mat(orignalImage);
 
