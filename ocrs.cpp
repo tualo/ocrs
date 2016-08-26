@@ -163,11 +163,21 @@ int main( int argc, char** argv ){
   if(const char* env_atype = std::getenv("ANALYSETYPE")){
     analysisType = atoi(env_atype);
   }
+
+  int subtractMean=20;
+  if(const char* env_subtractMean = std::getenv("ADAPTIVE_THRESH_SUBTRACT_MEAN")){
+    subtractMean = atoi(env_subtractMean);
+  }
+
   int barcode_algorthim=0;
   if(const char* env_ba = std::getenv("BARCODE_ALGORTHIM")){
     barcode_algorthim = atoi(env_ba);
   }
 
+  std::string machine_id = "00";
+  if(const char* env_machine_id = std::getenv("MACHINEID")){
+    machine_id = std::string(env_machine_id);
+  }
 
 
 
@@ -221,6 +231,7 @@ int main( int argc, char** argv ){
   ir->barcode_algorthim = barcode_algorthim;
   ir->window_wait = window_wait;
   ir->windowalltogether = windowalltogether;
+  ir->subtractMean=subtractMean;
 
   if (std::string(env_pza) == "1"){
     ir->cmWidth = 21;
@@ -241,6 +252,7 @@ int main( int argc, char** argv ){
   std::string fname = bpath.filename().c_str();
   std::string kundenid = "";
   std::string product = "";
+  std::string bbs_check_sql = "";
 
   std::vector<int> params;
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
@@ -377,10 +389,18 @@ int main( int argc, char** argv ){
           cv::imwrite( ( store_original+"good."+ir->code+".jpg" ).c_str(),ir->orignalImage);
         }
 
+        /*
         protokollsql = "update protokoll set state='good' where code = '"+ir->code+"'; ";
         if (mysql_query(con, protokollsql.c_str())){
 
         }
+        */
+
+        bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','good','')";
+        if (mysql_query(con, bbs_check_sql.c_str())){
+          fprintf(stderr, "%s\n", mysql_error(con));
+        }
+
 
         if (keepfiles==0){
           if ( remove( fullname.c_str() ) != 0 ) {
@@ -397,11 +417,16 @@ int main( int argc, char** argv ){
         }
         std::string newfile = imagepath_result+"noaddress."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);
-
+        /*
         protokollsql = "update protokoll set state='noaddress' where code = '"+ir->code+"'; ";
         if (mysql_query(con, protokollsql.c_str())){
-
         }
+        */
+        bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','noaddress','nostreet')";
+        if (mysql_query(con, bbs_check_sql.c_str())){
+          fprintf(stderr, "%s\n", mysql_error(con));
+        }
+
 
         if (store_original!=""){
           cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
@@ -429,16 +454,24 @@ int main( int argc, char** argv ){
         cv::imwrite( newfile.c_str(),ir->orignalImage,params);
       }
 
+      bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','noaddress','nozipcode')";
+      if (mysql_query(con, bbs_check_sql.c_str())){
+        fprintf(stderr, "%s\n", mysql_error(con));
+      }
+
+
 
 
       if (store_original!=""){
         cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
       }
 
+      /*
       protokollsql = "update protokoll set state='noaddress' where code = '"+ir->code+"'; ";
       if (mysql_query(con, protokollsql.c_str())){
 
       }
+      */
 
 
       if (keepfiles==0){
@@ -461,10 +494,15 @@ int main( int argc, char** argv ){
     if (store_original!=""){
       cv::imwrite( ( store_original+"nocode."+fname+".jpg" ).c_str(),ir->orignalImage);
     }
-
+    /*
     protokollsql = "update protokoll set state='nocode' where code = '"+ir->code+"'; ";
     if (mysql_query(con, protokollsql.c_str())){
 
+    }
+    */
+    bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','nocode','')";
+    if (mysql_query(con, bbs_check_sql.c_str())){
+      fprintf(stderr, "%s\n", mysql_error(con));
     }
 
     if (keepfiles==0){

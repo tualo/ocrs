@@ -53,6 +53,7 @@ public:
   cv::Mat debugImage;
   cv::Mat orignalImage;
   int resultThres;
+  int subtractMean;
   int minX;
   float scale;
   float cmWidth;

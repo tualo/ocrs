@@ -1720,7 +1720,7 @@ int ImageRecognize::linearize(cv::Mat& src,float multiply){
     cv::Mat thr(src.rows,src.cols,CV_8UC1);
     cvtColor(src,thr,CV_BGR2GRAY); //Convert to gray
 //    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,20);
-    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,10);
+    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,subtractMean);
 
 
     //int x = cv::threshold(src,src, xx-5 ,255, CV_THRESH_BINARY);
