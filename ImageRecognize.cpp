@@ -119,7 +119,15 @@ void ImageRecognize::open(const char* filename){
   cv::Rect roi( cv::Point( orignalImage.cols/2, (orignalImage.rows/2) ), orignalImage.size() );
 
   orignalImage.copyTo( mat( roi ) );
-  makeResultImage(orignalImage,1);
+  //makeResultImage(orignalImage,1);
+
+  cv::Mat tmp = orignalImage.clone();
+  int x=orignalImage.cols /2;
+  int y=orignalImage.rows /2;
+  cv::Mat res = cv::Mat(x, y, CV_8UC1);
+  cv::resize(tmp, res, cv::Size(x, y), 0, 0, 3);
+  resultMat = res;
+
 
   //cv::Mat mat(orignalImage);
 
@@ -1099,7 +1107,7 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
     return true;
   }
   */
-  makeResultImage(im,1.5);
+  //makeResultImage(im,1.5);
 
   allTogether += "\n\n" + std::string(resultText);
 
@@ -1114,8 +1122,12 @@ void ImageRecognize::makeResultImage(cv::Mat& src,float multiply){
   // 8812
   //cv::threshold(clone, resultMat, resultThres, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
 //  cv::threshold(clone, resultMat, resultThres, 255, CV_THRESH_BINARY );//| CV_THRESH_OTSU);
-  cv::adaptiveThreshold(clone,resultMat,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,159,20);
+//   cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,subtractMean);
 
+
+  cv::adaptiveThreshold(clone,resultMat,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,subtractMean);
+  //cv::adaptiveThreshold(clone,resultMat,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,159,20);
+  //  cv::adaptiveThreshold(clone,resultMat,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY,11,10);
   int x=resultMat.cols /2;
   int y=resultMat.rows /2;
   cv::Mat res = cv::Mat(x, y, CV_8UC1);
