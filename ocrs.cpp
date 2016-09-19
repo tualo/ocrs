@@ -159,6 +159,10 @@ int main( int argc, char** argv ){
   if(const char* env_hover = std::getenv("HEAD_OVER")){
     headOver = (atoi(env_hover)==1)?true:false;
   }
+  bool psmAuto = false;
+  if(const char* env_psmAuto = std::getenv("PSM_AUTO")){
+    psmAuto = (atoi(env_psmAuto)==1)?true:false;
+  }
   int analysisType=1;
   if(const char* env_atype = std::getenv("ANALYSETYPE")){
     analysisType = atoi(env_atype);
@@ -223,6 +227,8 @@ int main( int argc, char** argv ){
   std::string sql = "";
   ImageRecognize* ir = new ImageRecognize();
   ir->debug=debug;
+  ir->con = con;
+  ir->psmAuto = psmAuto;
   ir->showWindow=window;
   ir->forceaddress=forceaddress;
   std::cout << "debug window" << window << std::endl;
@@ -413,7 +419,7 @@ int main( int argc, char** argv ){
 
         // there is no streetname
         if (debug){
-          std::cout << "no address: " << ea->getStreetName() << ": " << ea->getZipCode() << std::endl;
+          std::cout << "no address: there is no streetname " << ea->getStreetName() << ": " << ea->getZipCode() << std::endl;
         }
         std::string newfile = imagepath_result+"noaddress."+ir->code+".jpg";
         cv::imwrite(newfile.c_str(),ir->resultMat,params);

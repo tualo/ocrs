@@ -933,8 +933,12 @@ std::string ImageRecognize::getText(cv::Mat& im){
   tess->SetVariable("tessedit_reject_bad_qual_wds","1");
   tess->SetVariable("textord_min_linesize","1.0");
   tess->Recognize(0);
+  if (psmAuto==true){
+    tess->SetPageSegMode(tesseract::PSM_AUTO);
+  }
 
   const char* out = tess->GetUTF8Text();
+
   const boost::regex number_space("(?<=\\d)([^\\S\\r\\n])+(?=\\d)");
   std::string intermedia (out);
 
@@ -1328,6 +1332,45 @@ const char* ImageRecognize::text(cv::Mat& im){
     showDebugImage();
   }
 
+  cv::Mat usemat = im.clone();
+
+  std::string sql = "select height/100,length/100 from bbs_data where id = '"+code+"'; ";
+  if (mysql_query(con, sql.c_str())){
+
+  }else{
+    MYSQL_RES *result;
+    MYSQL_ROW row;
+    unsigned int num_fields;
+    unsigned int i;
+    result = mysql_use_result(con);
+    num_fields = mysql_num_fields(result);
+    while ((row = mysql_fetch_row(result))){
+       unsigned long *lengths;
+       int result_width = atoi(row[1]);
+       int result_height = atoi(row[0]);
+
+       double rescale_width = result_width*1.0/width*1.0;
+       double rescale_height = result_height*1.0/height*1.0;
+
+       usemat = cv::Mat(im.cols*rescale_width, im.rows*rescale_height, CV_32FC3);
+       cv::resize(im, usemat, cv::Size(im.cols*rescale_width, im.rows*rescale_height), 0, 0, 3);
+       breite=result_width;
+       hoehe=result_height;
+
+       if (rescale_height==1){
+         std::cout << "INITIAL SCALE SHOULD BE " << std::endl;
+         printf("%'.2f", scale*rescale_width);
+         std::cout << "* " << std::endl;
+       }
+       if (debug){
+         std::cout << "WR " << rescale_width*10 << std::endl;
+         std::cout << "HR " << rescale_height*10 << std::endl;
+       }
+    }
+  }
+
+
+
 
 
 
@@ -1358,18 +1401,26 @@ const char* ImageRecognize::text(cv::Mat& im){
 
   if (letterType==1){
 
-    if (usingLetterType1(im)){
+    if (debug){
+      std::cout << "usingLetterType1" << std::endl;
+    }
+    if (usingLetterType1(usemat)){
+      if (debug){
+        std::cout << "return usingLetterType1" << std::endl;
+      }
       return ocr_text;
     }else{
-
-      if (usingLetterType1_1(im)){
+      if (debug){
+        std::cout << "usingLetterType1_1" << std::endl;
+      }
+      if (usingLetterType1_1(usemat)){
+        if (debug){
+          std::cout << "return usingLetterType1_1" << std::endl;
+        }
         return ocr_text;
       }else{
 
 
-        /*if (usingLetterType3(im)){
-          return ocr_text;
-        }*/
         if (debug){
           std::cout << "Lettertype 1, do something" << std::endl;
         }
@@ -1378,7 +1429,7 @@ const char* ImageRecognize::text(cv::Mat& im){
   }else if (letterType==2){
 
     cv::Mat rotated;
-    transpose(im, rotated);
+    transpose(usemat, rotated);
     flip(rotated, rotated,1); //transpose+flip(1)=CW
     // sichtfenster voran
 
@@ -1402,10 +1453,10 @@ const char* ImageRecognize::text(cv::Mat& im){
 
 
 
-          rotated = im.clone();
+          rotated = usemat.clone();
 
           if (windowalltogether){
-            debugImage = im.clone();
+            debugImage = usemat.clone();
             showDebugImage();
           }
 
@@ -1452,7 +1503,7 @@ const char* ImageRecognize::text(cv::Mat& im){
                           flip(rotated, rotated,1);
 
                           if (windowalltogether){
-                            debugImage = im.clone();
+                            debugImage = usemat.clone();
                             showDebugImage();
                           }
 
@@ -1490,7 +1541,7 @@ const char* ImageRecognize::text(cv::Mat& im){
     }
   }else if (letterType==3){
 
-    if (usingLetterType3(im)){
+    if (usingLetterType3(usemat)){
       return ocr_text;
     }else{
 
@@ -1503,11 +1554,11 @@ const char* ImageRecognize::text(cv::Mat& im){
 
     }
   }else{
-    if (usingLetterType1(im)){
+    if (usingLetterType1(usemat)){
       return ocr_text;
     }else{
 
-      if (usingLetterType1_1(im)){
+      if (usingLetterType1_1(usemat)){
         return ocr_text;
       }else{
       }
@@ -1517,54 +1568,12 @@ const char* ImageRecognize::text(cv::Mat& im){
 
   // thomas hoffmann 22.08.
   // Infosendungen mit fenster rechts unten
-  cv::Rect roi2 = fittingROI((im.cols/oneCM)-12,(im.rows/oneCM)-17,13,7,im);
-  cv::Mat imx = im(roi2);
-  if (usingLetterRoi(im,roi2)){
+  cv::Rect roi2 = fittingROI((usemat.cols/oneCM)-12,(usemat.rows/oneCM)-17,13,7,usemat);
+  cv::Mat imx = usemat(roi2);
+  if (usingLetterRoi(usemat,roi2)){
     return ocr_text;
   }
 
-
-  /*
-  cv::Rect roi_im( cv::Point( 0, 0 ), im.size() );
-  cv::Mat n = im.clone();
-  if(usingLetterRoi(n,roi_im)){
-    return ocr_text;
-  }
-
-  cv::Mat rotated(im.cols,im.rows,im.type());
-  transpose(im, rotated);
-  flip(rotated, rotated,1); //transpose+flip(1)=CW
-
-  cv::Rect roi_rotated( cv::Point( 0, 0 ), rotated.size() );
-  if(usingLetterRoi(rotated,roi_rotated)){
-    return ocr_text;
-  }
-
-
-
-  cv::Mat rotated2(rotated.cols,rotated.rows,rotated.type());
-  transpose(rotated, rotated2);
-  flip(rotated2, rotated2,1); //transpose+flip(1)=CW
-
-  cv::Rect roi_rotated2( cv::Point( 0, 0 ), rotated2.size() );
-  if(usingLetterRoi(rotated2,roi_rotated2)){
-    return ocr_text;
-  }
-
-
-  cv::Mat rotated3(rotated2.cols,rotated2.rows,rotated2.type());
-  transpose(rotated2, rotated3);
-  flip(rotated3, rotated3,1); //transpose+flip(1)=CW
-
-  cv::Rect roi_rotated3( cv::Point( 0, 0 ), rotated3.size() );
-  if(usingLetterRoi(rotated3,roi_rotated3)){
-    return ocr_text;
-  }
-
-  allTogether = "";
-  ocr_text = allTogether.c_str();
-  out = allTogether.c_str();
-  */
   if(debug){
     std::cout << "found nothing "  << std::endl;
   }
@@ -1733,7 +1742,7 @@ int ImageRecognize::linearize(cv::Mat& src,float multiply){
     cvtColor(src,thr,CV_BGR2GRAY); //Convert to gray
 //    cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,20);
     cv::adaptiveThreshold(thr,src,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,55,subtractMean);
-
+//ADAPTIVE_THRESH_GAUSSIAN_C
 
     //int x = cv::threshold(src,src, xx-5 ,255, CV_THRESH_BINARY);
     if (false){

@@ -264,7 +264,8 @@ BEGIN
         strasse,
         plz,
         ort,
-        LEVENSHTEIN_RATIO(in_short_address,adr) lvrval
+        LEVENSHTEIN_RATIO(in_short_address,adr) lvrval,
+        LEVENSHTEIN_RATIO(in_zipcode,plz) lvrval_in_zipcode
       FROM (
 
         SELECT
@@ -279,15 +280,17 @@ BEGIN
         having rel>0
         limit 100
       ) b
-      order by lvrval desc limit 10;
+      having lvrval_in_zipcode<>0
+      order by lvrval_in_zipcode desc,lvrval desc limit 10;
     END IF;
 
     SELECT
       strasse,
       plz,
       ort,
-      LEVENSHTEIN_RATIO(in_short_address,adr) lvrval
-    INTO out_strasse,out_plz,out_ort,@lvr
+      LEVENSHTEIN_RATIO(in_short_address,adr) lvrval,
+      LEVENSHTEIN_RATIO(in_zipcode,plz) lvrval_in_zipcode
+    INTO out_strasse,out_plz,out_ort,@lvr,@lvrzc
 
     FROM (
 
@@ -303,7 +306,9 @@ BEGIN
       having rel>0
       limit 100
     ) b
-    order by lvrval desc limit 1;
+    having lvrval_in_zipcode<>0
+    order by lvrval_in_zipcode desc,lvrval desc limit 1;
+
   ELSE
     if (@debug=1)
     THEN
@@ -388,7 +393,7 @@ BEGIN
     ELSE
 
 
-    IF EXISTS(select * from bereiche_plz join bereiche on bereiche.alleplz=1 and  bereiche_plz.plz=out_plz and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung')
+    IF EXISTS(select * from bereiche_plz join bereiche on bereiche.alleplz=1 and  bereiche_plz.plz= ifnull(out_plz,in_zipcode) and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung')
     THEN
 
 

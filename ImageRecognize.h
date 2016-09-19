@@ -21,7 +21,8 @@
 #include <zbar.h>
 
 
-
+#include <my_global.h>
+#include <mysql.h>
 
 struct bcResult {
   cv::Point point;
@@ -39,10 +40,12 @@ public:
   int forceaddress;
   bool debug;
   bool headOver;
+  bool psmAuto;
   bool windowalltogether;
   int analysisType;
   int barcode_algorthim;
   int window_wait;
+  MYSQL *con;
 
   std::string code;
   std::string jsontext;
