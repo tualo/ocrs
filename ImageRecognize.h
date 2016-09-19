@@ -57,6 +57,7 @@ public:
   cv::Mat orignalImage;
   int resultThres;
   int subtractMean;
+  int blockSize;
   int minX;
   float scale;
   float cmWidth;

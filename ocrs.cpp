@@ -173,6 +173,11 @@ int main( int argc, char** argv ){
     subtractMean = atoi(env_subtractMean);
   }
 
+  int blockSize=55;
+  if(const char* env_blockSize = std::getenv("ADAPTIVE_THRESH_BLOCK_SIZE")){
+    blockSize = atoi(env_blockSize);
+  }
+
   int barcode_algorthim=0;
   if(const char* env_ba = std::getenv("BARCODE_ALGORTHIM")){
     barcode_algorthim = atoi(env_ba);
@@ -238,6 +243,7 @@ int main( int argc, char** argv ){
   ir->window_wait = window_wait;
   ir->windowalltogether = windowalltogether;
   ir->subtractMean=subtractMean;
+  ir->blockSize = blockSize;
 
   if (std::string(env_pza) == "1"){
     ir->cmWidth = 21;
