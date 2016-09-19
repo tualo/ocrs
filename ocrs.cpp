@@ -163,6 +163,15 @@ int main( int argc, char** argv ){
   if(const char* env_psmAuto = std::getenv("PSM_AUTO")){
     psmAuto = (atoi(env_psmAuto)==1)?true:false;
   }
+
+
+  bool barcode_light_correction = true;
+  if(const char* env_barcode_light_correction = std::getenv("BC_LIGHT_CORRECTION")){
+    barcode_light_correction = (atoi(env_barcode_light_correction)==1)?true:false;
+  }
+
+
+
   int analysisType=1;
   if(const char* env_atype = std::getenv("ANALYSETYPE")){
     analysisType = atoi(env_atype);
@@ -236,6 +245,7 @@ int main( int argc, char** argv ){
   ir->psmAuto = psmAuto;
   ir->showWindow=window;
   ir->forceaddress=forceaddress;
+  ir->barcode_light_correction=barcode_light_correction;
   std::cout << "debug window" << window << std::endl;
   ir->analysisType=analysisType;
   ir->headOver = headOver;

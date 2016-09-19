@@ -679,20 +679,47 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
     std::cout << "barcode_internal " << std::endl;
   }
 
+  cv::Mat image_clahe;
+  if (barcode_light_correction==true){
+    cv::Mat lab_image;
+    cv::cvtColor(part, lab_image, CV_BGR2Lab);
+
+    // Extract the L channel
+    std::vector<cv::Mat> lab_planes(3);
+    cv::split(lab_image, lab_planes);  // now we have the L image in lab_planes[0]
+
+    // apply the CLAHE algorithm to the L channel
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
+    clahe->setClipLimit(4);
+    cv::Mat dst;
+    clahe->apply(lab_planes[0], dst);
+
+    // Merge the the color planes back into an Lab image
+    dst.copyTo(lab_planes[0]);
+    cv::merge(lab_planes, lab_image);
+
+   // convert back to RGB
+   cv::cvtColor(lab_image, image_clahe, CV_Lab2BGR);
+  }else{
+    image_clahe=part.clone();
+  }
+
+
+
   // counting here down
   for (int thres=15;((thres<220)&&(
     res.found==false && codeRetry==false
   ));thres+=5){
 
-    cv::cvtColor(part, gray, CV_BGR2GRAY);
+    cv::cvtColor(image_clahe, gray, CV_BGR2GRAY);
 
-    cv::threshold(gray,gray,thres,255, CV_THRESH_BINARY);
+    cv::threshold(gray,gray,thres,255, CV_THRESH_BINARY );
 
     cv::normalize(gray, norm, min, max, type, dtype, mask);
     cv::GaussianBlur(norm, norm, ksize, 0);
 
 
-    //cv::adaptiveThreshold(gray,norm,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,thres,1);
+//    cv::adaptiveThreshold(gray,norm,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,7,40);
 
 
     zbar::ImageScanner scanner;

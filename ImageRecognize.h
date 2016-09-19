@@ -42,6 +42,7 @@ public:
   bool headOver;
   bool psmAuto;
   bool windowalltogether;
+  bool barcode_light_correction;
   int analysisType;
   int barcode_algorthim;
   int window_wait;
