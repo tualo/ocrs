@@ -1066,8 +1066,7 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
     std::cout << "Lines found" << lines.size() << std::endl;
   }
 
-
-  if (lines.size()<15){
+  if ((lines.size()>1)&&(lines.size()<15)){
 
     m = lines.size()-1;
     for(i=m;i>0;i--){
@@ -1089,7 +1088,7 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
 
   }else{
     if (debug){
-      std::cout << "dont think it is an address (more than 15 lines)" << std::endl;
+      std::cout << "dont think it is an address (less than 2 or more than 15 lines)" << std::endl;
     }
   }
   /*
