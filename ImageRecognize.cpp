@@ -1059,7 +1059,7 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
         resultText=s1;
         ocr_text = s1.c_str();
         if (debug){
-          std::cout << "ImageRecognize::containsZipCode" << std::endl << resultText << std::endl << std::endl;
+          std::cout << "ImageRecognize::contains ZipCode" << std::endl << resultText << std::endl << std::endl;
         }
         resultThres = lastThreshold;
         makeResultImage(orig,0.85);
@@ -1111,6 +1111,10 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
     return true;
   }
 
+  if(debug){
+    std::cout << "try rotated" << std::endl;
+  }
+
   allTogether += "\n\n" + resultText;
 
   cv::Mat rotated(im.cols,im.rows,im.type());
@@ -1118,9 +1122,18 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   transpose(im, rotated);
   flip(rotated, rotated,1); //transpose+flip(1)=CW
   cv::Mat rotated2(rotated.cols,rotated.rows,rotated.type());
+
+  if(debug){
+    std::cout << "*try rotated" << std::endl;
+  }
+
   transpose(rotated, rotated2);
   flip(rotated2, rotated2,1); //transpose+flip(1)=CW
   c2 = rotated2(roi2);
+  if(debug){
+    std::cout << "**try rotated" << std::endl;
+  }
+
   if (containsZipCode(c2,rotated2)){
     return true;
   }
