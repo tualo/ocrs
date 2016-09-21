@@ -44,6 +44,7 @@ public:
   bool windowalltogether;
   bool barcode_light_correction;
   bool try_reduced;
+  bool rotate_inline;
   int analysisType;
   int barcode_algorthim;
   int window_wait;

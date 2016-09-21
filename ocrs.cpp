@@ -250,6 +250,7 @@ int main( int argc, char** argv ){
   ir->con = con;
   ir->try_reduced = try_reduced;
   ir->psmAuto = psmAuto;
+  ir->rotate_inline=false;
   ir->showWindow=window;
   ir->forceaddress=forceaddress;
   ir->barcode_light_correction=barcode_light_correction;

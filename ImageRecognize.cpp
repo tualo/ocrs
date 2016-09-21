@@ -138,6 +138,11 @@ void ImageRecognize::open(const char* filename){
   const char* out;
   if (debug){
     std::cout << "analysisType " << analysisType << std::endl;
+    std::cout << "analysisType " << analysisType << std::endl;
+    std::cout << "analysisType " << analysisType << std::endl;
+    std::cout << "analysisType " << analysisType << std::endl;
+    std::cout << "analysisType " << analysisType << std::endl;
+    std::cout << "analysisType " << analysisType << std::endl;
   }
   if (analysisType==0){
 
@@ -231,9 +236,15 @@ void ImageRecognize::open(const char* filename){
     bc_point=bcRes.point;
 
   }
+
+
   if (debug){
     te = ((double)cv::getTickCount() - t)/cv::getTickFrequency();
     std::cout << "all passed in seconds: " << te << std::endl;
+  }
+
+  if (debug){
+    std::cout << "try_reduced " << try_reduced << std::endl;
   }
 
   if (try_reduced==true){
@@ -252,13 +263,33 @@ void ImageRecognize::open(const char* filename){
       cv::GaussianBlur(blured, blured, ksize, 0);
       cv::resize(blured, resized, cv::Size(x, y), 0, 0, 3);
       cvtColor(resized,largest,CV_GRAY2BGR);
+
       out = text(largest);
-      if (analysisType==0){
-        std::string s = resultText;
-        std::replace( s.begin(), s.end(), '"', ' ');
-        addresstext = s;
+      std::string s = resultText;
+      std::replace( s.begin(), s.end(), '"', ' ');
+      addresstext = s;
+    }else{
+      if (debug){
+        std::cout << "addresstext.length() " << addresstext.length() << std::endl;
       }
     }
+  }
+
+
+
+  if (rotate_inline==false){
+
+    cv::Mat rotated;
+    transpose(largest, rotated);
+    flip(rotated, rotated,1); //transpose+flip(1)=CW
+    cv::Mat rotated2(rotated.cols,rotated.rows,rotated.type());
+    transpose(rotated, rotated2);
+    flip(rotated2, rotated2,1); //transpose+flip(1)=CW
+    out = text(rotated2);
+    std::string s = resultText;
+    std::replace( s.begin(), s.end(), '"', ' ');
+    addresstext = s;
+    
   }
 
 }
@@ -987,9 +1018,10 @@ std::string ImageRecognize::getText(cv::Mat& im){
   const boost::regex no_plz_regex("\\d{6}\\s");
 
 
-
-
-  if ( (boost::regex_search(intermedia , plz_regex)==true)&&(boost::regex_search(intermedia , no_plz_regex)==false) ){
+  if (
+    (boost::regex_search(intermedia , plz_regex)==true)&&
+    (boost::regex_search(intermedia , no_plz_regex)==false)
+  ){
   //if ( (boost::regex_search(intermedia , plz_regex)==true)  ){
     if(debug){
       std::cout << "########INTERMEDIA##########" << std::endl;
@@ -1093,26 +1125,6 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
       std::cout << "dont think it is an address (less than 2 or more than 15 lines)" << std::endl;
     }
   }
-  /*
-  //if (false){
-    linearize(c2,0.2);
-    s1 = getText(c2);
-    boost::replace_all(s1,code,"-------------");
-    lines = isplit(s1,'\n');
-    if ((lines.size()<15)){
-      m = lines.size()-1;
-      for(i=m;i>0;i--){
-        if ((boost::regex_search(lines.at(i) , plz_regex)==true)&&(boost::regex_search(lines.at(i) , no_plz_regex)==false)){
-          resultText=s1;
-          ocr_text = s1.c_str();
-          resultThres = lastThreshold;
-          makeResultImage(orig,1.8);
-          return true;
-        }
-      }
-    }
-  //}
-  */
 
   return false;
 }
@@ -1132,38 +1144,34 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
     return true;
   }
 
-  if(debug){
-    std::cout << "try rotated" << std::endl;
-  }
-
-  allTogether += "\n\n" + resultText;
-
-  cv::Mat rotated(im.cols,im.rows,im.type());
-
-  transpose(im, rotated);
-  flip(rotated, rotated,1); //transpose+flip(1)=CW
-  cv::Mat rotated2(rotated.cols,rotated.rows,rotated.type());
-
-  if(debug){
-    std::cout << "*try rotated" << std::endl;
-  }
-
-  transpose(rotated, rotated2);
-  flip(rotated2, rotated2,1); //transpose+flip(1)=CW
-  c2 = rotated2(roi2);
-  if(debug){
-    std::cout << "**try rotated" << std::endl;
-  }
-
-  if (containsZipCode(c2,rotated2)){
+  if (rotate_inline==true){
     if(debug){
-      std::cout << "***try rotated" << std::endl;
+      std::cout << "try rotated" << std::endl;
     }
-    return true;
+
+    allTogether += "\n\n" + resultText;
+
+    cv::Mat rotated(im.cols,im.rows,im.type());
+
+    transpose(im, rotated);
+    flip(rotated, rotated,1); //transpose+flip(1)=CW
+    cv::Mat rotated2(rotated.cols,rotated.rows,rotated.type());
+    transpose(rotated, rotated2);
+    flip(rotated2, rotated2,1); //transpose+flip(1)=CW
+    c2 = rotated2(roi2);
+    if(debug){
+      std::cout << "**try rotated" << std::endl;
+    }
+
+    if (containsZipCode(c2,rotated2)){
+      if(debug){
+        std::cout << "***try rotated" << std::endl;
+      }
+      return true;
+    }
+
+    allTogether += "\n\n" + std::string(resultText);
   }
-
-  allTogether += "\n\n" + std::string(resultText);
-
   return false;
 }
 
