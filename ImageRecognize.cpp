@@ -1048,7 +1048,7 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
   }
   lines = isplit(s1,'\n');
   if (debug){
-    std::cout << "spliting lines" << std::endl;
+    std::cout << "spliting lines"  << lines.size() << std::endl;
   }
 
   std::vector<std::string>::iterator it;
