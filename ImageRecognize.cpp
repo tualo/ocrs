@@ -945,7 +945,7 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
 std::string ImageRecognize::getText(cv::Mat& im){
   tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
   tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
-  tess->SetVariable("tessedit_reject_bad_qual_wds","1");
+  tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
   tess->SetVariable("textord_min_linesize","1.0");
   tess->Recognize(0);
   if (psmAuto==true){
@@ -975,6 +975,12 @@ std::string ImageRecognize::getText(cv::Mat& im){
   */
 
   if ( (boost::regex_search(intermedia , plz_regex)==true)&&(boost::regex_search(intermedia , no_plz_regex)==false) ){
+  //if ( (boost::regex_search(intermedia , plz_regex)==true)  ){
+    if(debug){
+      std::cout << "########INTERMEDIA##########" << std::endl;
+      std::cout << intermedia << std::endl;
+      std::cout << "########INTERMEDIA##########" << std::endl;
+    }
     return intermedia;
   }else{
 
@@ -1141,7 +1147,7 @@ bool ImageRecognize::usingLetterType1(cv::Mat& im){
 
 
 bool ImageRecognize::usingLetterType1_1(cv::Mat& im){
-  cv::Rect roi2 = fittingROI(11,5,12,9,im);
+  cv::Rect roi2 = fittingROI(12,5,10,9,im);
   /*
   --------------------------------------
   |                                    |
@@ -1309,6 +1315,8 @@ const char* ImageRecognize::text(cv::Mat& im){
 
   cv::Mat usemat = im.clone();
 
+  std::string addressfield = "L";
+
 
   if (code=="123456789012"){
     std::cout << "TEST CARD FOUND!!!! " << std::endl;
@@ -1336,11 +1344,7 @@ const char* ImageRecognize::text(cv::Mat& im){
     printf("%'.2f", scale/rescale_width);
     std::cout << "* " << std::endl;
 
-/*
-    Max Mustermann
-Musterweg 1234a
-98765 Musterhausen
-*/
+
     int lastweight = 0;
     int last_subtractMean = 0;
     for(subtractMean=0;subtractMean<40;subtractMean++){
@@ -1376,8 +1380,8 @@ Musterweg 1234a
   }else{
 
 
-
-    std::string sql = "select height/100,length/100 from bbs_data where id = '"+code+"'; ";
+    // alter table bbs_data add addressfield varchar(2) default 'L';
+    std::string sql = "select height/100,length/100,addressfield from bbs_data where id = '"+code+"'; ";
     if (mysql_query(con, sql.c_str())){
 
     }else{
@@ -1392,6 +1396,7 @@ Musterweg 1234a
          int result_width = atoi(row[1]);
          int result_height = atoi(row[0]);
 
+         addressfield = row[2];
          double rescale_width = result_width*1.0/width*1.0;
          double rescale_height = result_height*1.0/height*1.0;
 
@@ -1438,7 +1443,73 @@ Musterweg 1234a
       std::cout << "type " << letterType  << std::endl;
     }
 
+    std::list<std::string> algorithm_order;
+    //letterType=1;
+    std::cout << "letterType " << letterType << std::endl;
+
     if (letterType==1){
+      if (addressfield=="L"){
+        algorithm_order.push_back( std::string("usingLetterType1_0") );
+        algorithm_order.push_back( std::string("usingLetterType1_1") );
+      }else{
+        algorithm_order.push_back( std::string("usingLetterType1_1") );
+        algorithm_order.push_back( std::string("usingLetterType1_0") );
+      }
+    }else if (letterType==2){
+      cv::Mat rotated;
+      transpose(usemat, rotated);
+      flip(rotated, rotated,1);
+      usemat = rotated.clone();
+      if (addressfield=="L"){
+        algorithm_order.push_back( std::string("usingLetterType2_0") );
+        algorithm_order.push_back( std::string("usingLetterType2_1") );
+      }else{
+        algorithm_order.push_back( std::string("usingLetterType2_1") );
+        algorithm_order.push_back( std::string("usingLetterType2_0") );
+      }
+      algorithm_order.push_back( std::string("usingLetterType2_2") );
+    }else if (letterType==3){
+      algorithm_order.push_back( std::string("usingLetterType3_0") );
+    }
+
+    for(std::list<std::string>::const_iterator i = algorithm_order.begin(); i != algorithm_order.end(); ++i){
+       std::cout << i->c_str() << std::endl;
+
+       if (strcmp(i->c_str(),"usingLetterType1_0")==0){
+         if (usingLetterType1(usemat)){
+           return ocr_text;
+         }
+       }
+       if (strcmp(i->c_str(),"usingLetterType1_1")==0){
+         if (usingLetterType1_1(usemat)){
+           return ocr_text;
+         }
+       }
+       if (strcmp(i->c_str(),"usingLetterType2_0")==0){
+         if (usingLetterType2(usemat)){
+           return ocr_text;
+         }
+       }
+       if (strcmp(i->c_str(),"usingLetterType2_1")==0){
+         if (usingLetterType2_1(usemat)){
+           return ocr_text;
+         }
+       }
+       if (strcmp(i->c_str(),"usingLetterType2_2")==0){
+         if (usingLetterType2_2(usemat)){
+           return ocr_text;
+         }
+       }
+       if (strcmp(i->c_str(),"usingLetterType3_0")==0){
+         if (usingLetterType3(usemat)){
+           return ocr_text;
+         }
+       }
+    }
+
+    /*
+    if (letterType==1){
+
 
       if (debug){
         std::cout << "usingLetterType1" << std::endl;
@@ -1603,6 +1674,7 @@ Musterweg 1234a
         }
       }
     }
+    */
 
 
     // thomas hoffmann 22.08.
