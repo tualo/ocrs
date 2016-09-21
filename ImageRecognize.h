@@ -43,6 +43,7 @@ public:
   bool psmAuto;
   bool windowalltogether;
   bool barcode_light_correction;
+  bool try_reduced;
   int analysisType;
   int barcode_algorthim;
   int window_wait;

@@ -163,6 +163,11 @@ int main( int argc, char** argv ){
   if(const char* env_psmAuto = std::getenv("PSM_AUTO")){
     psmAuto = (atoi(env_psmAuto)==1)?true:false;
   }
+  bool try_reduced = false;
+  if(const char* env_try_reduced = std::getenv("TRY_REDUCED")){
+    try_reduced = (atoi(env_try_reduced)==1)?true:false;
+  }
+
 
 
   bool barcode_light_correction = true;
@@ -239,9 +244,11 @@ int main( int argc, char** argv ){
   }
 
   std::string sql = "";
+
   ImageRecognize* ir = new ImageRecognize();
   ir->debug=debug;
   ir->con = con;
+  ir->try_reduced = try_reduced;
   ir->psmAuto = psmAuto;
   ir->showWindow=window;
   ir->forceaddress=forceaddress;
@@ -254,6 +261,8 @@ int main( int argc, char** argv ){
   ir->windowalltogether = windowalltogether;
   ir->subtractMean=subtractMean;
   ir->blockSize = blockSize;
+
+
 
   if (std::string(env_pza) == "1"){
     ir->cmWidth = 21;
@@ -411,13 +420,6 @@ int main( int argc, char** argv ){
           cv::imwrite( ( store_original+"good."+ir->code+".jpg" ).c_str(),ir->orignalImage);
         }
 
-        /*
-        protokollsql = "update protokoll set state='good' where code = '"+ir->code+"'; ";
-        if (mysql_query(con, protokollsql.c_str())){
-
-        }
-        */
-
         bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','good','')";
         if (mysql_query(con, bbs_check_sql.c_str())){
           fprintf(stderr, "%s\n", mysql_error(con));
@@ -482,19 +484,9 @@ int main( int argc, char** argv ){
       }
 
 
-
-
       if (store_original!=""){
         cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
       }
-
-      /*
-      protokollsql = "update protokoll set state='noaddress' where code = '"+ir->code+"'; ";
-      if (mysql_query(con, protokollsql.c_str())){
-
-      }
-      */
-
 
       if (keepfiles==0){
         if( remove( fullname.c_str() ) != 0 ){

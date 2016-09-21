@@ -236,6 +236,31 @@ void ImageRecognize::open(const char* filename){
     std::cout << "all passed in seconds: " << te << std::endl;
   }
 
+  if (try_reduced==true){
+    if (addresstext.length()==0){
+      // give a try with smaller image
+      if (debug){
+        std::cout << "give a try with smaller image" << std::endl;
+      }
+      cv::Mat blured;
+      int x=largest.cols*0.8;
+      int y=largest.rows*0.8;
+
+      cv::Mat resized = cv::Mat(x, y, CV_32FC3);
+      cvtColor(largest,blured,CV_BGR2GRAY);
+      cv::Size ksize(5,5);
+      cv::GaussianBlur(blured, blured, ksize, 0);
+      cv::resize(blured, resized, cv::Size(x, y), 0, 0, 3);
+      cvtColor(resized,largest,CV_GRAY2BGR);
+      out = text(largest);
+      if (analysisType==0){
+        std::string s = resultText;
+        std::replace( s.begin(), s.end(), '"', ' ');
+        addresstext = s;
+      }
+    }
+  }
+
 }
 
 
@@ -964,16 +989,6 @@ std::string ImageRecognize::getText(cv::Mat& im){
 
 
 
-  /*
-  const boost::regex noise_regex("\\w{4}");
-
-  if ( (boost::regex_search(intermedia , noise_regex)==true) ){
-    if(debug){
-      std::cout << "NOISE" << std::endl;
-    }
-  }
-  */
-
   if ( (boost::regex_search(intermedia , plz_regex)==true)&&(boost::regex_search(intermedia , no_plz_regex)==false) ){
   //if ( (boost::regex_search(intermedia , plz_regex)==true)  ){
     if(debug){
@@ -1003,8 +1018,7 @@ std::string ImageRecognize::getText(cv::Mat& im){
 
 bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
   int i=0;
-
-
+  int j=0;
   int m=0;
   int lastThreshold=0;
   std::vector<std::string> lines;
@@ -1018,25 +1032,44 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
 
   std::string s1 = getText(im);//(out);
   boost::replace_all(s1,code,"-------------");
+  boost::replace_all(s1,"\n\n","\n");
   lines = isplit(s1,'\n');
 
-  /*
-  for(i=0;i<lines.size();i++){
-    std::cout << i << "#" << lines.at(i) << std::endl;
+  std::vector<std::string>::iterator it;
+  for (it = lines.begin(); it != lines.end(); it++){
+    if ((*it).length()<5){
+      lines.erase(it);
+    }
   }
-  std::cout << "####" << lines.at(4) << "*"<< lines.at(4).at(5) << std::endl;
-  */
 
-  if ((lines.size()<15)){
+  if (debug){
+    std::cout << "Lines found" << lines.size() << std::endl;
+  }
+
+
+  if (lines.size()<15){
+
     m = lines.size()-1;
     for(i=m;i>0;i--){
       if ((boost::regex_search(lines.at(i) , plz_regex)==true)&&(boost::regex_search(lines.at(i) , no_plz_regex)==false)){
+        s1="";
+        for(j=0;j<=i;j++){
+          s1+=lines.at(j)+"\n";
+        }
         resultText=s1;
         ocr_text = s1.c_str();
+        if (debug){
+          std::cout << "ImageRecognize::containsZipCode" << std::endl << resultText << std::endl << std::endl;
+        }
         resultThres = lastThreshold;
         makeResultImage(orig,0.85);
         return true;
       }
+    }
+
+  }else{
+    if (debug){
+      std::cout << "dont think it is an address (more than 15 lines)" << std::endl;
     }
   }
   /*
@@ -1379,7 +1412,6 @@ const char* ImageRecognize::text(cv::Mat& im){
 
   }else{
 
-
     // alter table bbs_data add addressfield varchar(2) default 'L';
     std::string sql = "select height/100,length/100,addressfield from bbs_data where id = '"+code+"'; ";
     if (mysql_query(con, sql.c_str())){
@@ -1677,14 +1709,27 @@ const char* ImageRecognize::text(cv::Mat& im){
     */
 
 
+    /*
+    if(debug){
+      std::cout << "------>>>>>"  << std::endl;
+    }
     // thomas hoffmann 22.08.
     // Infosendungen mit fenster rechts unten
     cv::Rect roi2 = fittingROI((usemat.cols/oneCM)-12,(usemat.rows/oneCM)-17,13,7,usemat);
-    cv::Mat imx = usemat(roi2);
-    if (usingLetterRoi(usemat,roi2)){
-      return ocr_text;
+    if(debug){
+      std::cout << "------>>>>>"  << std::endl;
     }
-
+    cv::Mat imx = usemat(roi2);
+    if(debug){
+      std::cout << "------>>>>>"  << std::endl;
+    }
+    if (usingLetterRoi(usemat,roi2)){
+      if(debug){
+        std::cout << "------>>>>>"  << std::endl;
+      }
+        return ocr_text;
+    }
+    */
     if(debug){
       std::cout << "found nothing "  << std::endl;
     }
