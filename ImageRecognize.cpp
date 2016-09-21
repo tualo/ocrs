@@ -1026,14 +1026,30 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
   const boost::regex no_plz_regex("\\d{6}\\s");
   cv::Mat c2 = im.clone();
 
+  if (debug){
+    std::cout << "before linearize" << std::endl;
+  }
+
   lastThreshold = linearize(im,-0.30);
   showImage(im);
 
+  if (debug){
+    std::cout << "after linearize" << std::endl;
+  }
 
   std::string s1 = getText(im);//(out);
+  if (debug){
+    std::cout << "after getText" << std::endl;
+  }
   boost::replace_all(s1,code,"-------------");
   boost::replace_all(s1,"\n\n","\n");
+  if (debug){
+    std::cout << "after replace_all" << std::endl;
+  }
   lines = isplit(s1,'\n');
+  if (debug){
+    std::cout << "spliting lines" << std::endl;
+  }
 
   std::vector<std::string>::iterator it;
   for (it = lines.begin(); it != lines.end(); it++){
@@ -1041,6 +1057,10 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
       lines.erase(it);
     }
   }
+  if (debug){
+    std::cout << "erase lines " << lines.size() << std::endl;
+  }
+
 
   if (debug){
     std::cout << "Lines found" << lines.size() << std::endl;
@@ -1135,6 +1155,9 @@ bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
   }
 
   if (containsZipCode(c2,rotated2)){
+    if(debug){
+      std::cout << "***try rotated" << std::endl;
+    }
     return true;
   }
 
