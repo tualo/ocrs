@@ -163,11 +163,18 @@ int main( int argc, char** argv ){
   if(const char* env_psmAuto = std::getenv("PSM_AUTO")){
     psmAuto = (atoi(env_psmAuto)==1)?true:false;
   }
+  bool light_up_original = false;
+  if(const char* env_light_up_original = std::getenv("LIGHT_UP_ORIGINAL")){
+    light_up_original = (atoi(env_light_up_original)==1)?true:false;
+  }
   bool try_reduced = false;
   if(const char* env_try_reduced = std::getenv("TRY_REDUCED")){
     try_reduced = (atoi(env_try_reduced)==1)?true:false;
   }
-
+  bool rotate_inline = true;
+  if(const char* env_rotate_inline = std::getenv("ROTATE_INLINE")){
+    rotate_inline = (atoi(env_rotate_inline)==1)?true:false;
+  }
 
 
   bool barcode_light_correction = true;
@@ -250,7 +257,8 @@ int main( int argc, char** argv ){
   ir->con = con;
   ir->try_reduced = try_reduced;
   ir->psmAuto = psmAuto;
-  ir->rotate_inline=false;
+  ir->light_up_original = light_up_original;
+  ir->rotate_inline=rotate_inline;
   ir->showWindow=window;
   ir->forceaddress=forceaddress;
   ir->barcode_light_correction=barcode_light_correction;
@@ -356,7 +364,7 @@ int main( int argc, char** argv ){
 
       }
 
-      if (ea->getStreetName().length()>3){
+      if (ea->getStreetName().length()>1){
 
 
 

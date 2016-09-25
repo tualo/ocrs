@@ -94,6 +94,33 @@ void ImageRecognize::open(const char* filename){
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
 
+
+
+  if (light_up_original==true){
+    cv::Mat lab_image;
+    cv::cvtColor(orignalImage, lab_image, CV_BGR2Lab);
+
+    // Extract the L channel
+    std::vector<cv::Mat> lab_planes(3);
+    cv::split(lab_image, lab_planes);  // now we have the L image in lab_planes[0]
+
+    // apply the CLAHE algorithm to the L channel
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
+    clahe->setClipLimit(4);
+    cv::Mat dst;
+    clahe->apply(lab_planes[0], dst);
+
+    // Merge the the color planes back into an Lab image
+    dst.copyTo(lab_planes[0]);
+    cv::merge(lab_planes, lab_image);
+
+   // convert back to RGB
+   showImage(orignalImage);
+   cv::cvtColor(lab_image, orignalImage, CV_Lab2BGR);
+   showImage(orignalImage);
+   std::cout << "Light Up" << std::endl;
+  }
+
   tess=new tesseract::TessBaseAPI();
   //if(!tess->SetVariable("tessedit_enable_doc_dict", "0")){
   //}
@@ -106,8 +133,25 @@ void ImageRecognize::open(const char* filename){
   if(!tess->SetVariable("use_new_state_cost", "1")){
   }
   */
+  if (psmAuto){
+    tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
+    tess->SetPageSegMode(pagesegmode);
+  }
 
   tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
+
+  if (false){
+    cv::Mat blured;
+    int x=orignalImage.cols*0.8;
+    int y=orignalImage.rows*0.8;
+
+    cv::Mat resized = cv::Mat(x, y, CV_32FC3);
+    cvtColor(orignalImage,blured,CV_BGR2GRAY);
+    cv::Size ksize(5,5);
+    cv::GaussianBlur(blured, blured, ksize, 0);
+    cv::resize(blured, resized, cv::Size(x, y), 0, 0, 3);
+    cvtColor(resized,orignalImage,CV_GRAY2BGR);
+  }
 
   cv::Mat minmat = cv::Mat(orignalImage.cols*scale, orignalImage.rows, CV_32FC3);
   cv::resize(orignalImage, minmat, cv::Size(orignalImage.cols*scale, orignalImage.rows), 0, 0, 3);
@@ -137,11 +181,6 @@ void ImageRecognize::open(const char* filename){
   cv::Mat largest;
   const char* out;
   if (debug){
-    std::cout << "analysisType " << analysisType << std::endl;
-    std::cout << "analysisType " << analysisType << std::endl;
-    std::cout << "analysisType " << analysisType << std::endl;
-    std::cout << "analysisType " << analysisType << std::endl;
-    std::cout << "analysisType " << analysisType << std::endl;
     std::cout << "analysisType " << analysisType << std::endl;
   }
   if (analysisType==0){
@@ -289,7 +328,7 @@ void ImageRecognize::open(const char* filename){
     std::string s = resultText;
     std::replace( s.begin(), s.end(), '"', ' ');
     addresstext = s;
-    
+
   }
 
 }
@@ -1004,9 +1043,7 @@ std::string ImageRecognize::getText(cv::Mat& im){
   tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
   tess->SetVariable("textord_min_linesize","1.0");
   tess->Recognize(0);
-  if (psmAuto==true){
-    tess->SetPageSegMode(tesseract::PSM_AUTO);
-  }
+
 
   const char* out = tess->GetUTF8Text();
 
@@ -1082,7 +1119,7 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
   if (debug){
     std::cout << "spliting lines"  << lines.size() << std::endl;
   }
-  if (lines.size()<2){
+  if (lines.size()<3){
     return false;
   }
   std::vector<std::string>::iterator it;

@@ -53,7 +53,8 @@ void ExtractAddress::extract(){
   // modes:
   // * 0 nothing
   // * 1 zip code found
-  // * 2 street found
+  // * 3 street found
+  // * 4 hn found
 
   std::vector<std::string> elems = split(orignalString,(char)10);
   std::vector<std::string> v(elems.rbegin(),elems.rend());
@@ -79,8 +80,10 @@ void ExtractAddress::extract(){
       }
     }else if (mode==1){
       streetName = line;
-      if (boost::regex_search(elems.at(i) , hn_regex)==true){
-        // todo extract housenumber
+      if (streetName.length()>3){
+        mode++;
+      }
+      if (boost::regex_search(streetName , hn_regex)==true){
         const boost::sregex_iterator i(line.begin(),line.end(),hn_regex);
         const std::string t = i->str();
         housenumber = t;
@@ -88,7 +91,7 @@ void ExtractAddress::extract(){
         mode++;
       }
     }
-    if (mode==2){
+    if (mode>=2){
       break;
     }
   }
