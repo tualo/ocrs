@@ -71,6 +71,7 @@ private:
   void makeResultImage(cv::Mat& src,float multiply);
   cv::Rect fittingROI(double x,double y,double w,double h, cv::Mat& m1);
   double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
+  void recalcSubstractMean(cv::Mat m);
 
   bcResult barcode(cv::Mat& im);
   bcResult fast_barcode(cv::Mat& im);

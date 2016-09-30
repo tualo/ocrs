@@ -85,6 +85,36 @@ void ImageRecognize::showImage(cv::Mat& src,char* title){
   }
 }
 
+void ImageRecognize::recalcSubstractMean(cv::Mat m){
+  if(const char* env_cl = std::getenv("CALC_MEAN")){
+    if(atoi(env_cl)==1){
+
+      cv::Mat mean;
+      cv::Mat stddev;
+      cv::meanStdDev(m,mean,stddev);
+      int idx =0;
+      int minStd = 255;
+      int maxStd = 0;
+
+      for(idx=0;idx<sizeof(mean.data);idx++){
+        std::cout << "mean " << (int)mean.data[idx]-128 << std::endl;
+      }
+      for(idx=0;idx<sizeof(stddev.data);idx++){
+        std::cout << "stddev " << (int)stddev.data[idx] << std::endl;
+        if (minStd>(int)stddev.data[idx]){
+          minStd=(int)stddev.data[idx];
+        }
+        if (maxStd<(int)stddev.data[idx]){
+          maxStd=(int)stddev.data[idx];
+        }
+      }
+
+      subtractMean = -1*( (int)mean.data[6] - 128 )/2;
+      std::cout << "use substract mean " << subtractMean<< std::endl;
+    }
+  }
+}
+
 void ImageRecognize::open(const char* filename){
   double t = (double)cv::getTickCount();
   double te;
@@ -1093,6 +1123,9 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
   std::vector<std::string> lines;
   const boost::regex plz_regex("\\d{5}\\s");
   const boost::regex no_plz_regex("\\d{6}\\s");
+
+  recalcSubstractMean(im);
+
   cv::Mat c2 = im.clone();
 
   if (debug){

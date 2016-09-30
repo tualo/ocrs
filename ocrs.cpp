@@ -198,6 +198,9 @@ int main( int argc, char** argv ){
   if(const char* env_blockSize = std::getenv("ADAPTIVE_THRESH_BLOCK_SIZE")){
     blockSize = atoi(env_blockSize);
   }
+  std::cout << "ADAPTIVE_THRESH_SUBTRACT_MEAN="<<subtractMean << std::endl;
+  std::cout << "ADAPTIVE_THRESH_BLOCK_SIZE="<<blockSize << std::endl;
+  std::cout << "PSM_AUTO="<<psmAuto << std::endl;
 
   int barcode_algorthim=0;
   if(const char* env_ba = std::getenv("BARCODE_ALGORTHIM")){
@@ -429,7 +432,7 @@ int main( int argc, char** argv ){
           cv::imwrite( ( store_original+"good."+ir->code+".jpg" ).c_str(),ir->orignalImage);
         }
 
-        bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','good','')";
+        bbs_check_sql = "call BBS_CHECK_OCR_ID('"+machine_id+"','good','','"+ir->code+"')";
         if (mysql_query(con, bbs_check_sql.c_str())){
           fprintf(stderr, "%s\n", mysql_error(con));
         }
@@ -455,7 +458,7 @@ int main( int argc, char** argv ){
         if (mysql_query(con, protokollsql.c_str())){
         }
         */
-        bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','noaddress','nostreet')";
+        bbs_check_sql = "call BBS_CHECK_OCR_ID('"+machine_id+"','noaddress','nostreet','"+ir->code+"')";
         if (mysql_query(con, bbs_check_sql.c_str())){
           fprintf(stderr, "%s\n", mysql_error(con));
         }
@@ -487,7 +490,7 @@ int main( int argc, char** argv ){
         cv::imwrite( newfile.c_str(),ir->orignalImage,params);
       }
 
-      bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','noaddress','nozipcode')";
+      bbs_check_sql = "call BBS_CHECK_OCR_ID('"+machine_id+"','noaddress','nozipcode','"+ir->code+"')";
       if (mysql_query(con, bbs_check_sql.c_str())){
         fprintf(stderr, "%s\n", mysql_error(con));
       }
