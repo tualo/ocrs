@@ -1068,6 +1068,7 @@ cv::Rect ImageRecognize::fittingROI(double x,double y,double w,double h, cv::Mat
 }
 
 std::string ImageRecognize::getText(cv::Mat& im){
+
   tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
   tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
   tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
@@ -1599,9 +1600,11 @@ const char* ImageRecognize::text(cv::Mat& im){
       if (addressfield=="L"){
         algorithm_order.push_back( std::string("usingLetterType1_0") );
         algorithm_order.push_back( std::string("usingLetterType1_1") );
+        algorithm_order.push_back( std::string("usingLetterType3_0") );
       }else{
         algorithm_order.push_back( std::string("usingLetterType1_1") );
         algorithm_order.push_back( std::string("usingLetterType1_0") );
+        algorithm_order.push_back( std::string("usingLetterType3_0") );
       }
     }else if (letterType==2){
       cv::Mat rotated;
