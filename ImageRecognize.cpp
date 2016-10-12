@@ -1547,11 +1547,11 @@ const char* ImageRecognize::text(cv::Mat& im){
 
          rescale_cols = 1;// result_height*1.0/height*1.0;
 
-         if ((result_cols>11.0) && (result_cols<12.6) && (result_rows>21.0) && (result_rows<22.6)){
+//         if ((result_cols>11.0) && (result_cols<12.6) && (result_rows>21.0) && (result_rows<22.6)){
            rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
-         }else{
-           rescale_rows = scale;
-         }
+//         }else{
+//           rescale_rows = scale;
+//         }
 
 
 
