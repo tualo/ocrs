@@ -1562,7 +1562,7 @@ const char* ImageRecognize::text(cv::Mat& im){
       std::cout << "INITIAL SCALE ROWS " << rescale_rows << std::endl;
 
       if ((result_cols>11.0) && (result_cols<12.6)){
-        if ((result_rows>22.0) && (result_rows<22.6)){
+        if ((result_rows>21.0) && (result_rows<22.6)){
           std::cout << "LETTER DIN Lang should store the SCALE value!" << std::endl;
           std::string usql = "update bbs_maschine set scale_rows= "+(std::to_string(rescale_rows))+" where prefix='"+machine_id+"'";
           std::cout << usql << std::endl;
