@@ -1515,6 +1515,11 @@ const char* ImageRecognize::text(cv::Mat& im){
     double rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
 
 
+    int height = usemat.rows / oneCM;
+    int width = usemat.cols / oneCM;
+
+    std::cout << "width "  << width << " cm" << std::endl;
+    std::cout << "height "  << height << " cm" << std::endl;
     // alter table bbs_data add addressfield varchar(2) default 'L';
     std::string sql = "select height/100,length/100,addressfield from bbs_data where id = '"+code+"'; ";
     std::cout << "SQL " << sql << std::endl;
@@ -1538,8 +1543,7 @@ const char* ImageRecognize::text(cv::Mat& im){
 
          std::cout << "result_cols "  << result_cols << std::endl;
          std::cout << "result_rows "  << result_rows << std::endl;
-         std::cout << "width "  << width << std::endl;
-         std::cout << "height "  << height << std::endl;
+
 
          rescale_cols = 1;// result_height*1.0/height*1.0;
 
