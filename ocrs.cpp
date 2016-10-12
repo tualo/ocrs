@@ -258,6 +258,7 @@ int main( int argc, char** argv ){
   ImageRecognize* ir = new ImageRecognize();
   ir->debug=debug;
   ir->con = con;
+  ir->machine_id = machine_id;
   ir->try_reduced = try_reduced;
   ir->psmAuto = psmAuto;
   ir->light_up_original = light_up_original;

@@ -54,6 +54,7 @@ public:
   std::string code;
   std::string jsontext;
   std::string addresstext;
+  std::string machine_id;
   int width;
   int height;
   cv::Mat resultMat;

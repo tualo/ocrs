@@ -69,14 +69,17 @@ CREATE PROCEDURE SET_SV
 MODIFIES SQL DATA
 BEGIN
 
-set @datum=CURRENT_DATE();
-set @zeit=CURRENT_TIME();
+  set @datum=CURRENT_DATE();
+  set @zeit=CURRENT_TIME();
 
-IF EXISTS(SELECT * FROM BBS_DATA WHERE ID=in_code)
-THEN
-  SELECT substring(inserttime,1,10),substring(inserttime,11,19) into @datum,@zeit FROM BBS_DATA WHERE ID=in_code;
-END IF;
+  IF EXISTS(SELECT * FROM BBS_DATA WHERE ID=in_code)
+  THEN
+    SELECT substring(inserttime,1,10),substring(inserttime,11,19) into @datum,@zeit FROM BBS_DATA WHERE ID=in_code;
+  END IF;
 
+  IF @svmodell IS NULL THEN
+    set @svmodell='NOT SET';
+  END IF;
 
   IF EXISTS(SELECT * FROM SV_DATEN WHERE ID=in_code)
   THEN
@@ -461,6 +464,10 @@ BEGIN
 
 END;
 //
+
+
+
+
 DELIMITER ;
 
 

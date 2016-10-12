@@ -182,10 +182,11 @@ void ImageRecognize::open(const char* filename){
     cv::resize(blured, resized, cv::Size(x, y), 0, 0, 3);
     cvtColor(resized,orignalImage,CV_GRAY2BGR);
   }
-
+  /*
   cv::Mat minmat = cv::Mat(orignalImage.cols*scale, orignalImage.rows, CV_32FC3);
   cv::resize(orignalImage, minmat, cv::Size(orignalImage.cols*scale, orignalImage.rows), 0, 0, 3);
   orignalImage = minmat;
+  */
 
   oneCM = orignalImage.cols/cmWidth;
 
@@ -214,8 +215,10 @@ void ImageRecognize::open(const char* filename){
     std::cout << "analysisType " << analysisType << std::endl;
   }
   if (analysisType==0){
-
+    showImage(mat);
     largest = largestContour(mat);
+    showImage(largest);
+
     if (headOver){
       transpose(largest, largest);
       flip(largest, largest,1); //transpose+flip(1)=CW
@@ -555,28 +558,6 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
   double t = (double)cv::getTickCount();
   double te;
 
-  /*
-  cv::Rect roia(0,0,src.cols/2,src.rows);
-  cv::Rect roib(src.cols/2,0,src.cols/2,src.rows);
-  cv::Mat c_a = src(roia);
-  cv::Mat c_b = src(roib);
-
-  cv::Mat mean;
-  cv::Mat stddev;
-
-  cv::meanStdDev(c_a,mean,stddev);
-  std::cout << "mean " << (int)mean.data[0] << std::endl;
-  std::cout << "stddev " << (int)stddev.data[0] << std::endl;
-
-  cv::meanStdDev(c_b,mean,stddev);
-  std::cout << "mean " << (int)mean.data[0] << std::endl;
-  std::cout << "stddev " << (int)stddev.data[0] << std::endl;
-
-  std::cout << "cols im " << src.cols << std::endl;
-  std::cout << "cols c_a " << c_a.cols << std::endl;
-  std::cout << "cols c_b " << c_b.cols << std::endl;
-
-  */
   int largest_area=0;
   int largest_contour_index=0;
   int type = cv::NORM_MINMAX;
@@ -644,11 +625,11 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
     }
   }
   */
+
   if (box_size.width<box_size.height){
     box.angle += 90.;
   }
-  int iangle = box.angle;
-  box.angle = iangle;
+
 
   if(debug){
     std::cout << "angle " << box.angle << " BWidth "  << box_size.width << " BHeight " << box_size.height << std::endl;
@@ -660,10 +641,14 @@ cv::Mat ImageRecognize::largestContour(cv::Mat& src){
 
   cv::Mat rot_mat = cv::getRotationMatrix2D(cv::Point(box.center.x*2,box.center.y*2), box.angle, 1);
 
-  //cv::Mat rotated;
+  cv::Mat rotated;
   //cv::Mat rotated(src.rows*1.5,src.cols*1.5,src.type());
-  cv::Mat rotated(src.rows,src.cols,src.type());
-  cv::warpAffine(src, rotated, rot_mat, rotated.size(), cv::INTER_CUBIC);
+  if (false){
+    rotated = cv::Mat(src.rows,src.cols,src.type());
+    cv::warpAffine(src, rotated, rot_mat, rotated.size(), cv::INTER_CUBIC);
+  }else{
+    rotated = src.clone();
+  }
   /*
   if (box.angle < -45.){
     std::cout << "swap";
@@ -1278,6 +1263,8 @@ void ImageRecognize::makeResultImage(cv::Mat& src,float multiply){
 
 }
 
+
+
 bool ImageRecognize::usingLetterType1(cv::Mat& im){
   cv::Rect roi2 = fittingROI(2,6,10,6,im);
   /*
@@ -1346,6 +1333,7 @@ bool ImageRecognize::usingLetterType3(cv::Mat& im){
   return usingLetterRoi(im,roi2);
 }
 
+
 bool ImageRecognize::usingLetterType2(cv::Mat& im){
   //cv::Rect roi2 = fittingROI(12,5,12,14,im);
   //cv::Rect roi2 = fittingROI(2,5,11,7,im);
@@ -1411,6 +1399,7 @@ bool ImageRecognize::usingLetterType2_1(cv::Mat& im){
 }
 
 
+
 bool ImageRecognize::usingLetterType2_2(cv::Mat& im){
   cv::Rect roi2 = fittingROI((im.cols/oneCM)-17,(im.rows/oneCM)-10,13,7,im);
   const char* out;
@@ -1442,19 +1431,10 @@ bool ImageRecognize::usingLetterType2_2(cv::Mat& im){
 
 const char* ImageRecognize::text(cv::Mat& im){
   const char* out;
-  int breite = im.cols/oneCM;
-  int hoehe = im.rows/oneCM;
   int letterType = 0;
 
-  width = breite;
-  height = hoehe;
 
-  // din lang
-  if (hoehe <= 21){
-    if (breite >= 20){
-      letterType=1;
-    }
-  }
+
 
   if (windowalltogether){
     debugImage = im.clone();
@@ -1464,11 +1444,11 @@ const char* ImageRecognize::text(cv::Mat& im){
 
 
   cv::Mat usemat = im.clone();
-
   std::string addressfield = "L";
 
 
   if (code=="123456789012"){
+    /*
     std::cout << "TEST CARD FOUND!!!! " << std::endl;
 
     if (debug){
@@ -1487,8 +1467,8 @@ const char* ImageRecognize::text(cv::Mat& im){
 
     usemat = cv::Mat(im.cols*rescale_width, im.rows*rescale_height, CV_32FC3);
     cv::resize(im, usemat, cv::Size(im.cols*rescale_width, im.rows*rescale_height), 0, 0, 3);
-    breite=result_width;
-    hoehe=result_height;
+    int breite=result_width;
+    int hoehe=result_height;
 
     std::cout << "INITIAL SCALE SHOULD BE " << std::endl;
     printf("%'.2f", scale/rescale_width);
@@ -1526,47 +1506,107 @@ const char* ImageRecognize::text(cv::Mat& im){
     std::cout << "SUBSTRACT_MEAN should be " << last_subtractMean << std::endl;
     std::cout << std::endl;
 
-
+    */
   }else{
 
     // alter table bbs_data add addressfield varchar(2) default 'L';
     std::string sql = "select height/100,length/100,addressfield from bbs_data where id = '"+code+"'; ";
+    std::cout << "SQL " << sql << std::endl;
     if (mysql_query(con, sql.c_str())){
-
+      std::cout << "EE " << sql << std::endl;
+      fprintf(stderr, "%s\n", mysql_error(con));
     }else{
       MYSQL_RES *result;
       MYSQL_ROW row;
       unsigned int num_fields;
       unsigned int i;
+      float result_cols = 0;
+      float result_rows = 0;
+      double rescale_cols = 1;// result_height*1.0/height*1.0;
+      double rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
+
       result = mysql_use_result(con);
       num_fields = mysql_num_fields(result);
       while ((row = mysql_fetch_row(result))){
          unsigned long *lengths;
-         int result_width = atoi(row[1]);
-         int result_height = atoi(row[0]);
+         result_cols = atof(row[0]);
+         result_rows = atof(row[1]);
 
          addressfield = row[2];
-         double rescale_width = result_width*1.0/width*1.0;
-         double rescale_height = result_height*1.0/height*1.0;
 
-         usemat = cv::Mat(im.cols*rescale_width, im.rows*rescale_height, CV_32FC3);
-         cv::resize(im, usemat, cv::Size(im.cols*rescale_width, im.rows*rescale_height), 0, 0, 3);
-         breite=result_width;
-         hoehe=result_height;
+         std::cout << "result_cols "  << result_cols << std::endl;
+         std::cout << "result_rows "  << result_rows << std::endl;
+         std::cout << "width "  << width << std::endl;
+         std::cout << "height "  << height << std::endl;
 
-         if (rescale_height==1){
-           std::cout << "INITIAL SCALE SHOULD BE " << std::endl;
-           printf("%'.2f", scale*rescale_width);
-           std::cout << "* " << std::endl;
+         rescale_cols = 1;// result_height*1.0/height*1.0;
+
+         if ((result_cols>11.0) && (result_cols<12.6)){
+           rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
+         }else{
+           rescale_rows = scale;
          }
-         if (debug){
-           std::cout << "WR " << rescale_width*10 << std::endl;
-           std::cout << "HR " << rescale_height*10 << std::endl;
-         }
+
+         std::cout << "rescale_cols "  << rescale_cols << std::endl;
+         std::cout << "rescale_rows "  << rescale_rows << std::endl;
+         showImage(im);
+         usemat = cv::Mat(im.cols*rescale_cols, im.rows*rescale_rows, CV_32FC3);
+         cv::resize(im, usemat, cv::Size(im.cols*rescale_cols, im.rows*rescale_rows), 0, 0, 3);
+         std::cout << "INITIAL SCALE ROWS " << rescale_rows << std::endl;
+
+
       }
+
+
+      if ((result_cols>11.0) && (result_cols<12.6)){
+        if ((result_rows>22.0) && (result_rows<22.6)){
+          std::cout << "LETTER DIN Lang should store the SCALE value!" << std::endl;
+          std::string usql = "update bbs_maschine set scale_rows= "+(std::to_string(rescale_rows))+" where prefix='"+machine_id+"'";
+          std::cout << usql << std::endl;
+          if (mysql_query(con, usql.c_str())){
+            std::cout << "EE " << usql << std::endl;
+            fprintf(stderr, "%s\n", mysql_error(con));
+          }
+        }
+      }
+
     }
 
 
+
+    if (usemat.rows>usemat.cols){
+      std::cout << "ROTATE IMAGE" << std::endl;
+      // lange seite -> drehen
+      cv::Mat rotated;
+      transpose(usemat, rotated);
+      flip(rotated, rotated,1);
+      usemat = rotated.clone();
+
+      transpose(usemat, rotated);
+      flip(rotated, rotated,1);
+      usemat = rotated.clone();
+
+      transpose(usemat, rotated);
+      flip(rotated, rotated,1);
+      usemat = rotated.clone();
+
+    }
+
+
+    int hoehe = usemat.rows / oneCM;
+    int breite = usemat.cols / oneCM;
+
+    std::cout << "hoehe " << hoehe << " cm" << std::endl;
+    std::cout << "breite " << breite << " cm" << std::endl;
+
+
+    // din lang
+    // din a5
+    if (hoehe <= 21){
+      if (breite >= 20){
+        letterType=1;
+      }
+    }
 
     // grossbrief
     if (hoehe > 21){
@@ -1581,6 +1621,9 @@ const char* ImageRecognize::text(cv::Mat& im){
         letterType=3;
       }
     }
+
+
+
 
     if (debug){
       std::cout << "H " << hoehe << " | B " << breite << std::endl;
