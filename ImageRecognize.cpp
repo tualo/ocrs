@@ -1509,6 +1509,12 @@ const char* ImageRecognize::text(cv::Mat& im){
     */
   }else{
 
+    float result_cols = 0;
+    float result_rows = 0;
+    double rescale_cols = scale;// result_height*1.0/height*1.0;
+    double rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
+
+
     // alter table bbs_data add addressfield varchar(2) default 'L';
     std::string sql = "select height/100,length/100,addressfield from bbs_data where id = '"+code+"'; ";
     std::cout << "SQL " << sql << std::endl;
@@ -1520,10 +1526,6 @@ const char* ImageRecognize::text(cv::Mat& im){
       MYSQL_ROW row;
       unsigned int num_fields;
       unsigned int i;
-      float result_cols = 0;
-      float result_rows = 0;
-      double rescale_cols = 1;// result_height*1.0/height*1.0;
-      double rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
 
       result = mysql_use_result(con);
       num_fields = mysql_num_fields(result);
@@ -1547,16 +1549,17 @@ const char* ImageRecognize::text(cv::Mat& im){
            rescale_rows = scale;
          }
 
-         std::cout << "rescale_cols "  << rescale_cols << std::endl;
-         std::cout << "rescale_rows "  << rescale_rows << std::endl;
-         showImage(im);
-         usemat = cv::Mat(im.cols*rescale_cols, im.rows*rescale_rows, CV_32FC3);
-         cv::resize(im, usemat, cv::Size(im.cols*rescale_cols, im.rows*rescale_rows), 0, 0, 3);
-         std::cout << "INITIAL SCALE ROWS " << rescale_rows << std::endl;
 
 
       }
 
+
+      std::cout << "rescale_cols "  << rescale_cols << std::endl;
+      std::cout << "rescale_rows "  << rescale_rows << std::endl;
+      showImage(im);
+      usemat = cv::Mat(im.cols*rescale_cols, im.rows*rescale_rows, CV_32FC3);
+      cv::resize(im, usemat, cv::Size(im.cols*rescale_cols, im.rows*rescale_rows), 0, 0, 3);
+      std::cout << "INITIAL SCALE ROWS " << rescale_rows << std::endl;
 
       if ((result_cols>11.0) && (result_cols<12.6)){
         if ((result_rows>22.0) && (result_rows<22.6)){
