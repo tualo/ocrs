@@ -1511,8 +1511,8 @@ const char* ImageRecognize::text(cv::Mat& im){
 
     float result_cols = 0;
     float result_rows = 0;
-    double rescale_cols = scale;// result_height*1.0/height*1.0;
-    double rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
+    double rescale_cols = 1;// result_height*1.0/height*1.0;
+    double rescale_rows = scale;
 
 
     int height = usemat.rows / oneCM;
@@ -1545,13 +1545,10 @@ const char* ImageRecognize::text(cv::Mat& im){
          std::cout << "result_rows "  << result_rows << std::endl;
 
 
+         // length is messured exact by the fp machine
+         // the height is fixed by the camera
          rescale_cols = 1;// result_height*1.0/height*1.0;
-
-//         if ((result_cols>11.0) && (result_cols<12.6) && (result_rows>21.0) && (result_rows<22.6)){
-           rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
-//         }else{
-//           rescale_rows = scale;
-//         }
+         rescale_rows = result_rows*oneCM / ((double)im.rows)*1.0;
 
 
 
