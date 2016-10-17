@@ -1,3 +1,10 @@
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/convenience.hpp>
+#include <boost/algorithm/string.hpp>
+
+
 #include "ImageRecognize.h"
 #include "ExtractAddress.h"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -12,14 +19,17 @@
 #define HAVE_UINT64 1
 #define HAVE_INT64 1
 #define NO_LONGLONG 1
-#include <my_global.h>
-#include <mysql.h>
 
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/convenience.hpp>
-#include <boost/algorithm/string.hpp>
+#undef min
+#undef max
+#undef test
+
+#define HAVE_BOOL 1
+
+#include <mysql.h>
+#include <my_global.h>
+
+
 
 /*
 
@@ -78,8 +88,11 @@ int main( int argc, char** argv ){
   exit(1);
   */
 
-  const char* env_pza = std::getenv("USEPZA");
-
+  
+  bool usePZA = false;
+  if(const char* env_pza = std::getenv("USEPZA")){
+    usePZA = (atoi(env_pza)==1)?true:false;
+  }
 
   std::string protokollsql = "";
 
@@ -277,7 +290,7 @@ int main( int argc, char** argv ){
 
 
 
-  if (std::string(env_pza) == "1"){
+  if (usePZA){
     ir->cmWidth = 21;
     ir->scale = 1;
     ir->openPZA(argv[1]);

@@ -232,7 +232,7 @@ MODIFIES SQL DATA
 BEGIN
   DECLARE lvr INT;
 
-  SET @adr=in_short_address;
+  SET @adr=replace(in_short_address,'Postfach','');
 
   SELECT
     strasse,
@@ -475,3 +475,5 @@ SET @svmodell='Clearing';
 SET @debug=1;
 CALL SET_SORTBOX('70191','70191','41','','','TEST', @stortiergang, @stortierfach, @strasse, @plz, @ort);
 SELECT @stortiergang,@stortierfach,@str,@plz,@ort;
+
+CALL SET_SORTBOX('Steueißéöollmächtigte g 92 07352 Bad Lobcnstein1','07352',92,'1234','test','test',@sg,@sf,@str,@plz,@ort); select @sg,@sf,@str,@plz,@ort;

@@ -20,6 +20,7 @@
 #include <tesseract/strngs.h>
 #include <zbar.h>
 
+#define HAVE_BOOL 1
 
 #include <my_global.h>
 #include <mysql.h>

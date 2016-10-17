@@ -13,3 +13,5 @@ temp.txt
 ocrs.cpp.temp.cpp
 ocrs.cpp.old
 sharpness
+*.o
+*.deb

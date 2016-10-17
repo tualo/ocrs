@@ -1,6 +1,6 @@
 #!/bin/bash
 
-g++ ocrs.cpp ImageRecognize.cpp ExtractAddress.cpp glob_posix.cpp -o ocrs `mysql_config --cflags --libs` -std=c++11  \
+g++ ocrs.cpp ImageRecognize.cpp ExtractAddress.cpp glob_posix.cpp -o ocrs `mariadb_config --cflags --libs` -std=c++11  \
 -I/usr/include/opencv2 \
 -I/usr/include/tesseract \
 -L/usr/local/lib \

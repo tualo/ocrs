@@ -426,13 +426,15 @@ CREATE PROCEDURE SET_SV_STATI
   IF EXISTS(select * from sv_daten where id=@id) THEN
     insert into sv_stati
       (id,login,datum,zeit,status)
-    values (@id,@login,@datum,@zeit,@status);
+    values (@id,@login,@datum,@zeit,@status)
+    on duplicate key update id=values(id);
   END IF;
 
   IF EXISTS(select * from archiv_sv_daten where id=@id) THEN
     insert into archiv_sv_stati
       (id,login,datum,zeit,status)
-    values (@id,@login,@datum,@zeit,@status);
+    values (@id,@login,@datum,@zeit,@status)
+    on duplicate key update id=values(id);
   END IF;
 
 END;
