@@ -22,6 +22,9 @@
 
 #define HAVE_BOOL 1
 
+#define HAVE_UINT64 1
+#define HAVE_INT64 1
+
 #include <my_global.h>
 #include <mysql.h>
 
