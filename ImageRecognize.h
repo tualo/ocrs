@@ -56,6 +56,7 @@ public:
   MYSQL *con;
 
   std::string code;
+  std::string codes;
   std::string jsontext;
   std::string addresstext;
   std::string machine_id;

@@ -433,6 +433,7 @@ int main( int argc, char** argv ){
             +"','"+kundenid
             +"','"+product
             +"','"+ir->code
+            +"','"+ir->codes
             +"', @stortiergang"
             +", @stortierfach"
             +", @strasse"

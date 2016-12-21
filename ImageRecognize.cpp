@@ -815,7 +815,7 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
   }
 
 
-
+  codes="";
   // counting here down
   for (int thres=15;((thres<220)&&(
     res.found==false && codeRetry==false
@@ -848,6 +848,7 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
         std::cout << "thres " << thres << " Code " << symbol->get_data().c_str() << " Type " << symbol->get_type_name().c_str() << std::endl;
       }
       std::string code = std::string(symbol->get_data().c_str());
+      codes += code+" ";
       std::string type = std::string(symbol->get_type_name().c_str());
       if ((code.length() > res.code.length())){
         if (
