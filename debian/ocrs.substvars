@@ -1,0 +1,3 @@
+shlibs:Depends=libboost-filesystem1.58.0, libboost-regex1.58.0, libboost-system1.58.0, libc6 (>= 2.14), libgcc1 (>= 1:3.0), libmariadb2 (>= 2.0.0), libopencv-core2.4v5, libopencv-highgui2.4v5, libopencv-imgproc2.4v5, libstdc++6 (>= 5.2), libtesseract3, libzbar0 (>= 0.10)
+misc:Depends=
+misc:Pre-Depends=

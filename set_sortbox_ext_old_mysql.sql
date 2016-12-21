@@ -29,16 +29,26 @@ BEGIN
    select concat(in_zipcode,' ',in_town);
   END IF;
 
-  set @zipcode = REGEXP_REPLACE(in_zipcode,'[^a-z0-9]','*');
-  set @town = REGEXP_REPLACE(in_town,'[^a-z0-9]','*');
-  set @street = REGEXP_REPLACE( REPLACE(in_street, 'str.','*') ,'[^a-z0-9]','*') ;
-  set @hn_number = REGEXP_REPLACE(in_housenumber,'[^0-9]','');
+  IF (@regiogruppe is null) THEN
+    SET @regiogruppe='Zustellung PZA EE';
+  END IF;
+
+  IF (@use_fast_access_tour is null) THEN
+    SET @use_fast_access_tour=1;
+  END IF;
+
+  set @zipcode = STRIP_NON_ALPHANUMERIC(in_zipcode );
+  set @town = STRIP_NON_ALPHANUMERIC(in_town );
+  set @street = STRIP_NON_ALPHANUMERIC( REPLACE(in_street, 'str.','*')  ) ;
+  set @hn_number = STRIP_NON_DIGIT(in_housenumber );
+
 
   set @format_hn_number = @hn_number;
   IF LENGTH(@format_hn_number)<4 THEN set @format_hn_number = concat('0',@format_hn_number); END IF;
   IF LENGTH(@format_hn_number)<4 THEN set @format_hn_number = concat('0',@format_hn_number); END IF;
   IF LENGTH(@format_hn_number)<4 THEN set @format_hn_number = concat('0',@format_hn_number); END IF;
   IF LENGTH(@format_hn_number)<4 THEN set @format_hn_number = concat('0',@format_hn_number); END IF;
+
 
   SELECT
     plz,
@@ -281,7 +291,7 @@ BEGIN
     ELSE
 
 
-    IF EXISTS(select * from bereiche_plz join bereiche on bereiche.alleplz=1 and  bereiche_plz.plz= ifnull(out_plz,in_zipcode) and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung')
+    IF EXISTS(select * from bereiche_plz join bereiche on bereiche.alleplz=1 and  bereiche_plz.plz= ifnull(out_plz,in_zipcode) and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = @regiogruppe)
     THEN
 
 
@@ -292,7 +302,7 @@ BEGIN
       from
         sortiergaenge_zuordnung
         join bereiche_plz on (sortiergaenge_zuordnung.bereich,sortiergaenge_zuordnung.mandant,sortiergaenge_zuordnung.regiogruppe) = (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) and bereiche_plz.plz=ifnull(out_plz,in_zipcode)
-        join bereiche on bereiche.alleplz=1 and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = 'Zustellung'
+        join bereiche on bereiche.alleplz=1 and (bereiche_plz.name,bereiche_plz.mandant,bereiche_plz.regiogruppe) = (bereiche.name,bereiche.mandant,bereiche.regiogruppe) and bereiche.mandant='0000' and bereiche.regiogruppe = @regiogruppe
       limit 1;
 
 
@@ -326,17 +336,51 @@ BEGIN
 
     IF (@debug=1) THEN
       select 'alleplz ggf. nicht gesetzt!!!' msg;
+
+      select * from
+        fast_access_tour
+      where
+        plz=ifnull(out_plz,in_zipcode)
+        and strasse = ifnull(out_strasse,in_street)
+        and regiogruppe=@regiogruppe
+        and hnvon<=@format_hn_number
+        and hnbis>=@format_hn_number
+      limit 10;
+
     END IF;
+
+
+
 
       SET out_sortiergang = 'NT';
       SET out_sortierfach = 'NT';
 
 
-      IF (@debug=1) THEN
+
+
+      IF @use_fast_access_tour=1 THEN
+        SELECT
+          sortiergang,
+          sortierfach
+        INTO
+          out_sortiergang,
+          out_sortierfach
+        FROM
+          fast_access_tour
+        WHERE
+          plz=ifnull(out_plz,in_zipcode)
+          and strasse = ifnull(out_strasse,in_street)
+          and regiogruppe=@regiogruppe
+          and hnvon<=@format_hn_number
+          and hnbis>=@format_hn_number
+        ;
+      ELSE
         SELECT
           sortiergaenge_zuordnung.sortiergang,
-          sortiergaenge_zuordnung.sortierfach,
-          bereiche_strassen.*
+          sortiergaenge_zuordnung.sortierfach
+        INTO
+          out_sortiergang,
+          out_sortierfach
         FROM
           bereiche_strassen
           join
@@ -353,31 +397,10 @@ BEGIN
           and bereiche_strassen.verwenden = 1
           and bereiche_strassen.HNVON<=@hn_number
           and bereiche_strassen.HNBIS>=@hn_number;
+
+
+
       END IF;
-
-      SELECT
-        sortiergaenge_zuordnung.sortiergang,
-        sortiergaenge_zuordnung.sortierfach
-      INTO
-        out_sortiergang,
-        out_sortierfach
-      FROM
-        bereiche_strassen
-        join
-        strassenverzeichnis
-        on bereiche_strassen.id = strassenverzeichnis.id
-        join sortiergaenge_zuordnung
-        on sortiergaenge_zuordnung.bereich = bereiche_strassen.name
-          and sortiergaenge_zuordnung.regiogruppe = bereiche_strassen.regiogruppe
-          and sortiergaenge_zuordnung.mandant = bereiche_strassen.mandant
-      where
-        strassenverzeichnis.strasse=ifnull(out_strasse,in_street)
-        and strassenverzeichnis.plz = ifnull(out_plz,in_zipcode)
-        and strassenverzeichnis.ort = ifnull(out_ort,in_town)
-        and bereiche_strassen.verwenden = 1
-        and bereiche_strassen.HNVON<=@hn_number
-        and bereiche_strassen.HNBIS>=@hn_number;
-
 
       CALL SET_SV
       (
@@ -393,7 +416,6 @@ BEGIN
         in_product
       );
 
-      update sv_daten set alt_codes=in_codes where id = in_code;
 
 
     END IF;
@@ -402,6 +424,7 @@ BEGIN
     END IF;
   END IF;
 
+  update sv_daten set alt_codes=in_codes where id = in_code and length(alt_codes)<length(in_codes);
 
 END;
 //

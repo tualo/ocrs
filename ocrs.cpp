@@ -88,7 +88,7 @@ int main( int argc, char** argv ){
   exit(1);
   */
 
-  
+
   bool usePZA = false;
   if(const char* env_pza = std::getenv("USEPZA")){
     usePZA = (atoi(env_pza)==1)?true:false;
@@ -193,6 +193,11 @@ int main( int argc, char** argv ){
   bool barcode_light_correction = true;
   if(const char* env_barcode_light_correction = std::getenv("BC_LIGHT_CORRECTION")){
     barcode_light_correction = (atoi(env_barcode_light_correction)==1)?true:false;
+  }
+
+  bool use_ext = false;
+  if(const char* env_use_ext = std::getenv("USE_SET_SORTBOX_EXT")){
+    use_ext = (atoi(env_use_ext)==1)?true:false;
   }
 
 
@@ -338,6 +343,27 @@ int main( int argc, char** argv ){
   if (mysql_query(con, sql_modell.c_str())){
   }
 
+  if(const char* env_sessionuser = std::getenv("SESSIONUSER")){
+    std::string sessionuser = env_sessionuser;
+    std::string sql_sessionuser = "set @sessionuser='"+sessionuser+"'";
+    if (mysql_query(con, sql_sessionuser.c_str())){
+    }
+  }
+
+  if(const char* env_regiogruppe = std::getenv("REGIOGRUPPE")){
+    std::string regiogruppe = env_regiogruppe;
+    std::string sql_regiogruppe = "set @regiogruppe='"+regiogruppe+"'";
+    if (mysql_query(con, sql_regiogruppe.c_str())){
+    }
+  }
+
+  if(const char* env_use_fast_access_tour = std::getenv("FAST_ACCESS_TOUR")){
+    std::string use_fast_access_tour = env_use_fast_access_tour;
+    std::string sql_use_fast_access_tour = "set @use_fast_access_tour="+use_fast_access_tour+"";
+    if (mysql_query(con, sql_use_fast_access_tour.c_str())){
+    }
+  }
+
   if ( (forceaddress==1)||(ir->code.length()>4)){
 
     if ((forceaddress==1)&&(ir->code.length()<=4)){
@@ -384,7 +410,6 @@ int main( int argc, char** argv ){
       if (ea->getStreetName().length()>1){
 
 
-
         std::string fuzzysql = "CALL SET_SORTBOX('"
           +sql_addresstext
           +"','"+ea->getZipCode()
@@ -398,6 +423,24 @@ int main( int argc, char** argv ){
           +", @plz"
           +", @ort"
           +")";
+        if(use_ext==true){
+          fuzzysql = "CALL SET_SORTBOX_EXT('"
+            +sql_addresstext
+            +"','"+ea->getZipCode()
+            +"','"+ea->getTown()
+            +"','"+ea->getStreetName()
+            +"','"+ea->getHouseNumber()
+            +"','"+kundenid
+            +"','"+product
+            +"','"+ir->code
+            +"', @stortiergang"
+            +", @stortierfach"
+            +", @strasse"
+            +", @plz"
+            +", @ort"
+            +")";
+        }
+
         if (debug){
           std::cout << "fuzzysql " << fuzzysql << std::endl;
         }
