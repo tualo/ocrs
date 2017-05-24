@@ -21,7 +21,7 @@ if [[ "$unamestr" == 'Darwin' ]]; then
   -I/usr/local/Cellar/tesseract/3.04.00/include \
   -I/usr/local/Cellar/zbar/0.10_1/include \
   -L/usr/local/Cellar/tesseract/3.04.00/lib -ltesseract -L/usr/local/Cellar/zbar/0.10_1/lib -lzbar \
-  -I/usr/local/Cellar/boost/1.58.0/include -L/usr/local/Cellar/boost/1.58.0/lib -lboost_system -lboost_regex -lboost_filesystem \
+  -I/usr/local/Cellar/boost/1.63.0/include -L/usr/local/Cellar/boost/1.63.0/lib -lboost_system -lboost_regex -lboost_filesystem \
   -lpthread
 
 
@@ -32,7 +32,7 @@ if [[ "$unamestr" == 'Darwin' ]]; then
   -I/usr/local/Cellar/tesseract/3.04.00/include \
   -I/usr/local/Cellar/zbar/0.10_1/include \
   -L/usr/local/Cellar/tesseract/3.04.00/lib -ltesseract -L/usr/local/Cellar/zbar/0.10_1/lib -lzbar \
-  -I/usr/local/Cellar/boost/1.58.0/include -L/usr/local/Cellar/boost/1.58.0/lib -lboost_system -lboost_regex -lboost_filesystem \
+  -I/usr/local/Cellar/boost/1.63.0/include -L/usr/local/Cellar/boost/1.63.0/lib -lboost_system -lboost_regex -lboost_filesystem \
   -lpthread
 
 elif [[ "$unamestr" == 'Linux' ]]; then
@@ -46,4 +46,9 @@ elif [[ "$unamestr" == 'Linux' ]]; then
   -lboost_system -lboost_regex -lboost_filesystem \
   -lpthread
 fi
+
+#apt-get install libtesseract-dev
+#apt-get install libleptonica-dev
+#apt-get install libopencv2-dev
+
 # linux

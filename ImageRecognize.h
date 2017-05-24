@@ -50,6 +50,7 @@ public:
   bool light_up_original;
   bool try_reduced;
   bool rotate_inline;
+  bool barcode_only;
   int analysisType;
   int barcode_algorthim;
   int window_wait;

@@ -246,8 +246,10 @@ void ImageRecognize::open(const char* filename){
 
     double t1 = (double)cv::getTickCount();
     double te1;
-
-    out = text(largest);
+    
+    if (barcode_only===false){
+      out = text(largest);
+    }
 
     if (debug){
       te1 = ((double)cv::getTickCount() - t1)/cv::getTickFrequency();
@@ -372,14 +374,14 @@ void ImageRecognize::openPZA(const char* filename){
   double te;
   int analysisType = 1;
 
+  if (!barcode_only){
+    tess=new tesseract::TessBaseAPI();
+    tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
 
-  tess=new tesseract::TessBaseAPI();
-  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
-
-  if(!tess->SetVariable("tessedit_enable_doc_dict", "0")){
+    if(!tess->SetVariable("tessedit_enable_doc_dict", "0")){
+    }
   }
-
-  showWindow=true;
+  showWindow=false;
   fileName = filename;
   orignalImage = cv::imread( filename, 1 );
 
@@ -400,7 +402,10 @@ void ImageRecognize::openPZA(const char* filename){
       std::cout << "Code: " << bcRes.code << std::endl;
     }
     code = bcRes.code;
+    if (!barcode_only){
+
     getPZAText(orignalImage);
+  }
   }else{
     if(debug){
       std::cout << "Nocode: " << "try flipped" << std::endl;
@@ -420,7 +425,10 @@ void ImageRecognize::openPZA(const char* filename){
       if(debug){
         std::cout << "Code: " << bcRes.code << std::endl;
       }
-      getPZAText(orignalImage);
+      if (!barcode_only){
+
+        getPZAText(orignalImage);
+      }
     }else{
     }
   }

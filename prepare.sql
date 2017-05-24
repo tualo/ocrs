@@ -39,6 +39,22 @@ create fulltext index id_ft_ocrstreethash_complex on ocrstreethash_complex(adr);
 
 
 
+
+  DROP TABLE  IF EXISTS ocrstreethash_complex;
+  create table ocrstreethash_complex (id varchar(50) primary key, date_added timestamp ,adr text,strasse varchar(255) ) engine myisam;
+  insert into ocrstreethash_complex (id,date_added,strasse,adr)
+    select md5(strasse) id, UNIX_TIMESTAMP(now()),strasse, strasse adr
+    from strassenverzeichniss
+    group by strasse;
+
+  insert into ocrstreethash_complex (id,date_added,strasse,adr)
+    select md5( REPLACE( REPLACE(strasse,'Str.','str.'),'str.','strasse') ) id, UNIX_TIMESTAMP(now()), strasse , REPLACE(REPLACE(strasse,'Str.','str.'),'str.','strasse') adr
+    from strassenverzeichniss
+    where strasse like '%str.'
+    group by strasse;
+  create fulltext index id_ft_ocrstreethash_complex on ocrstreethash_complex(adr);
+
+
 DROP TABLE  IF EXISTS ocradrhash_complex;
 create table ocradrhash_complex (id varchar(50) primary key,
   date_added timestamp ,adr text,

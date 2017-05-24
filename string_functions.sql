@@ -59,3 +59,49 @@ END //
 
 select STRIP_NON_ALPHANUMERIC('test dfhgh -f') //
 DELIMITER ;
+
+
+CREATE FUNCTION SPLIT_STR(
+  x VARCHAR(255),
+  delim VARCHAR(12),
+  pos INT
+)
+RETURNS VARCHAR(255)
+DETERMINISTIC
+RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos),
+       LENGTH(SUBSTRING_INDEX(x, delim, pos -1)) + 1),
+       delim, '');
+
+
+DELIMITER //
+DROP  FUNCTION `PERPARE_STREETNAME` //
+CREATE  FUNCTION `PERPARE_STREETNAME`(input VARCHAR(255)) RETURNS VARCHAR(255)
+DETERMINISTIC
+BEGIN
+
+  set @street = trim(input);
+  set @street =  REPLACE(@street, 'str.','str')   ;
+  set @street =  REPLACE(@street, 'straße','strasse')   ;
+  set @street =  REPLACE(@street, 'Straße','strasse')   ;
+  set @street = STRIP_NON_ALPHANUMERIC( @street  ) ;
+  set @street = REPLACE(@street, '**','*');
+  set @result = '';
+  set @index = 1;
+
+  do_this:
+  LOOP
+    set @current = SPLIT_STR(@street,'*',@index);
+    IF LENGTH(@current) = 0 THEN
+      LEAVE do_this;
+    END IF;
+    IF LENGTH(@current) >= 2 THEN
+    SET @result = concat(@result,' ',@current);
+    END IF;
+    SET @index=@index+1;
+  END LOOP do_this;
+
+  RETURN trim(@result);
+END //
+DELIMITER ;
+
+select PERPARE_STREETNAME(' Curiestraße 5') x;

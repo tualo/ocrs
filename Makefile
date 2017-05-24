@@ -13,13 +13,13 @@ COPENCV     := $(shell pkg-config --cflags opencv)
 CTESSERACT  := $(shell pkg-config --cflags tesseract)
 CZBAR  := $(shell pkg-config --cflags zbar)
 CBOOST  :=
-CMYSQL 		  := $(shell mariadb_config --cflags)
+CMYSQL 		  := $(shell mysql_config --cflags)
 
 LOPENCV     := $(shell pkg-config --libs opencv)
 LTESSERACT  := $(shell pkg-config --libs tesseract)
 LZBAR  := $(shell pkg-config --libs zbar)
 LBOOST  := -lboost_system -lboost_regex -lboost_filesystem
-LMYSQL 		  := $(shell mariadb_config --libs)
+LMYSQL 		  := $(shell mysql_config --libs)
 
 # Rules for building
 all				: $(NAME)

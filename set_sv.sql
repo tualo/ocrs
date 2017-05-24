@@ -220,7 +220,73 @@ ELSE
 
       );
       END IF;
+
+
   END IF;
+
+
+    INSERT INTO SV_DATEN_FELDER (
+      MANDANT,
+      MODELL,
+      NAME,
+      ID,
+      WERT,
+      DATUM,
+      ZEIT,
+      LOGIN
+    ) values (
+      '0000',
+      @svmodell,
+      'Barcode',
+      in_code,
+      in_code,
+      @datum,
+      @zeit,
+      @sessionuser
+    ),
+    (
+      '0000',
+      @svmodell,
+      'Ort',
+      in_code,
+      in_ort,
+      @datum,
+      @zeit,
+      @sessionuser
+    ),
+    (
+      '0000',
+      @svmodell,
+      'PLZ',
+      in_code,
+      in_plz,
+      @datum,
+      @zeit,
+      @sessionuser
+    ),
+    (
+      '0000',
+      @svmodell,
+      'Strasse',
+      in_code,
+      in_strasse,
+      @datum,
+      @zeit,
+      @sessionuser
+    ),
+    (
+      '0000',
+      @svmodell,
+      'Hausnummer',
+      in_code,
+      in_hausnummer,
+      @datum,
+      @zeit,
+      @sessionuser
+    )
+    on duplicate key update wert=values(wert)
+    ;
+
 END //
 
 DELIMITER ;

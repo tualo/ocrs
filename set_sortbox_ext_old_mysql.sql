@@ -30,16 +30,19 @@ BEGIN
   END IF;
 
   IF (@regiogruppe is null) THEN
-    SET @regiogruppe='Zustellung PZA EE';
+    SET @regiogruppe='Zustellung';
   END IF;
 
   IF (@use_fast_access_tour is null) THEN
-    SET @use_fast_access_tour=1;
+    SET @use_fast_access_tour=0;
   END IF;
 
   set @zipcode = STRIP_NON_ALPHANUMERIC(in_zipcode );
   set @town = STRIP_NON_ALPHANUMERIC(in_town );
-  set @street = STRIP_NON_ALPHANUMERIC( REPLACE(in_street, 'str.','*')  ) ;
+
+  set @street = PERPARE_STREETNAME(in_street);
+  select in_street,@street txxxxxxxt;
+
   set @hn_number = STRIP_NON_DIGIT(in_housenumber );
 
 
@@ -53,8 +56,9 @@ BEGIN
   SELECT
     plz,
     ort,
-    LEVENSHTEIN_RATIO(concat(@zipcode,' ',@town),adr) lvrval
-  INTO out_plz,out_ort,@lvr
+    LEVENSHTEIN_RATIO(concat(@zipcode,' ',@town),adr) lvrval,
+    LEVENSHTEIN(concat(@zipcode,' ',@town),adr) lv
+  INTO out_plz,out_ort,@lvr,@lvx
 
   FROM (
 
@@ -70,7 +74,7 @@ BEGIN
     having rel>0
     limit 100
   ) b
-  order by lvrval desc limit 1;
+  order by lv desc,lvrval desc limit 1;
 
   IF (out_plz is null)
   THEN
@@ -131,7 +135,8 @@ BEGIN
       SELECT
         plz,
         ort,
-        LEVENSHTEIN_RATIO(concat(in_zipcode,' ',in_town),adr) lvrval
+        LEVENSHTEIN_RATIO(concat(in_zipcode,' ',in_town),adr) lvrval,
+        LEVENSHTEIN(concat(in_zipcode,' ',in_town),adr) lv
       FROM (
         SELECT
           ocrtownhash_complex.id,
@@ -145,17 +150,19 @@ BEGIN
         having rel>0
         limit 100
       ) b
-      order by lvrval desc limit 100;
+      order by lv desc,lvrval desc limit 100;
     END IF;
   END IF;
 
 
   SELECT
     strasse,
-    LEVENSHTEIN_RATIO(@street,adr) lvrval
+    LEVENSHTEIN_RATIO(@street,adr) lvrval,
+    LEVENSHTEIN(@street,adr) lv
     INTO
      out_strasse,
-     @lvr
+     @lvr,
+     @lv
   FROM (
     SELECT
       ocrstreethash_complex.id,
@@ -167,10 +174,12 @@ BEGIN
     having rel>0
     limit 100
   ) b
-  order by lvrval desc limit 1;
+  order by lv desc, lvrval desc limit 1;
+  IF (@debug=1) THEN
+    select '@street >> ' info, @street,out_strasse;
+  END IF;
 
-
-  set @calc_address = concat(if(out_strasse is null,in_street, concat(' +',out_strasse) ),' ',out_plz,' +',out_ort);
+  set @calc_address = concat(if(out_strasse is null,replace(in_street,' ',' +'), concat(' +',replace(out_strasse,' ',' +')) ),' ',out_plz,' +',out_ort);
 
 
   IF (@debug=1) THEN
@@ -179,7 +188,9 @@ BEGIN
       strasse,
       plz,
       ort,
-      LEVENSHTEIN_RATIO(@calc_address,adr) lvrval
+      LEVENSHTEIN_RATIO(@calc_address,adr) lvrval,
+      LEVENSHTEIN(@calc_address,adr) lv,
+      'against calc_address' info
     FROM (
       SELECT
         ocradrhash_complex.id,
@@ -188,13 +199,12 @@ BEGIN
         ocradrhash_complex.ort,
         ocradrhash_complex.adr,
         match(adr) against(@calc_address IN BOOLEAN MODE) as rel
-
       FROM ocradrhash_complex
       WHERE plz = out_plz
       having rel>0
       limit 100
     ) b
-    order by lvrval desc limit 10;
+    order by lv desc,lvrval desc limit 10;
 
   END IF;
 
@@ -202,12 +212,14 @@ BEGIN
     strasse,
     plz,
     ort,
-    LEVENSHTEIN_RATIO(@calc_address,adr) lvrval
+    LEVENSHTEIN_RATIO(@calc_address,adr) lvrval,
+    LEVENSHTEIN(@calc_address,adr) lv
   INTO
     out_strasse,
     out_plz,
     out_ort,
-    @lvr
+    @lvr,
+    @lv
   FROM (
     SELECT
       ocradrhash_complex.id,
@@ -222,19 +234,20 @@ BEGIN
     having rel>0
     limit 100
   ) b
-  order by lvrval desc limit 1;
+  order by lv desc, lvrval desc limit 1;
 
 
   if (@debug=1)
   THEN
-    select 'PLZ' title,in_zipcode msg;
-    select 'Ort' title,in_town msg;
-    select 'Strasse' title,in_street msg;
-
-    select 'PLZ out' title,out_plz msg;
-    select 'Ort out' title,out_ort msg;
-    select 'Strasse out' title,out_strasse msg;
-
+    select
+      in_zipcode 'in_zipcode',
+      in_town 'in_town',
+      in_street 'in_street',
+      out_plz 'out_plz',
+      out_ort 'out_ort',
+      out_strasse 'out_strasse',
+      @calc_address 'calc_address'
+    ;
   END IF;
 
 
@@ -345,6 +358,7 @@ BEGIN
         and regiogruppe=@regiogruppe
         and hnvon<=@format_hn_number
         and hnbis>=@format_hn_number
+        and ort=out_ort
       limit 10;
 
     END IF;
@@ -373,6 +387,7 @@ BEGIN
           and regiogruppe=@regiogruppe
           and hnvon<=@format_hn_number
           and hnbis>=@format_hn_number
+          and ort=out_ort
         ;
       ELSE
         SELECT

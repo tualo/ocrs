@@ -184,6 +184,12 @@ int main( int argc, char** argv ){
   if(const char* env_try_reduced = std::getenv("TRY_REDUCED")){
     try_reduced = (atoi(env_try_reduced)==1)?true:false;
   }
+
+  bool barcode_only = false;
+  if(const char* env_try_reduced = std::getenv("BARCODE_ONLY")){
+    barcode_only = (atoi(env_try_reduced)==1)?true:false;
+  }
+
   bool rotate_inline = true;
   if(const char* env_rotate_inline = std::getenv("ROTATE_INLINE")){
     rotate_inline = (atoi(env_rotate_inline)==1)?true:false;
@@ -292,6 +298,7 @@ int main( int argc, char** argv ){
   ir->windowalltogether = windowalltogether;
   ir->subtractMean=subtractMean;
   ir->blockSize = blockSize;
+  ir->barcode_only=barcode_only;
 
 
 
@@ -299,6 +306,8 @@ int main( int argc, char** argv ){
     ir->cmWidth = 21;
     ir->scale = 1;
     ir->openPZA(argv[1]);
+
+
   }else{
     ir->cmWidth =  std::atoi(width);
     if (debug){
@@ -309,6 +318,23 @@ int main( int argc, char** argv ){
     ir->open(argv[1]);
   }
 
+  std::vector<int> params;
+  params.push_back(CV_IMWRITE_JPEG_QUALITY);
+  params.push_back(80);
+
+  if (barcode_only==true){
+    std::cout << "barcode " << ir->code << std::endl;
+    mysql_close(con);
+
+    if (ir->code.length()>4){
+      std::string newfile_bc_only = "barcode."+ir->code+".jpg";
+      cv::imwrite(newfile_bc_only.c_str(),ir->orignalImage,params);
+    }
+
+    exit(0);
+    return 1;
+  }
+
   std::string fullname(argv[1]);
   boost::filesystem::path bpath(argv[1]);
   std::string fname = bpath.filename().c_str();
@@ -316,9 +342,7 @@ int main( int argc, char** argv ){
   std::string product = "";
   std::string bbs_check_sql = "";
 
-  std::vector<int> params;
-  params.push_back(CV_IMWRITE_JPEG_QUALITY);
-  params.push_back(80);
+
 
 
   std::vector<std::string> strs;
@@ -338,6 +362,9 @@ int main( int argc, char** argv ){
   if (force_customer.length()>0){
     kundenid = force_customer;
   }
+
+
+
 
   std::string sql_modell = "set @svmodell='"+modell+"'";
   if (mysql_query(con, sql_modell.c_str())){
