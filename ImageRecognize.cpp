@@ -246,8 +246,8 @@ void ImageRecognize::open(const char* filename){
 
     double t1 = (double)cv::getTickCount();
     double te1;
-    
-    if (barcode_only===false){
+
+    if (barcode_only==false){
       out = text(largest);
     }
 
