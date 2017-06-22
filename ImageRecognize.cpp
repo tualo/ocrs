@@ -235,6 +235,21 @@ void ImageRecognize::open(const char* filename){
       if (bcRes.found==false){
         bcRes = barcode(largest);
       }
+      if (bcRes.found==false){
+        // if the largest algo fails and
+        // cut off the barcode
+        int x=orignalImage.cols*0.8;
+        int y=orignalImage.rows*0.8;
+        if (debug){
+          std::cout << "try reduced original image for barcode " << std::endl;
+        }
+        cv::Mat resized = cv::Mat(x, y, CV_32FC3);
+        cv::resize(orignalImage, resized, cv::Size(x, y), 0, 0, 3);
+        bcRes = fast_barcode(resized);
+        if (bcRes.found==false){
+          bcRes = barcode(resized);
+        }
+      }
     }
 
     code = bcRes.code;

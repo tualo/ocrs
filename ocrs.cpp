@@ -140,8 +140,7 @@ int main( int argc, char** argv ){
     db_user = env_user;
   }
   const char* db_password = "sorter";
-  if(const char* env_password = std::getenv("
-  ")){
+  if(const char* env_password = std::getenv("DB_PASSWORD")){
     db_password = env_password;
   }
   const char* db_name = "sorter";
