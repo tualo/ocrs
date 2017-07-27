@@ -250,9 +250,12 @@ void ImageRecognize::open(const char* filename){
           bcRes = barcode(resized);
         }
       }
+
     }
 
     code = bcRes.code;
+
+
     if ((forceaddress==0) && (code.length()<4) ){
       return;
     }
@@ -1460,77 +1463,13 @@ const char* ImageRecognize::text(cv::Mat& im){
 
 
 
-  if (windowalltogether){
-    debugImage = im.clone();
-    showDebugImage();
-  }
-
-
 
   cv::Mat usemat = im.clone();
   std::string addressfield = "L";
 
 
   if (code=="123456789012"){
-    /*
-    std::cout << "TEST CARD FOUND!!!! " << std::endl;
 
-    if (debug){
-      std::cout << "H " << hoehe << " | B " << breite << std::endl;
-    }
-
-    int result_width = 12;
-    int result_height = 10;
-
-    double rescale_height = result_height*1.0/height*1.0;
-    double rescale_width = (result_width*1.0/width*1.0)/rescale_height;
-    std::cout << "INITIAL SCALE rescale_height " << std::endl;
-    printf("%'.2f", rescale_height);
-    std::cout << "INITIAL SCALE rescale_width " << std::endl;
-    printf("%'.2f", rescale_width);
-
-    usemat = cv::Mat(im.cols*rescale_width, im.rows*rescale_height, CV_32FC3);
-    cv::resize(im, usemat, cv::Size(im.cols*rescale_width, im.rows*rescale_height), 0, 0, 3);
-    int breite=result_width;
-    int hoehe=result_height;
-
-    std::cout << "INITIAL SCALE SHOULD BE " << std::endl;
-    printf("%'.2f", scale/rescale_width);
-    std::cout << "* " << std::endl;
-
-
-    int lastweight = 0;
-    int last_subtractMean = 0;
-    for(subtractMean=0;subtractMean<40;subtractMean++){
-      if (usingLetterType1(usemat)){
-        int weight = 0;
-
-        std::string r = std::string(ocr_text);
-        std::size_t found = r.find("Max Mustermann");
-        if (found!=std::string::npos){
-          weight = 1;
-
-          found = r.find("Musterweg 1234a");
-          if (found!=std::string::npos){
-            weight += 10;
-            found = r.find("8765 Musterhausen");
-            if (found!=std::string::npos){
-              weight += 100;
-            }
-          }
-        }
-        if (lastweight<weight){
-          lastweight=weight;
-          last_subtractMean = subtractMean;
-        }
-      }
-    }
-
-    std::cout << std::endl;
-    std::cout << "SUBSTRACT_MEAN should be " << last_subtractMean << std::endl;
-    std::cout << std::endl;
-
-    */
   }else{
 
     float result_cols = 0;
@@ -1542,10 +1481,46 @@ const char* ImageRecognize::text(cv::Mat& im){
     int height = usemat.rows / oneCM;
     int width = usemat.cols / oneCM;
 
+
+    //std::cout << " HERE "  << "r_cm" <<  oneCM <<  "c_cm" <<  oneCM << std::endl;
+    /*
+    //cv::Rect localroi(cv::Point(oneCM*13, oneCM*4), cv::Point(oneCM*20, oneCM*13));
+    cv::Rect localroi( fittingROI(7,1,7,10,im) );
+
+    cv::Mat localimg = im(localroi);
+    transpose(localimg, localimg);
+    flip(localimg, localimg,1);
+
+    window_wait=10000;
+    showImage(localimg,"test");
+    window_wait=50;
+
+    cv::Rect all(cv::Point(0, 0), cv::Point(localimg.cols, localimg.rows));
+    if (usingLetterRoi(localimg,all)){
+      std::cout << "* FOUND BY ROI ";
+      return ocr_text;
+    }else{
+      //std::cout << " FAIL ";
+    }
+    */
+    //window_wait=10000;
+    //showImage(localimg,"test");
+    //window_wait=50;
+
+    //rectangle(im, cv::Point(oneCM*13, oneCM*4), cv::Point(oneCM*20, oneCM*13),   cv::Scalar(0,0,255));
+
+
+
+
+    if (windowalltogether){
+      debugImage = im.clone();
+      showDebugImage();
+    }
+
     std::cout << "width "  << width << " cm" << std::endl;
     std::cout << "height "  << height << " cm" << std::endl;
     // alter table bbs_data add addressfield varchar(2) default 'L';
-    std::string sql = "select height/100,length/100,addressfield from bbs_data where id = '"+code+"'; ";
+    std::string sql = "select height/100,length/100,addressfield,job_id from bbs_data where id = '"+code+"'; ";
     std::cout << "SQL " << sql << std::endl;
     if (mysql_query(con, sql.c_str())){
       std::cout << "EE " << sql << std::endl;

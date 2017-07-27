@@ -11,6 +11,11 @@ export ANALYSETYPE=0
 export BARCODE_ALGORTHIM=2
 export SCALE=1.0
 
+export DB_USER="root"
+export DB_PASSWORD=""
+export DB_NAME="deg"
+export FORCEADDRESS=1
+
 ./ocrs "$1"
 # ls /imagedata/*.jpg | parallel -j4 --round-robin './ocrs $f {}'
 # 31000001446
