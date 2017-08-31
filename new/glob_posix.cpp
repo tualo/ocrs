@@ -16,7 +16,7 @@ Glob::Glob(const std::string &pattern)
  : dir_(0),
    dir_entry_(0)
 {
-  std::pair<std::string, std::string> dir_and_mask = SplitPath(pattern+"/*.tiff");
+  std::pair<std::string, std::string> dir_and_mask = SplitPath(pattern);
 
   dir_ = opendir(dir_and_mask.first.c_str());
   pattern_ = dir_and_mask.second;
