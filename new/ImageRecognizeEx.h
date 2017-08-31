@@ -2,10 +2,8 @@
 #ifndef IMAGERECOGNIZEEX_H
 #define IMAGERECOGNIZEEX_H
 
-#define int64 opencv_broken_int
 #include "opencv2/highgui/highgui.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
-#undef int64
 //#include "opencv2/imgproc/imgproc.hpp"
 //#include "opencv2/imgcodecs.hpp"
 
