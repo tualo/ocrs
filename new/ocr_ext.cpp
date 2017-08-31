@@ -54,8 +54,7 @@ ImageRecognizeEx* ocr_ext(
       std::cout << "  " << "User: " << str_db_user << std::endl;
     }
 
-    debugTime("after db connection");
-
+    
     ImageRecognizeEx* ir = new ImageRecognizeEx();
     ir->setDebug(debug);
     ir->setDebugWindow(debugwindow);
