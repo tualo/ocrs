@@ -46,6 +46,7 @@ class ImageRecognizeEx{
 public:
   ImageRecognizeEx();
   ~ImageRecognizeEx();
+  void setImage(cv::Mat mat);
   void open(const char* filename);
   void setDebug(bool val);
   void setDebugWindow(bool val);

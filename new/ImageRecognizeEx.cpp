@@ -72,20 +72,16 @@ bool ImageRecognizeEx::readMatBinary(std::ifstream& ifs, cv::Mat& in_mat)
 	return true;
 }
 
+void ImageRecognizeEx::setImage(cv::Mat mat){
+  orignalImage = mat.clone();
+  showImage(orignalImage);
+
+}
 void ImageRecognizeEx::open(const char* filename){
-  //double t = (double)cv::getTickCount();
-  //double te;
   fileName = filename;
-
   cv::setUseOptimized(true);
-  orignalImage = cv::imread( filename, cv::IMREAD_COLOR );
-
-/*
-  std::ifstream is;
-  is.open (filename, std::ios::binary );
-  readMatBinary(is,orignalImage);
-  is.close();
-*/
+  cv::Mat mat = cv::imread( filename, cv::IMREAD_COLOR );
+  setImage(mat);
   showImage(orignalImage);
 
 }
