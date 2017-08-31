@@ -20,6 +20,10 @@ void ExtractAddress::setString(std::string text){
   orignalString = text;
 }
 
+std::string ExtractAddress::getString(){
+  return orignalString;
+}
+
 std::string ExtractAddress::getTown(){
   boost::trim_right(town);
   return town;
@@ -40,8 +44,12 @@ std::string ExtractAddress::getStreetName(){
   return streetName;
 }
 
-void ExtractAddress::extract(){
+bool ExtractAddress::foundAddress(){
+  return hasAddress;
+}
 
+void ExtractAddress::extract(){
+  hasAddress=false;
   // postleitzahl muss am anfang sein
   const boost::regex plz_regex("\\d{5}\\s");
 
@@ -82,6 +90,7 @@ void ExtractAddress::extract(){
       streetName = line;
       if (streetName.length()>3){
         mode++;
+        hasAddress=true;
       }
       if (boost::regex_search(streetName , hn_regex)==true){
         const boost::sregex_iterator i(line.begin(),line.end(),hn_regex);

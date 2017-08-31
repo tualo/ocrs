@@ -54,9 +54,12 @@ public:
 
   void useBarcodeClahe(bool val);
   void setWait(int val);
-  void rescale(int x_cm,int y_cm);
+  void setPixelPerCM(int x_cm,int y_cm);
+
+  void rescale();
   void barcode();
-  void texts();
+  ExtractAddress* texts();
+
   void setMachine(std::string val);
   void setDBConnection(MYSQL *connection);
   void setBlockSize(int value);
@@ -98,6 +101,8 @@ private:
   cv::Mat roiImage;
 
   int oneCM;
+  int x_cm;
+  int y_cm;
   int windowWait;
   int subtractMean;
   int blockSize;

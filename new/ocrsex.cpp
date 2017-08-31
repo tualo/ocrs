@@ -13,8 +13,8 @@
 #include <string>
 
 #include "args.hxx"
-#include "ImageRecognizeEx.h"
 
+#include "ImageRecognizeEx.h"
 
 double debug_start_time = (double)cv::getTickCount();
 double debug_last_time = (double)cv::getTickCount();
@@ -29,7 +29,7 @@ void debugTime(std::string str){
   }
   debug_last_time = (double)cv::getTickCount();
 }
-
+#include "ocr_ext.cpp"
 
 
 
@@ -102,8 +102,9 @@ int main( int argc, char** argv ){
   bDebugTime = (debugtime==1);
   debugTime("Start");
 
-  std::string std_str_machine="0";
 
+  std::string std_str_machine="0";
+  MYSQL *con = nullptr;
   const char* str_db_host = "localhost";
   const char* str_db_user = "root";
   const char* str_db_name = "sorter";
@@ -125,59 +126,39 @@ int main( int argc, char** argv ){
   if (db_user){ str_db_user= (args::get(db_user)).c_str(); }
   if (db_name){ str_db_name= (args::get(db_name)).c_str(); }
   if (db_pass){ str_db_password= (args::get(db_pass)).c_str(); }
-
-
   if (machine){ std_str_machine=args::get(machine); }
 
-
-  MYSQL *con = mysql_init(NULL);
-
-  mysql_options(con, MYSQL_SET_CHARSET_NAME, str_db_encoding);
-  mysql_options(con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
-
-  if (con == NULL){
-    fprintf(stderr, "%s\n", mysql_error(con));
-    exit(1);
+  ImageRecognizeEx* ir=ocr_ext(
+    con,
+    std_str_machine,
+    str_db_host,
+    str_db_user,
+    str_db_name,
+    str_db_password,
+    str_db_encoding,
+    blockSize,
+    subtractMean,
+    debug==1,
+    debugtime==1,
+    debugwindow==1
+  );
+  try{
+    ir->setPixelPerCM(int_pixel_cm_x,int_pixel_cm_y);
+    ir->open((args::get(filename)).c_str());
+    debugTime("after open");
+    ir->rescale();
+    debugTime("after rescale");
+    ir->barcode();
+    debugTime("after barcode");
+    ir->texts();
+    debugTime("after text");
+  }catch(cv::Exception cv_error){
+    std::cerr << "***" << cv_error.msg << std::endl;
   }
-
-
-  if (mysql_real_connect(con, str_db_host, str_db_user, str_db_password, str_db_name, 0, NULL, 0) == NULL){
-    fprintf(stderr, "%s\n", mysql_error(con));
-    mysql_close(con);
-    exit(1);
-  }
-
-  if (debug){
-    std::cout << "DB-Connection: " << "" << std::endl;
-    std::cout << "  " << "Host: " << str_db_host << std::endl;
-    std::cout << "  " << "DB: " << str_db_name << std::endl;
-    std::cout << "  " << "User: " << str_db_user << std::endl;
-  }
-
-  debugTime("after db connection");
-
-  ImageRecognizeEx* ir = new ImageRecognizeEx();
-  ir->setDebug(debug==1);
-  ir->setDebugWindow(debugwindow==1);
-  ir->setDebugTime(debugtime==1);
-  ir->setWait(5000);
-  ir->setBlockSize(blockSize);
-  ir->setSubtractMean(subtractMean);
-  ir->open((args::get(filename)).c_str());
-  debugTime("after open");
-  ir->rescale(int_pixel_cm_x,int_pixel_cm_y);
-  debugTime("after rescale");
-
-  ir->setMachine(std_str_machine);
-  ir->setDBConnection(con);
-
-  ir->barcode();
-  debugTime("after barcode");
-  ir->texts();
-  debugTime("after text");
-
   mysql_close(con);
   delete ir;
+
   debugTime("Stop");
+
   return -1;
 }

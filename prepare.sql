@@ -47,6 +47,9 @@ create fulltext index id_ft_ocrstreethash_complex on ocrstreethash_complex(adr);
     from strassenverzeichniss
     group by strasse;
 
+
+
+
   insert into ocrstreethash_complex (id,date_added,strasse,adr)
     select md5( REPLACE( REPLACE(strasse,'Str.','str.'),'str.','strasse') ) id, UNIX_TIMESTAMP(now()), strasse , REPLACE(REPLACE(strasse,'Str.','str.'),'str.','strasse') adr
     from strassenverzeichniss
@@ -64,4 +67,9 @@ insert into ocradrhash_complex (id,date_added,strasse,plz,ort,adr)
   select id, UNIX_TIMESTAMP(now()),strasse,plz,ort,
   concat(strasse,' ',plz,' ',ort) adr
   from strassenverzeichnis;
+
+  insert into ocradrhash_complex (id,date_added,strasse,plz,ort,adr)
+    select id, UNIX_TIMESTAMP(now()),strasse,plz,ort,
+    concat(strasse,' ',plz,' ',ort) adr
+    from mpn_strassen;
 create fulltext index id_ft_ocradrhash_complex on ocradrhash_complex(adr);

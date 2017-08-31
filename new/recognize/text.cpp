@@ -1,6 +1,6 @@
 
 
-void ImageRecognizeEx::texts(){
+ExtractAddress* ImageRecognizeEx::texts(){
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
 
   if (addressRegions.empty()){
@@ -12,13 +12,18 @@ void ImageRecognizeEx::texts(){
   cv::Mat bc_roi;
   for(std::list<RegionOfInterest*>::iterator list_iter = addressRegions.begin();
     list_iter != addressRegions.end(); list_iter++){
-      roi=*list_iter;
-      std::cout << "check region image: " << orignalImage.cols << " "  << orignalImage.rows << " oneCM " << oneCM << std::endl;
-      roi->setImage(orignalImage);
-      std::cout << "check region: " << roi->name()
-        << " x: " << roi->rect().x << " y: "<< roi->rect().y
-        << " w: " << roi->rect().width << " h: "<< roi->rect().height << std::endl;
 
+
+      roi=*list_iter;
+      if (showDebug){
+        std::cout << "check region image: " << orignalImage.cols << " "  << orignalImage.rows << " oneCM " << oneCM << std::endl;
+      }
+      roi->setImage(orignalImage);
+      if (showDebug){
+        std::cout << "check region: " << roi->name()
+          << " x: " << roi->rect().x << " y: "<< roi->rect().y
+          << " w: " << roi->rect().width << " h: "<< roi->rect().height << std::endl;
+      }
 
       bc_roi = orignalImage(roi->rect());
       //res = barcode_internal(bc_roi,barcodeFP);
@@ -44,7 +49,7 @@ void ImageRecognizeEx::texts(){
       showImage(roiImage);
 
   }
-
+  return extractAddress;
 }
 
 std::vector<std::string> &ImageRecognizeEx::isplit(const std::string &s, char delim, std::vector<std::string>  &elems){

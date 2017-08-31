@@ -23,7 +23,6 @@ void ImageRecognizeEx::setMachine(std::string val){
 
 void ImageRecognizeEx::setDBConnection(MYSQL *connection){
   con = connection;
-  initRegions();
 }
 
 void ImageRecognizeEx::setWait(int val){
@@ -85,8 +84,15 @@ void ImageRecognizeEx::open(const char* filename){
   showImage(orignalImage);
 
 }
+void ImageRecognizeEx::setPixelPerCM(int _x_cm,int _y_cm){
+  x_cm=_x_cm;
+  y_cm=_y_cm;
 
-void ImageRecognizeEx::rescale(int x_cm,int y_cm){
+  oneCM = x_cm;
+  initRegions();
+}
+
+void ImageRecognizeEx::rescale(){
   double rescale_cols=1;
   double rescale_rows=1;
   if (x_cm!=y_cm){
@@ -103,6 +109,9 @@ void ImageRecognizeEx::rescale(int x_cm,int y_cm){
     showImage(orignalImage);
   }
   oneCM = x_cm;
+  if (showDebug){
+    std::cout << "oneCM: " << oneCM << '\n';
+  }
   roiImage=orignalImage.clone();
 }
 
@@ -141,7 +150,7 @@ ImageRecognizeEx::ImageRecognizeEx() :
   showDebug(false),
   showDebugWindow(false),
   psmAuto(false),
-  barcodeClahe(true),
+  barcodeClahe(false),
   barcodeFP(true),
   windowWait(50) {
 

@@ -13,11 +13,14 @@ class ExtractAddress{
   public:
     void setString(std::string text);
     void extract();
+    bool foundAddress();
+    std::string getString();
     std::string getHouseNumber();
     std::string getStreetName();
     std::string getZipCode();
     std::string getTown();
   private:
+    bool hasAddress;
     std::string orignalString;
     std::string town;
     std::string zipCode;
