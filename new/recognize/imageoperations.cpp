@@ -41,7 +41,7 @@ void ImageRecognizeEx::recalcSubstractMean(cv::Mat m){
 
 
 
-int ImageRecognizeEx::linearize(cv::Mat& src,float multiply){
+int ImageRecognizeEx::linearize(cv::Mat& src){
   cv::Mat thr(src.rows,src.cols,CV_8UC1);
   /*
   cvtColor(src,thr,CV_BGR2GRAY); //Convert to gray
@@ -49,11 +49,17 @@ int ImageRecognizeEx::linearize(cv::Mat& src,float multiply){
   if (src.channels()>1){
     throw std::runtime_error("Error: ImageRecognizeEx::linearize not a gray image");
   }
+
   cv::adaptiveThreshold(
-      thr,src,255,
+      src,
+      src,
+      255,
       CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-      CV_THRESH_BINARY, blockSize,
-      subtractMean);
+      CV_THRESH_BINARY,
+      blockSize,
+      subtractMean
+  );
+
   showImage(src);
   return 0;
 }

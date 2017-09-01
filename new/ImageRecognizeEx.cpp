@@ -16,6 +16,18 @@ void ImageRecognizeEx::showImage(cv::Mat& src){
   }
 }
 
+void ImageRecognizeEx::showImage(cv::Mat& src,int ww){
+  if (showDebugWindow){
+    cv::Mat rotated=src.clone();
+    int x=src.cols /5;
+    int y=src.rows /5;
+    cv::Mat res = cv::Mat(x, y, CV_8UC1);
+    cv::resize(rotated, res, cv::Size(x, y), 0, 0, 3);
+    cv::namedWindow("DEBUG", CV_WINDOW_AUTOSIZE );
+    cv::imshow("DEBUG", res );
+    cv::waitKey(ww);
+  }
+}
 
 void ImageRecognizeEx::setMachine(std::string val){
   machine = val;
@@ -79,7 +91,7 @@ void ImageRecognizeEx::setImage(cv::Mat mat){
 void ImageRecognizeEx::open(const char* filename){
   fileName = filename;
   cv::setUseOptimized(true);
-  cv::Mat mat = cv::imread( filename, cv::IMREAD_COLOR );
+  cv::Mat mat = cv::imread( filename, cv::IMREAD_GRAYSCALE );
   setImage(mat);
   showImage(orignalImage);
 

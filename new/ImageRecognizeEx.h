@@ -50,6 +50,8 @@ public:
   ImageRecognizeEx();
   ~ImageRecognizeEx();
   void setImage(cv::Mat mat);
+  void showImage(cv::Mat& src,int ww);
+
   void open(const char* filename);
   void setDebug(bool val);
   void setDebugWindow(bool val);
@@ -87,7 +89,7 @@ private:
   bool containsZipCode(cv::Mat& im,cv::Mat& orig);
   std::string getText(cv::Mat& im);
   void recalcSubstractMean(cv::Mat m);
-  int linearize(cv::Mat& src,float multiply);
+  int linearize(cv::Mat& src);
 
   std::vector<std::string> &isplit(const std::string &s, char delim, std::vector<std::string>  &elems);
   std::vector<std::string> isplit(const std::string &s,char delim);
@@ -122,7 +124,7 @@ private:
   tesseract::TessBaseAPI* tess;
 
   ExtractAddress* extractAddress;
-  
+
   std::list<RegionOfInterest*> barcodeRegions;
   std::list<RegionOfInterest*> addressRegions;
 

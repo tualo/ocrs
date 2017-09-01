@@ -84,6 +84,7 @@ int main( int argc, char** argv ){
   }
   catch (args::Help)
   {
+    
       std::cout << parser;
       return 0;
   }
