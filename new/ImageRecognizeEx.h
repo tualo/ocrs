@@ -6,7 +6,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 //#include "opencv2/imgproc/imgproc.hpp"
 //#include "opencv2/imgcodecs.hpp"
-
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -22,6 +22,8 @@
 #include <tesseract/baseapi.h>
 #include <tesseract/strngs.h>
 #include <zbar.h>
+
+
 
 #define HAVE_BOOL 1
 #define HAVE_UINT64 1
@@ -61,12 +63,14 @@ public:
   void barcode();
   ExtractAddress* texts();
 
+
   void setMachine(std::string val);
   void setDBConnection(MYSQL *connection);
   void setBlockSize(int value);
   void setSubtractMean(int value);
   bool is_digits(const std::string &str);
 
+  cv::Mat roiImage;
 
 private:
   cv::Mat largestContour(cv::Mat& src);
@@ -99,7 +103,6 @@ private:
 
 
   cv::Mat orignalImage;
-  cv::Mat roiImage;
 
   int oneCM;
   int x_cm;
@@ -119,7 +122,7 @@ private:
   tesseract::TessBaseAPI* tess;
 
   ExtractAddress* extractAddress;
-
+  
   std::list<RegionOfInterest*> barcodeRegions;
   std::list<RegionOfInterest*> addressRegions;
 

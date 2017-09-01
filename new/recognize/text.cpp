@@ -128,6 +128,7 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
   const boost::regex no_plz_regex("\\d{6}\\s");
 
   recalcSubstractMean(im);
+
   cv::Mat c2 = im.clone();
   lastThreshold = linearize(im,-0.30);
   std::string s1 = getText(im);
@@ -219,7 +220,6 @@ std::string ImageRecognizeEx::getText(cv::Mat& im){
 
 
     std::string newtext;
-    std::cout << out << std::endl;
     newtext = boost::regex_replace(intermedia, number_space, "");
 
     if(showDebug){

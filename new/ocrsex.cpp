@@ -58,7 +58,6 @@ int main( int argc, char** argv ){
   args::ValueFlag<int> pixel_cm_y(parser, "cm_y", "Pixel per CM Y (default 73)", {"cmy"});
   args::ValueFlag<int> blocksize(parser, "blocksize", "adaptiveThreshold Blocksize (default 55)", {"blocksize"});
   args::ValueFlag<int> substractmean(parser, "substractmean", "adaptiveThreshold subtractMean (default 20)", {"substractmean"});
-
   args::ValueFlag<std::string> machine(parser, "machine", "The machine ID", {"machine"});
 
 
@@ -115,6 +114,7 @@ int main( int argc, char** argv ){
   int int_pixel_cm_y = 73;
   int blockSize=55;
   int subtractMean=20;
+
 
   if (blocksize) { blockSize = args::get(blocksize); }
   if (substractmean) { subtractMean = args::get(substractmean); }

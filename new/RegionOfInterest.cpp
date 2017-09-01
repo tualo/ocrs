@@ -34,19 +34,7 @@ int RegionOfInterest::rotateSteps(){
 
 
 cv::Rect RegionOfInterest::rect(){
-
-  std::cout << "image.rows: " << image.rows << std::endl;
-  std::cout << "image.cols: " << image.cols << std::endl;
-
-  std::cout << "ix: " << ix << "*" << pixelPerCm << std::endl;
-  std::cout << "iy: " << iy << "*" << pixelPerCm << std::endl;
-  std::cout << "ih: " << ih << "*" << pixelPerCm << std::endl;
-  std::cout << "iw: " << iw << "*" << pixelPerCm << std::endl;
-
   cv::Rect roi( pixelPerCm*ix , pixelPerCm*iy ,pixelPerCm*iw, pixelPerCm*ih);
-
-  std::cout << "roi: " << roi.x << " " << roi.y << " " << roi.width << " " << roi.height << std::endl;
-
   if (image.rows<(roi.y)){
     roi.y=image.rows-1;
   }
@@ -60,7 +48,6 @@ cv::Rect RegionOfInterest::rect(){
   if (image.cols<(roi.x+roi.width)){
     roi.width=1;
   }
-//  std::cout << "roi: " << roi.x << " " << roi.y << " " << roi.width << " " << roi.height << std::endl;
   return roi;
 }
 

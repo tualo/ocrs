@@ -42,15 +42,20 @@ void ImageRecognizeEx::recalcSubstractMean(cv::Mat m){
 
 
 int ImageRecognizeEx::linearize(cv::Mat& src,float multiply){
-    cv::Mat thr(src.rows,src.cols,CV_8UC1);
-    cvtColor(src,thr,CV_BGR2GRAY); //Convert to gray
-    cv::adaptiveThreshold(
-        thr,src,255,
-        CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-        CV_THRESH_BINARY, blockSize,
-        subtractMean);
-    showImage(src);
-    return 0;
+  cv::Mat thr(src.rows,src.cols,CV_8UC1);
+  /*
+  cvtColor(src,thr,CV_BGR2GRAY); //Convert to gray
+  */
+  if (src.channels()>1){
+    throw std::runtime_error("Error: ImageRecognizeEx::linearize not a gray image");
+  }
+  cv::adaptiveThreshold(
+      thr,src,255,
+      CV_ADAPTIVE_THRESH_GAUSSIAN_C,
+      CV_THRESH_BINARY, blockSize,
+      subtractMean);
+  showImage(src);
+  return 0;
 }
 
 void ImageRecognizeEx::rotate(cv::Mat& src, int direction){

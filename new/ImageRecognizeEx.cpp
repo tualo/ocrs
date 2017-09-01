@@ -4,18 +4,18 @@
 #include "recognize/text.cpp"
 
 void ImageRecognizeEx::showImage(cv::Mat& src){
-
   if (showDebugWindow){
     cv::Mat rotated=src.clone();
     int x=src.cols /5;
     int y=src.rows /5;
-    cv::Mat res = cv::Mat(x, y, CV_32FC3);
+    cv::Mat res = cv::Mat(x, y, CV_8UC1);
     cv::resize(rotated, res, cv::Size(x, y), 0, 0, 3);
     cv::namedWindow("DEBUG", CV_WINDOW_AUTOSIZE );
     cv::imshow("DEBUG", res );
     cv::waitKey(windowWait);
   }
 }
+
 
 void ImageRecognizeEx::setMachine(std::string val){
   machine = val;
@@ -67,7 +67,7 @@ bool ImageRecognizeEx::readMatBinary(std::ifstream& ifs, cv::Mat& in_mat)
 	in_mat.release();
 	in_mat.create(rows, cols, type);
 	ifs.read((char*)(in_mat.data), in_mat.elemSize() * in_mat.total());
-  cvtColor(in_mat,in_mat,CV_GRAY2BGR);
+  //cvtColor(in_mat,in_mat,CV_GRAY2BGR);
 	return true;
 }
 
@@ -98,20 +98,18 @@ void ImageRecognizeEx::rescale(){
   if (x_cm!=y_cm){
     // only rescale if it's nessesary
     rescale_rows=(double)x_cm/(double)y_cm;
-    if (showDebug){
-      std::cout << "rescale_rows: " << rescale_rows << " (" << x_cm << "x"<< y_cm << ")" << '\n';
+    if (orignalImage.channels()>1){
+      cv::Mat result = cv::Mat(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows, CV_32FC3);
+      cv::resize(orignalImage, result, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
+      orignalImage=result;
+    }else{
+      cv::Mat result = cv::Mat(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows, CV_8UC1);
+      cv::resize(orignalImage, result, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
+      orignalImage=result;
     }
-    cv::Mat result = cv::Mat(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows, CV_32FC3);
-    cv::resize(orignalImage, result, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
-    orignalImage=result;
-
-
     showImage(orignalImage);
   }
   oneCM = x_cm;
-  if (showDebug){
-    std::cout << "oneCM: " << oneCM << '\n';
-  }
   roiImage=orignalImage.clone();
 }
 

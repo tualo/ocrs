@@ -17,13 +17,17 @@ Glob::Glob(const std::string &pattern)
    dir_entry_(0)
 {
   std::pair<std::string, std::string> dir_and_mask = SplitPath(pattern);
-
+  current_dir_ = dir_and_mask.first;
   dir_ = opendir(dir_and_mask.first.c_str());
   pattern_ = dir_and_mask.second;
 
   if (dir_ != 0) {
     Next();
   }
+}
+
+std::string Glob::getPath(){
+  return current_dir_;
 }
 
 Glob::~Glob() {
@@ -38,6 +42,7 @@ bool Glob::hasNext() {
 
 bool Glob::Next() {
   while ((dir_entry_ = readdir(dir_)) != 0) {
+
     if (!fnmatch(pattern_.c_str(), dir_entry_->d_name,
                  FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
       return true;
