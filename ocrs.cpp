@@ -64,22 +64,26 @@ void* processImage(void *data ){
 
 bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
   bool res = false;
-  std::string sql = "select stamp from bbs_job where concat(kundennummer,'|',kostenstelle) = '"+kunde+"' and machine_id='"+maschine+"' and createtime>=concat(current_date,' 00:00:00') and createtime<=concat(current_date,' 23:59:59') order by id desc limit 1; ";
-  if (mysql_query(con, sql.c_str())){
+  std::vector<std::string> strs;
+  boost::split(strs,kunde,boost::is_any_of("|"));
 
-  }else{
-    MYSQL_RES *result;
-    MYSQL_ROW row;
-    unsigned int num_fields;
-    unsigned int i;
-    result = mysql_use_result(con);
-    num_fields = mysql_num_fields(result);
-    while ((row = mysql_fetch_row(result))){
-     int stamp = atoi(row[0]);
-     if (stamp==1){
-       res=true;
+  if (strs.size()==2){
+    std::string sql = "select id from  bbs_data where kundennummer = '"+strs[0]+"' and kostenstelle = "+strs[1]+" and machine_no='"+maschine+"0' and createtime>=concat(current_date,' 00:00:00') and createtime<=concat(current_date,' 23:59:59')  order by id desc limit 1";
+    if (mysql_query(con, sql.c_str())){
+
+    }else{
+     MYSQL_RES *result;
+     MYSQL_ROW row;
+     unsigned int num_fields;
+     unsigned int i;
+     result = mysql_use_result(con);
+     num_fields = mysql_num_fields(result);
+     while ((row = mysql_fetch_row(result))){
+      res=true;
      }
+     mysql_free_result(result);
     }
+
   }
   return res;
 
