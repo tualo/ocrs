@@ -64,11 +64,21 @@ void* processImage(void *data ){
 
 bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
   bool res = false;
+
+  std::string fdate = "current_date";
+  std::cout << "forceFPNumber FORCEFPDATE" << std::getenv("FORCEFPDATE") <<  std::endl;
+  if(const char* env_fdate = std::getenv("FORCEFPDATE")){
+    fdate = "'"+std::string(env_fdate)+ "'";
+  }
+
+   std::cout << "forceFPNumber test "<< kunde << std::endl;
   std::vector<std::string> strs;
   boost::split(strs,kunde,boost::is_any_of("|"));
 
   if (strs.size()==2){
-    std::string sql = "select id from  bbs_data where kundennummer = '"+strs[0]+"' and kostenstelle = "+strs[1]+" and machine_no='"+maschine+"0' and createtime>=concat(current_date,' 00:00:00') and createtime<=concat(current_date,' 23:59:59')  order by id desc limit 1";
+    std::string sql = "select id from  bbs_data where kundennummer = '"+strs[0]+"' and kostenstelle = "+strs[1]+" and machine_no='"+maschine+"0' and createtime>=concat("+fdate+",' 00:00:00') and createtime<=concat("+fdate+",' 23:59:59')  order by id desc limit 1";
+
+     std::cout << "forceFPNumber " << sql << std::endl;
     if (mysql_query(con, sql.c_str())){
 
     }else{
@@ -79,6 +89,7 @@ bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
      result = mysql_use_result(con);
      num_fields = mysql_num_fields(result);
      while ((row = mysql_fetch_row(result))){
+      std::cout << "forceFPNumber true" << std::endl;
       res=true;
      }
      mysql_free_result(result);

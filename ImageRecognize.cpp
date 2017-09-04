@@ -795,11 +795,17 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
 
 
           if (forceFPCode){
+            /*
+            std::cout  << "barcode_internal: " << res.code << std::endl;
+            std::cout  << "barcode_internal (is digit): " << is_digits(res.code) << std::endl;
+            std::cout  << "barcode_internal (length): " << res.code.length() << std::endl;
+            std::cout  << "barcode_internal (substr): " << res.code.substr(0,machine_id.length())  << std::endl;
+            */
             if (
                 (res.type=="I2/5") &&
                 (is_digits(res.code)) &&
                 (res.code.length()==11) &&
-                (res.code.substr(0,machine_id.length()-1)==machine_id)
+                (res.code.substr(0,machine_id.length())==machine_id)
               ){
               res.found = true;
             }else{
