@@ -792,6 +792,21 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
           }
           // to do
           res.rect = cv::Rect(min_x,min_y,max_x-min_x,max_y-min_y);
+
+
+          if (forceFPCode){
+            if (
+                (res.type=="I2/5") &&
+                (is_digits(res.code)) &&
+                (res.code.length()==11) &&
+                (res.code.substr(0,machine_id.length()-1)==machine_id)
+              ){
+              res.found = true;
+            }else{
+              // if code does not match
+              res.found = false;
+            }
+          }
         }
       }
     }

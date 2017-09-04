@@ -42,11 +42,13 @@ public:
   bool headOver;
   bool psmAuto;
   bool windowalltogether;
+  bool forceFPCode;
   int analysisType;
   int barcode_algorthim;
   int window_wait;
   MYSQL *con;
 
+  std::string machine_id;
   std::string code;
   std::string jsontext;
   std::string addresstext;

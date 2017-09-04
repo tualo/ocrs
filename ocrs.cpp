@@ -62,6 +62,28 @@ void* processImage(void *data ){
 	return 0;
 }
 
+bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
+  bool res = false;
+  std::string sql = "select stamp from bbs_job where concat(kundennummer,'|',kostenstelle) = '"+kunde+"' and machine_id='"+maschine+"' and createtime>=concat(current_date,' 00:00:00') and createtime<=concat(current_date,' 23:59:59') order by id desc limit 1; ";
+  if (mysql_query(con, sql.c_str())){
+
+  }else{
+    MYSQL_RES *result;
+    MYSQL_ROW row;
+    unsigned int num_fields;
+    unsigned int i;
+    result = mysql_use_result(con);
+    num_fields = mysql_num_fields(result);
+    while ((row = mysql_fetch_row(result))){
+     int stamp = atoi(row[0]);
+     if (stamp==1){
+       res=true;
+     }
+    }
+  }
+  return res;
+
+}
 
 
 /**
@@ -229,9 +251,43 @@ int main( int argc, char** argv ){
     exit(1);
   }
 
+
+  std::string fullname(argv[1]);
+  boost::filesystem::path bpath(argv[1]);
+  std::string fname = bpath.filename().c_str();
+  std::string kundenid = "";
+  std::string product = "";
+  std::string bbs_check_sql = "";
+
+  std::vector<std::string> strs;
+  boost::split(strs,fname,boost::is_any_of("N"));
+
+  if (strs.size()==2){
+    kundenid=strs[0];
+    fname=strs[1];
+  }
+
+  if (strs.size()==3){
+    kundenid=strs[0];
+    product=strs[1];
+    fname=strs[2];
+  }
+
+  if (force_customer.length()>0){
+    kundenid = force_customer;
+  }
+
+  bool _forceFPCode = forceFPNumber(kundenid,machine_id,con);
+
+
+
   std::string sql = "";
   ImageRecognize* ir = new ImageRecognize();
   ir->debug=debug;
+
+  ir->forceFPCode=_forceFPCode;
+  ir->machine_id=machine_id;
+
   ir->con = con;
   ir->psmAuto = psmAuto;
   ir->showWindow=window;
@@ -258,36 +314,14 @@ int main( int argc, char** argv ){
     ir->scale = std::atof(scale);
     ir->open(argv[1]);
   }
-
-  std::string fullname(argv[1]);
-  boost::filesystem::path bpath(argv[1]);
-  std::string fname = bpath.filename().c_str();
-  std::string kundenid = "";
-  std::string product = "";
-  std::string bbs_check_sql = "";
-
   std::vector<int> params;
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
   params.push_back(80);
 
 
-  std::vector<std::string> strs;
-  boost::split(strs,fname,boost::is_any_of("N"));
 
-  if (strs.size()==2){
-    kundenid=strs[0];
-    fname=strs[1];
-  }
 
-  if (strs.size()==3){
-    kundenid=strs[0];
-    product=strs[1];
-    fname=strs[2];
-  }
 
-  if (force_customer.length()>0){
-    kundenid = force_customer;
-  }
 
   std::string sql_modell = "set @svmodell='"+modell+"'";
   if (mysql_query(con, sql_modell.c_str())){
