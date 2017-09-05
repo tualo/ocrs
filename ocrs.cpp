@@ -65,10 +65,13 @@ void* processImage(void *data ){
 bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
   bool res = false;
 
-  std::string fdate = "current_date";
+  std::string fdate = "date_add(now(), interval -5 minutes)";
+  std::string fdateend = "date_add(now(), interval +5 minutes)";
+
   std::cout << "forceFPNumber FORCEFPDATE" << std::getenv("FORCEFPDATE") <<  std::endl;
   if(const char* env_fdate = std::getenv("FORCEFPDATE")){
-    fdate = "'"+std::string(env_fdate)+ "'";
+    fdate = "'"+std::string(env_fdate)+ " 00:00:01'";
+    fdateend = "'"+std::string(env_fdate)+ " 23:59:59'";
   }
 
    std::cout << "forceFPNumber test "<< kunde << std::endl;
@@ -76,7 +79,7 @@ bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
   boost::split(strs,kunde,boost::is_any_of("|"));
 
   if (strs.size()==2){
-    std::string sql = "select id from  bbs_data where kundennummer = '"+strs[0]+"' and kostenstelle = "+strs[1]+" and machine_no='"+maschine+"0' and createtime>=concat("+fdate+",' 00:00:00') and createtime<=concat("+fdate+",' 23:59:59')  order by id desc limit 1";
+    std::string sql = "select id from  bbs_data where kundennummer = '"+strs[0]+"' and kostenstelle = "+strs[1]+" and machine_no='"+maschine+"0' and createtime>="+fdate+" and createtime<="+fdateend+" order by id desc limit 1";
 
      std::cout << "forceFPNumber " << sql << std::endl;
     if (mysql_query(con, sql.c_str())){
@@ -85,7 +88,7 @@ bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
      MYSQL_RES *result;
      MYSQL_ROW row;
      unsigned int num_fields;
-     unsigned int i;
+  //   unsigned int i;
      result = mysql_use_result(con);
      num_fields = mysql_num_fields(result);
      while ((row = mysql_fetch_row(result))){
@@ -247,8 +250,8 @@ int main( int argc, char** argv ){
     modell = env_modell;
   }
 
-  double t = (double)cv::getTickCount();
-  int cthread = 0;
+//  double t = (double)cv::getTickCount();
+//  int cthread = 0;
 
   MYSQL *con = mysql_init(NULL);
 
@@ -429,7 +432,7 @@ int main( int argc, char** argv ){
         MYSQL_RES *result;
         MYSQL_ROW row;
         unsigned int num_fields;
-        unsigned int i;
+        //unsigned int i;
         result = mysql_use_result(con);
         num_fields = mysql_num_fields(result);
         while ((row = mysql_fetch_row(result))){

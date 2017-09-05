@@ -242,7 +242,7 @@ void ImageRecognize::open(const char* filename){
 void ImageRecognize::openPZA(const char* filename){
   double t = (double)cv::getTickCount();
   double te;
-  int analysisType = 1;
+  //int analysisType = 1;
 
 
   tess=new tesseract::TessBaseAPI();
@@ -345,7 +345,7 @@ cv::Mat ImageRecognize::getRectangle(cv::Mat& src){
   cv::Mat detected_edges;
 
   std::vector<cv::Vec4i> lines;
-  int edgeThresh = 1;
+  //int edgeThresh = 1;
   /*
   int const lowThreshold = 5;
   int const maxThreshold = 200;
@@ -353,7 +353,7 @@ cv::Mat ImageRecognize::getRectangle(cv::Mat& src){
   int const lowThreshold = 15;
   int const maxThreshold = 50;
 
-  int ratio = 3;
+  //int ratio = 3;
   int kernel_size = 3;
 
   cvtColor( src, src_gray, CV_BGR2GRAY );
@@ -601,8 +601,7 @@ double ImageRecognize::getOrientation(std::vector<cv::Point> &pts, cv::Mat &img)
     cv::PCA pca_analysis(data_pts, cv::Mat(), CV_PCA_DATA_AS_ROW);
 
     //Store the position of the object
-    cv::Point pos = cv::Point(pca_analysis.mean.at<double>(0, 0),
-                      pca_analysis.mean.at<double>(0, 1));
+    //cv::Point pos = cv::Point(pca_analysis.mean.at<double>(0, 0), pca_analysis.mean.at<double>(0, 1));
 
     //Store the eigenvalues and eigenvectors
     std::vector<cv::Point2d> eigen_vecs(2);
@@ -634,20 +633,20 @@ bcResult ImageRecognize::barcode(cv::Mat& im){
 
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
 
-  int rel=0;
-  int tmp=0;
+//  int rel=0;
+//  int tmp=0;
 
   cv::Mat gray;
-  bool found=false;
+  //bool found=false;
   cv::Mat norm;
   cv::Mat mask;
-  int type = cv::NORM_MINMAX;
-  int dtype = -1;
-  int min=0;
-  int max=255;
-  cv::Point point;
+  //int type = cv::NORM_MINMAX;
+  //int dtype = -1;
+//  int min=0;
+//  int max=255;
+  // cv::Point point;
   cv::Size ksize(5,5);
-  int i = 0;
+  //int i = 0;
   cv::Mat part = im.clone();
   res = barcode_internal(part);
 
@@ -671,7 +670,7 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
   int max=255;
   cv::Point point;
   cv::Size ksize(5,5);
-  int i = 0;
+  //int i = 0;
   int rel=0;
   int tmp=0;
   bool codeRetry=false;
@@ -705,7 +704,7 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
     window_wait=50;
     showImage(norm);
     window_wait=tmp_window_wait;
-    int n = scanner.scan(image);
+    scanner.scan(image);
     for(zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
       if (debug){
         std::cout << "thres " << thres << " Code " << symbol->get_data().c_str() << " Type " << symbol->get_type_name().c_str() << std::endl;
@@ -828,8 +827,8 @@ bcResult ImageRecognize::fast_barcode(cv::Mat& im){
   double te;
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string("")};
 
-  int rel=0;
-  int tmp=0;
+//  int rel=0;
+//  int tmp=0;
 
 
 
@@ -837,13 +836,13 @@ bcResult ImageRecognize::fast_barcode(cv::Mat& im){
   cv::Mat gray;
   cv::Mat norm;
   cv::Mat mask;
-  int type = cv::NORM_MINMAX;
-  int dtype = -1;
-  int min=0;
-  int max=255;
+  //int type = cv::NORM_MINMAX;
+  //int dtype = -1;
+  //int min=0;
+  //int max=255;
   cv::Point point;
   cv::Size ksize(5,5);
-  int i = 0;
+  //int i = 0;
 
   cv::Mat useIMG = (im.clone());
   if (useIMG.cols<useIMG.rows){
@@ -940,7 +939,7 @@ std::string ImageRecognize::getText(cv::Mat& im){
   tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
   tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
   tess->SetVariable("tessedit_reject_bad_qual_wds","1");
-  tess->SetVariable("textord_min_linesize","1.0");
+  tess->SetVariable("textord_min_linesize","1.5");
   tess->Recognize(0);
   if (psmAuto==true){
     tess->SetPageSegMode(tesseract::PSM_AUTO);
@@ -1052,15 +1051,15 @@ bool ImageRecognize::containsZipCode(cv::Mat& im,cv::Mat& orig){
 }
 
 bool ImageRecognize::usingLetterRoi(cv::Mat& im,cv::Rect roi2){
-  const char* out;
+  //const char* out;
   std::vector<std::string> lines;
   const boost::regex plz_regex("\\d{5}\\s");
   const boost::regex no_plz_regex("\\d{6}\\s");
   boost::cmatch char_matches;
 
-  int breite = im.cols/oneCM;
-  int hoehe = im.rows/oneCM;
-  float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
+  //int breite = im.cols/oneCM;
+  //int hoehe = im.rows/oneCM;
+  //float ratio = ( ((im.rows *1.0) / (im.cols *1.0 )) );
   cv::Mat c2 = (im.clone())(roi2);
   if (containsZipCode(c2,im)){
     return true;
@@ -1188,7 +1187,7 @@ bool ImageRecognize::usingLetterType2(cv::Mat& im){
   //cv::Rect roi2 = fittingROI(12,5,12,14,im);
   //cv::Rect roi2 = fittingROI(2,5,11,7,im);
   cv::Rect roi2 = fittingROI(2,5,11,7,im);
-  const char* out;
+  // const char* out;
   /*
   --------------------------------------
   |                                    |
@@ -1221,7 +1220,7 @@ bool ImageRecognize::usingLetterType2(cv::Mat& im){
 
 bool ImageRecognize::usingLetterType2_1(cv::Mat& im){
   cv::Rect roi2 = fittingROI((im.cols/oneCM)-15,(im.rows/oneCM)-10,11,7,im);
-  const char* out;
+  //const char* out;
   /*
   --------------------------------------
   |                                    |
@@ -1251,7 +1250,7 @@ bool ImageRecognize::usingLetterType2_1(cv::Mat& im){
 
 bool ImageRecognize::usingLetterType2_2(cv::Mat& im){
   cv::Rect roi2 = fittingROI((im.cols/oneCM)-17,(im.rows/oneCM)-10,13,7,im);
-  const char* out;
+  //const char* out;
   /*
   --------------------------------------
   |                                    |
@@ -1279,7 +1278,7 @@ bool ImageRecognize::usingLetterType2_2(cv::Mat& im){
 }
 
 const char* ImageRecognize::text(cv::Mat& im){
-  const char* out;
+  const char* out= nullptr;
   int breite = im.cols/oneCM;
   int hoehe = im.rows/oneCM;
   int letterType = 0;
@@ -1378,11 +1377,11 @@ Musterweg 1234a
       MYSQL_RES *result;
       MYSQL_ROW row;
       unsigned int num_fields;
-      unsigned int i;
+      //unsigned int i;
       result = mysql_use_result(con);
       num_fields = mysql_num_fields(result);
       while ((row = mysql_fetch_row(result))){
-         unsigned long *lengths;
+         //unsigned long *lengths;
          int result_width = atoi(row[1]);
          int result_height = atoi(row[0]);
 
