@@ -57,12 +57,14 @@ public:
   void setDebugWindow(bool val);
   void setDebugTime(bool val);
 
+  void setCalcMean(bool value);
   void useBarcodeClahe(bool val);
   void setWait(int val);
   void setPixelPerCM(int x_cm,int y_cm);
 
   void rescale();
   void barcode();
+  void correctSize();
   ExtractAddress* texts();
 
 
@@ -90,6 +92,7 @@ private:
   std::string getText(cv::Mat& im);
   void recalcSubstractMean(cv::Mat m);
   int linearize(cv::Mat& src);
+  void _debugTime(std::string str);
 
   std::vector<std::string> &isplit(const std::string &s, char delim, std::vector<std::string>  &elems);
   std::vector<std::string> isplit(const std::string &s,char delim);
@@ -100,6 +103,7 @@ private:
   bool psmAuto;
   bool barcodeClahe;
   bool barcodeFP;
+  bool calcMean;
 
   MYSQL *con;
 
@@ -113,6 +117,8 @@ private:
   int subtractMean;
   int blockSize;
   int resultThres;
+
+  double debug_last_time;
 
   const char* fileName;
   const char* ocrText;

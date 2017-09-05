@@ -12,7 +12,7 @@ CXX				?= g++
 
 LD         := $(CXX)
 CPPFLAGS   := $(shell mysql_config --cflags) $(shell pkg-config zbar --cflags) $(shell pkg-config opencv --cflags) $(shell pkg-config tesseract --cflags)
-CXXFLAGS   := -Wall -std=c++14  #e.g., CXXFLAGS=-g -O0 for debugging
+CXXFLAGS   := -Wall -std=c++14 -O3  #e.g., CXXFLAGS=-g -O0 for debugging
 LDFLAGS    := $(shell mysql_config --libs_r)
 LDLIBS     := $(shell mysql_config --libs) $(shell pkg-config zbar --cflags --libs) $(shell pkg-config opencv --libs)  $(shell pkg-config tesseract --libs) -lboost_system -lboost_regex -lboost_filesystem -lboost_thread-mt -lboost_chrono -lboost_iostreams -lboost_atomic-mt -lboost_date_time -lpthread
 

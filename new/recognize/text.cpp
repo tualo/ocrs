@@ -32,7 +32,6 @@ ExtractAddress* ImageRecognizeEx::texts(){
         extractAddress->setString(resultText);
         extractAddress->extract();
         if (showDebug){
-          std::cout << "found ;) " << std::endl;
           std::cout << "zipcode: " << extractAddress->getZipCode() << std::endl;
           std::cout << "town: " << extractAddress->getTown() << std::endl;
           std::cout << "street: " << extractAddress->getStreetName() << std::endl;
@@ -70,6 +69,7 @@ std::vector<std::string> ImageRecognizeEx::isplit(const std::string &s,char deli
 
 
 bool ImageRecognizeEx::usingRoi(cv::Mat& im,cv::Rect roi2, int irotate, int istep_rotate){
+  _debugTime("start usingRoi");
   //const char* out;
   std::vector<std::string> lines;
   const boost::regex plz_regex("\\d{5}\\s");
@@ -95,6 +95,7 @@ bool ImageRecognizeEx::usingRoi(cv::Mat& im,cv::Rect roi2, int irotate, int iste
   if (istep_rotate>0){
     while (istep_rotate>0){
       if (containsZipCode(c2,im)){
+        _debugTime("stop usingRoi");
         return true;
       }
       rotate(c2,1);
@@ -103,6 +104,7 @@ bool ImageRecognizeEx::usingRoi(cv::Mat& im,cv::Rect roi2, int irotate, int iste
   }else{
     while (istep_rotate<0){
       if (containsZipCode(c2,im)){
+        _debugTime("stop usingRoi");
         return true;
       }
       rotate(c2,1);
@@ -111,14 +113,17 @@ bool ImageRecognizeEx::usingRoi(cv::Mat& im,cv::Rect roi2, int irotate, int iste
   }
 
   if (containsZipCode(c2,im)){
+    _debugTime("stop usingRoi");
     return true;
   }
 
+  _debugTime("stop usingRoi");
   return false;
 }
 
 
 bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
+  _debugTime("before containsZipCode");
   int i=0;
   int j=0;
   int m=0;
@@ -129,8 +134,6 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
 
   recalcSubstractMean(im);
 
-  //cv::Mat c2 = im.clone();
-  //showImage(c2,5000);
 
   lastThreshold = linearize(im);//,-0.30);
   std::string s1 = getText(im);
@@ -139,6 +142,7 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
   boost::replace_all(s1,"\n\n","\n");
   lines = isplit(s1,'\n');
   if (lines.size()<3){
+    _debugTime("stop containsZipCode");
     return false;
   }
   std::vector<std::string>::iterator it;
@@ -171,7 +175,7 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
           std::cout << "ImageRecognize::contains ZipCode" << std::endl << resultText << std::endl << std::endl;
         }
         resultThres = lastThreshold;
-        //makeResultImage(orig,0.85);
+        _debugTime("stop containsZipCode, found");
         return true;
       }
     }
@@ -182,16 +186,29 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
     }
   }
 
+  _debugTime("stop containsZipCode");
   return false;
 }
 
 
 
 std::string ImageRecognizeEx::getText(cv::Mat& im){
-  cv::Mat tim = im.clone();
+  _debugTime("start getText");
+/*  cv::Mat tim = im.clone();
+  _debugTime("start getText, cloned");
   cv::cvtColor(tim, tim, CV_GRAY2BGR);
-  showImage(tim,5000);
-  tess->SetImage((uchar*)tim.data, tim.size().width, tim.size().height, tim.channels(), tim.step1());
+  _debugTime("start getText, converted");
+*/
+/*
+  int x=tim.cols /2;
+  int y=tim.rows /2;
+  cv::Mat res = cv::Mat(x, y, CV_32FC3);
+  cv::resize(tim, res, cv::Size(x, y), 0, 0, 3);
+  tim = res.clone();
+*/
+
+  //showImage(tim,5000);
+  tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
   tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
   tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
   tess->SetVariable("textord_min_linesize","1.0");
@@ -200,6 +217,7 @@ std::string ImageRecognizeEx::getText(cv::Mat& im){
 
   const char* out = tess->GetUTF8Text();
 
+  _debugTime("start getText, found text");
   const boost::regex number_space("(?<=\\d)([^\\S\\r\\n])+(?=\\d)");
   std::string intermedia (out);
 
@@ -218,6 +236,7 @@ std::string ImageRecognizeEx::getText(cv::Mat& im){
       std::cout << intermedia << std::endl;
       std::cout << "########INTERMEDIA##########" << std::endl;
     }
+    _debugTime("stop getText");
     return intermedia;
   }else{
 
@@ -232,6 +251,7 @@ std::string ImageRecognizeEx::getText(cv::Mat& im){
       std::cout << "##################" << std::endl;
     }
 
+    _debugTime("stop getText");
     return newtext;
   }
 }

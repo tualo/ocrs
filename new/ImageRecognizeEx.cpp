@@ -6,13 +6,18 @@
 void ImageRecognizeEx::showImage(cv::Mat& src){
   if (showDebugWindow){
     cv::Mat rotated=src.clone();
+
     int x=src.cols /5;
     int y=src.rows /5;
-    cv::Mat res = cv::Mat(x, y, CV_8UC1);
-    cv::resize(rotated, res, cv::Size(x, y), 0, 0, 3);
-    cv::namedWindow("DEBUG", CV_WINDOW_AUTOSIZE );
-    cv::imshow("DEBUG", res );
-    cv::waitKey(windowWait);
+    if ((x>0) && (y>0)){
+      cv::Mat res = cv::Mat(x, y, CV_8UC1);
+      cv::resize(rotated, res, cv::Size(x, y), 0, 0, 3);
+      cv::namedWindow("DEBUG", CV_WINDOW_AUTOSIZE );
+      cv::imshow("DEBUG", res );
+      cv::waitKey(windowWait);
+    }else{
+      std::cerr << "ImageRecognizeEx::showImage can't show image" << std::endl;
+    }
   }
 }
 
@@ -53,6 +58,16 @@ void ImageRecognizeEx::setDebugTime(bool val){
   showDebugTime=val;
 }
 
+
+void ImageRecognizeEx::_debugTime(std::string str){
+  if (showDebugTime){
+    double time_since_last = ((double)cv::getTickCount() - debug_last_time)/cv::getTickFrequency();
+    std::cout << "(ImageRecognizeEx::_debugTime)\t" << str << ": " << time_since_last << "s " << std::endl;
+  }
+  debug_last_time = (double)cv::getTickCount();
+}
+
+
 void ImageRecognizeEx::setSubtractMean(int value){
   subtractMean =value;
 }
@@ -61,6 +76,11 @@ void ImageRecognizeEx::setSubtractMean(int value){
 void ImageRecognizeEx::setBlockSize(int value){
   blockSize=value;
 }
+
+void ImageRecognizeEx::setCalcMean(bool value){
+  calcMean=value;
+}
+
 
 bool ImageRecognizeEx::readMatBinary(std::ifstream& ifs, cv::Mat& in_mat)
 {
@@ -162,17 +182,57 @@ ImageRecognizeEx::ImageRecognizeEx() :
   psmAuto(false),
   barcodeClahe(false),
   barcodeFP(true),
-  windowWait(50) {
+  windowWait(50),
+  debug_last_time((double)cv::getTickCount()) {
 
   code="";
   codes="";
   extractAddress = new ExtractAddress();
   tess=new tesseract::TessBaseAPI();
   if (psmAuto){
-    tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
+    //tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
+    tesseract::PageSegMode pagesegmode = tesseract::PSM_SINGLE_BLOCK;
     tess->SetPageSegMode(pagesegmode);
   }
-  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
+//  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
+  tess->Init(NULL, (char*)"deu", tesseract::OEM_TESSERACT_ONLY);
+}
+
+void ImageRecognizeEx::correctSize(){
+  MYSQL_RES *result;
+  MYSQL_ROW row;
+  unsigned int num_fields;
+  unsigned int i;
+  std::string addressfield = "L";
+  float result_cols = 0;
+  float result_rows = 0;
+  double rescale_cols = 1;
+  double rescale_rows = 1;
+
+
+  std::string sql = "select height/100,length/100,addressfield,job_id from bbs_data where id = '"+code+"'; ";
+  if (mysql_query(con, sql.c_str())){
+    std::cout << "EE " << sql << std::endl;
+    fprintf(stderr, "%s\n", mysql_error(con));
+  }else{
+
+    result = mysql_use_result(con);
+    num_fields = mysql_num_fields(result);
+    while ((row = mysql_fetch_row(result))){
+       unsigned long *lengths;
+       result_cols = atof(row[0]);
+       result_rows = atof(row[1]);
+       addressfield = row[2];
+       std::cout << "result_cols "  << result_cols << std::endl;
+       std::cout << "result_rows "  << result_rows << std::endl;
+       // length is messured exact by the fp machine
+       // the height is fixed by the camera
+       rescale_rows = result_rows*oneCM / ((double)orignalImage.rows)*1.0;
+       cv::resize(orignalImage, orignalImage, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
+       showImage(orignalImage);
+    }
+    mysql_free_result(result);
+  }
 }
 
 ImageRecognizeEx::~ImageRecognizeEx() {

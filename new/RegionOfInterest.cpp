@@ -35,18 +35,27 @@ int RegionOfInterest::rotateSteps(){
 
 cv::Rect RegionOfInterest::rect(){
   cv::Rect roi( pixelPerCm*ix , pixelPerCm*iy ,pixelPerCm*iw, pixelPerCm*ih);
+  if (roi.x<0){
+    roi.x=0;
+  }
+  if (roi.y<0){
+    roi.y=0;
+  }
   if (image.rows<(roi.y)){
-    roi.y=image.rows-1;
+    roi.y=image.rows-10;
   }
   if (image.rows<(roi.y+roi.height)){
-    roi.height=1;
+    roi.height=image.rows-roi.y;
+    std::cerr << "RegionOfInterest::rect height problem, setting to max" << std::endl;
   }
 
   if (image.cols<(roi.x)){
-    roi.x=image.cols-1;
+    roi.x=image.cols-10;
   }
+
   if (image.cols<(roi.x+roi.width)){
-    roi.width=1;
+    roi.width=image.cols-roi.x;
+    std::cerr << "RegionOfInterest::rect width problem, setting to max" << std::endl;
   }
   return roi;
 }

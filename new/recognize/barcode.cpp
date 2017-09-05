@@ -4,6 +4,7 @@ void  ImageRecognizeEx::useBarcodeClahe(bool val){
 }
 
 bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
+  _debugTime("start barcode_internal");
 
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
 
@@ -208,6 +209,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
   }catch(cv::Exception cv_error){
     std::cerr << "barcode_internal()" << cv_error.msg << std::endl;
   }
+  _debugTime("stop barcode_internal");
   return res;
 }
 
@@ -215,6 +217,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 
 void ImageRecognizeEx::barcode(){
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
+  _debugTime("start barcode");
   try{
     if (barcodeRegions.empty()){
 
@@ -251,6 +254,7 @@ void ImageRecognizeEx::barcode(){
   }catch(cv::Exception cv_error){
     std::cerr << "barcode()" << cv_error.msg << std::endl;
   }
+  _debugTime("stop barcode");
 }
 
 void ImageRecognizeEx::initRegions(){

@@ -26,7 +26,8 @@ ImageRecognizeEx* ocr_ext(
   int subtractMean,
   bool debug,
   bool debugtime,
-  bool debugwindow
+  bool debugwindow,
+  bool calculateMean
 ){
 
 
@@ -54,16 +55,17 @@ ImageRecognizeEx* ocr_ext(
       std::cout << "  " << "User: " << str_db_user << std::endl;
     }
 
-    
+
     ImageRecognizeEx* ir = new ImageRecognizeEx();
     ir->setDebug(debug);
     ir->setDebugWindow(debugwindow);
     ir->setDebugTime(debugtime);
-    ir->setWait(1000);
+    ir->setWait(1500);
     ir->setBlockSize(blockSize);
     ir->setSubtractMean(subtractMean);
     ir->setMachine(std_str_machine);
     ir->setDBConnection(con);
+    ir->setCalcMean(calculateMean);
 
 
     return ir;

@@ -41,6 +41,8 @@ int main( int argc, char** argv ){
   args::Flag debugwindow(parser, "debugwindow", "Show debug window", {'w', "debugwindow"});
   args::Flag debugtime(parser, "debugtime", "Show times", {'t', "debugtime"});
 
+  args::Flag calculateMean(parser, "calculatemean", "calculatemean for adaptiveThreshold", {"calculatemean"});
+
   args::ValueFlag<std::string> filename(parser, "filename", "The filename", {'f',"file"});
 
   args::ValueFlag<std::string> db_host(parser, "host", "The database server host", {'h',"host"});
@@ -84,7 +86,7 @@ int main( int argc, char** argv ){
   }
   catch (args::Help)
   {
-    
+
       std::cout << parser;
       return 0;
   }
@@ -141,7 +143,8 @@ int main( int argc, char** argv ){
     subtractMean,
     debug==1,
     debugtime==1,
-    debugwindow==1
+    debugwindow==1,
+    calculateMean==1
   );
   try{
     ir->setPixelPerCM(int_pixel_cm_x,int_pixel_cm_y);
@@ -151,6 +154,8 @@ int main( int argc, char** argv ){
     debugTime("after rescale");
     ir->barcode();
     debugTime("after barcode");
+    ir->correctSize();
+    debugTime("after correctSize");
     ir->texts();
     debugTime("after text");
   }catch(cv::Exception cv_error){
