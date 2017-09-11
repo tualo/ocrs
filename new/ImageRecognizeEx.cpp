@@ -123,7 +123,6 @@ void ImageRecognizeEx::setPixelPerCM(int _x_cm,int _y_cm){
   y_cm=_y_cm;
 
   oneCM = x_cm;
-  initRegions();
 }
 
 void ImageRecognizeEx::rescale(){
@@ -178,6 +177,10 @@ void ImageRecognizeEx::rotateX(cv::Mat& src,float angle,cv::Point center){
   return;
 }
 
+void ImageRecognizeEx::setMeanFactor(float value){
+  meanfactor=value;
+}
+
 ImageRecognizeEx::ImageRecognizeEx() :
   showDebug(false),
   showDebugWindow(false),
@@ -187,10 +190,17 @@ ImageRecognizeEx::ImageRecognizeEx() :
   windowWait(50),
   debug_last_time((double)cv::getTickCount()) {
 
+
+  meanfactor=1;
+
   bSaveRescaledOriginal=false;
   code="";
   codes="";
+  addressfield = "L";
+
   extractAddress = new ExtractAddress();
+
+
   tess=new tesseract::TessBaseAPI();
   if (psmAuto){
     //tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
@@ -198,7 +208,11 @@ ImageRecognizeEx::ImageRecognizeEx() :
     tess->SetPageSegMode(pagesegmode);
   }
 //  tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
-  tess->Init(NULL, (char*)"deu", tesseract::OEM_TESSERACT_ONLY);
+tess->Init(NULL, (char*)"deu", tesseract::OEM_TESSERACT_ONLY);
+//tess->Init(NULL, (char*)"deu", static_cast<tesseract::OcrEngineMode>(1));//tesseract::OEM_LSTM_ONLY);
+
+
+//  tesseract::OcrEngineMode enginemode = tesseract::OEM_DEFAULT;
 }
 
 void ImageRecognizeEx::correctSize(){
@@ -206,7 +220,7 @@ void ImageRecognizeEx::correctSize(){
   MYSQL_ROW row;
   unsigned int num_fields;
 //  unsigned int i;
-  std::string addressfield = "L";
+
   float result_cols = 0;
   float result_rows = 0;
   double rescale_cols = 1;
@@ -226,17 +240,22 @@ void ImageRecognizeEx::correctSize(){
        result_cols = atof(row[0]);
        result_rows = atof(row[1]);
        addressfield = row[2];
-       std::cout << "result_cols "  << result_cols << std::endl;
-       std::cout << "result_rows "  << result_rows << std::endl;
+       if (showDebug){
+         std::cout << "result_cols "  << result_cols << std::endl;
+         std::cout << "result_rows "  << result_rows << std::endl;
+        }
        // length is messured exact by the fp machine
        // the height is fixed by the camera
 
        rescale_rows = result_rows*oneCM / ((double)orignalImage.rows)*1.0;
-       std::cout << "rescale_rows "  << rescale_rows << " --- " << orignalImage.rows*rescale_rows << std::endl;
+       if (showDebug){
+         std::cout << "rescale_rows "  << rescale_rows << " --- " << orignalImage.rows*rescale_rows << std::endl;
+       }
 
        cv::resize(orignalImage, orignalImage, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
        cv::resize(roiImage, roiImage, cv::Size(roiImage.cols*rescale_cols, roiImage.rows*rescale_rows), 0, 0, 3);
        showImage(roiImage);
+
 
     }
     mysql_free_result(result);
@@ -255,4 +274,29 @@ void ImageRecognizeEx::saveRescaledOriginal(std::string filename){
 
 ImageRecognizeEx::~ImageRecognizeEx() {
   tess->End();
+}
+
+
+
+
+void ImageRecognizeEx::initZipCodeMap(){
+  std::string sql = "select bereiche_plz.plz, sortiergaenge_zuordnung.sortiergang, sortiergaenge_zuordnung.sortierfach, sortiergaenge_zuordnung.regiogruppe from sortiergaenge_zuordnung join bereiche_plz on sortiergaenge_zuordnung.bereich = bereiche_plz.name and sortiergaenge_zuordnung.regiogruppe = bereiche_plz.regiogruppe having sortiergaenge_zuordnung.regiogruppe='Zustellung' ";
+  if (mysql_query(con, sql.c_str())){
+    std::cout << "EE " << sql << std::endl;
+    fprintf(stderr, "%s\n", mysql_error(con));
+  }else{
+    MYSQL_RES *result;
+    MYSQL_ROW row;
+    unsigned int num_fields;
+
+
+
+    result = mysql_use_result(con);
+    num_fields = mysql_num_fields(result);
+    while ((row = mysql_fetch_row(result))){
+       //unsigned long *lengths;
+       extractAddress->setZipcodeHash(std::string( row[0] ),std::string( row[1] ),std::string( row[2] ));
+    }
+    mysql_free_result(result);
+  }
 }

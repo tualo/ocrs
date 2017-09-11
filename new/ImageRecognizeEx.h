@@ -73,6 +73,7 @@ public:
   void setDBConnection(MYSQL *connection);
   void setBlockSize(int value);
   void setSubtractMean(int value);
+  void setMeanFactor(float value);
   bool is_digits(const std::string &str);
 
   void saveRescaledOriginal(std::string filename);
@@ -92,7 +93,9 @@ private:
   void rotateX(cv::Mat& src,float angle,cv::Point center);
   void rotate(cv::Mat& src, int direction);
 
-  void initRegions();
+  void initBarcodeRegions();
+  void initAddressRegions();
+  void initZipCodeMap();
 
   bool usingRoi(cv::Mat& im,cv::Rect roi2,int irotate,int istep_rotate);
   bool containsZipCode(cv::Mat& im,cv::Mat& orig);
@@ -136,6 +139,10 @@ private:
   std::string codes;
   std::string code;
   std::string machine;
+  std::string addressfield;
+
+  float meanfactor;
+
   tesseract::TessBaseAPI* tess;
 
   ExtractAddress* extractAddress;

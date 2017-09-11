@@ -44,12 +44,28 @@ std::string ExtractAddress::getStreetName(){
   return streetName;
 }
 
+
+std::string ExtractAddress::getSortBox(){
+  return sortierfach;
+}
+
+std::string ExtractAddress::getSortRow(){
+  return sortiergang;
+}
+
+void ExtractAddress::setZipcodeHash(std::string zipcode,std::string s_sortiergang,std::string s_sortierfach){
+  zipCodeMap[zipcode]= ""+s_sortiergang+"|"+s_sortierfach+"";
+}
+
 bool ExtractAddress::foundAddress(){
   return hasAddress;
 }
 
 void ExtractAddress::extract(){
   hasAddress=false;
+
+  sortierfach = "NT";
+  sortiergang = "NT";
   // postleitzahl muss am anfang sein
   const boost::regex plz_regex("\\d{5}\\s");
 
@@ -64,6 +80,7 @@ void ExtractAddress::extract(){
   // * 3 street found
   // * 4 hn found
 
+  std::vector<std::string> strs;
   std::vector<std::string> elems = split(orignalString,(char)10);
   std::vector<std::string> v(elems.rbegin(),elems.rend());
   v.swap(elems);
@@ -74,7 +91,7 @@ void ExtractAddress::extract(){
 
   for(int i=0; i< elems.size();i++){
     std::string line = elems.at(i);
-    //std::cout << "Extract " << line << "mode " << mode << std::endl;
+
     if (mode==0){
       boost::match_flag_type flags = boost::match_default;
       if (boost::regex_search(elems.at(i).c_str() , char_matches , plz_regex, flags)==true){
@@ -103,5 +120,10 @@ void ExtractAddress::extract(){
     if (mode>=2){
       break;
     }
+  }
+  boost::split(strs,zipCodeMap[getZipCode()],boost::is_any_of("|"));
+  if (strs.size()==2){
+    sortiergang=strs[0];
+    sortierfach=strs[1];
   }
 }

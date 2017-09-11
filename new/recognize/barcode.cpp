@@ -216,6 +216,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 
 
 void ImageRecognizeEx::barcode(){
+  initBarcodeRegions();
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
   _debugTime("start barcode");
   try{
@@ -257,7 +258,7 @@ void ImageRecognizeEx::barcode(){
   _debugTime("stop barcode");
 }
 
-void ImageRecognizeEx::initRegions(){
+void ImageRecognizeEx::initBarcodeRegions(){
   /*
   create table bbs_barcode_regions(
     machine varchar(5) not null,
@@ -312,8 +313,12 @@ void ImageRecognizeEx::initRegions(){
 
     primary key (machine,name)
   );
+
   alter table bbs_address_regions add position integer default 1;
   alter table bbs_address_regions add rotate_steps integer default 0;
+  alter table bbs_address_regions add addressposition char(1) default 'L';
+  alter table bbs_address_regions add minwidth integer default 2;
+  alter table bbs_address_regions add maxwidth integer default 12;
 
 
   insert into bbs_address_regions(
@@ -386,7 +391,18 @@ void ImageRecognizeEx::initRegions(){
 
 
 
-  sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_address_regions where machine = '"+machine+"' or machine='*' order by position ";
+
+}
+
+void ImageRecognizeEx::initAddressRegions(){
+  addressRegions.empty();
+
+  std::string addressposition = addressfield;
+  int width=orignalImage.cols/oneCM;
+  std::string swidth= std::to_string(width);
+
+  std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_address_regions where (machine = '"+machine+"' or machine='*') and (addressposition='"+addressposition+"' or addressposition='*') and maxwidth >= "+swidth+" and minwidth <= "+swidth+" order by addressposition desc,position ";
+  std::cout << "sql " << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));
@@ -424,5 +440,4 @@ void ImageRecognizeEx::initRegions(){
     }
     mysql_free_result(result);
   }
-
 }

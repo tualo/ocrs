@@ -60,6 +60,10 @@ int main( int argc, char** argv ){
   args::ValueFlag<int> pixel_cm_y(parser, "cm_y", "Pixel per CM Y (default 73)", {"cmy"});
   args::ValueFlag<int> blocksize(parser, "blocksize", "adaptiveThreshold Blocksize (default 55)", {"blocksize"});
   args::ValueFlag<int> substractmean(parser, "substractmean", "adaptiveThreshold subtractMean (default 20)", {"substractmean"});
+  args::ValueFlag<float> meanfactor(parser, "meanfactor", "multibly calculated mean with (default 1.0)", {"meanfactor"});
+
+
+
   args::ValueFlag<std::string> machine(parser, "machine", "The machine ID (default 00)", {"machine"});
   args::ValueFlag<std::string> rescaledfilename(parser, "rescaledfilename", "Save the rescaled original image as", {"rescaledfilename"});
 
@@ -119,6 +123,7 @@ int main( int argc, char** argv ){
   int int_pixel_cm_y = 73;
   int blockSize=55;
   int subtractMean=20;
+  float fmeanfactor=1;
 
 
   if (blocksize) { blockSize = args::get(blocksize); }
@@ -134,6 +139,8 @@ int main( int argc, char** argv ){
   if (machine){ std_str_machine=args::get(machine); }
   if (rescaledfilename){ std_str_rescaledfilename=args::get(rescaledfilename); }
 
+  if (meanfactor){ fmeanfactor=args::get(meanfactor); }
+
   ImageRecognizeEx* ir=ocr_ext(
     con,
     std_str_machine,
@@ -148,7 +155,8 @@ int main( int argc, char** argv ){
     debugtime==1,
     debugwindow==1,
     calculateMean==1,
-    std_str_rescaledfilename
+    std_str_rescaledfilename,
+    fmeanfactor
   );
   try{
 
@@ -168,6 +176,7 @@ int main( int argc, char** argv ){
     }
     ir->barcode();
     debugTime("after barcode");
+
     ir->correctSize();
     debugTime("after correctSize");
 

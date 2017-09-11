@@ -17,7 +17,7 @@ void ImageRecognizeEx::recalcSubstractMean(cv::Mat m){
         maxStd=(int)stddev.data[idx];
       }
     }
-    subtractMean = (-1*( (int)mean.data[6] - 128 )/2)*1.8; //light up
+    subtractMean = (-1*( (int)mean.data[6] - 128 ))*meanfactor ; //light up
     if (showDebug){
       std::cout << "use calculated substract mean " << subtractMean<< std::endl;
     }
@@ -63,6 +63,7 @@ void ImageRecognizeEx::largestContour(bool useSlow){
   orignalImage = largestSimpleContour(orignalImage);
   //largestContour(orignalImage);
   //todo resize roi image!!!
+
 }
 
 cv::Mat ImageRecognizeEx::largestSimpleContour(cv::Mat& src){

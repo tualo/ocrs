@@ -1,6 +1,9 @@
 
 
 ExtractAddress* ImageRecognizeEx::texts(){
+  initAddressRegions();
+  initZipCodeMap();
+
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
 
   if (addressRegions.empty()){
@@ -10,6 +13,7 @@ ExtractAddress* ImageRecognizeEx::texts(){
 
   RegionOfInterest* roi;
   cv::Mat bc_roi;
+
   for(std::list<RegionOfInterest*>::iterator list_iter = addressRegions.begin();
     list_iter != addressRegions.end(); list_iter++){
 
@@ -28,24 +32,37 @@ ExtractAddress* ImageRecognizeEx::texts(){
       bc_roi = orignalImage(roi->rect());
       //res = barcode_internal(bc_roi,barcodeFP);
       std::cout << "before usingRoi" << std::endl;
+
+      cv::rectangle(
+        roiImage,
+        roi->rect(),
+        cv::Scalar(1,1, 1),
+        5
+      );
       if (usingRoi(orignalImage,roi->rect(),roi->rotate(),roi->rotateSteps())){
 
         extractAddress->setString(resultText);
         extractAddress->extract();
+
+
         if (showDebug){
           std::cout << "zipcode: " << extractAddress->getZipCode() << std::endl;
           std::cout << "town: " << extractAddress->getTown() << std::endl;
           std::cout << "street: " << extractAddress->getStreetName() << std::endl;
           std::cout << "housenumber: " << extractAddress->getHouseNumber() << std::endl;
+
+          std::cout << "sortiergang: " << extractAddress->getSortRow() << std::endl;
+          std::cout << "sortierfach: " << extractAddress->getSortBox() << std::endl;
         }
 
         // draw result roi oly if there is an address
         cv::rectangle(
           roiImage,
           roi->rect(),
-          cv::Scalar(0,205, 0),
+          cv::Scalar(255,255, 255),
           5
         );
+        break;
       }
       showImage(roiImage);
   }
