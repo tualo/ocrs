@@ -74,6 +74,9 @@ public:
   void setSubtractMean(int value);
   bool is_digits(const std::string &str);
 
+  void saveRescaledOriginal(std::string filename);
+
+
   cv::Mat roiImage;
 
 private:
@@ -107,6 +110,8 @@ private:
 
   MYSQL *con;
 
+  bool bSaveRescaledOriginal;
+  std::string sSaveRescaledOriginal;
 
   cv::Mat orignalImage;
 

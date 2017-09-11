@@ -1,3 +1,3 @@
 
 
-./ocrsex -dwt -h localhost -n deg -u root --cm_y 90 -f ~/Desktop/imagedata/original/good.21002496737.jpg
+./ocrsex -dt -h localhost -n deg -u root --cmx 82 --cmy 82 -f "/Users/thomashoffmann/Desktop/files.m01-01-sep/14107|1Ngood.21002640925"

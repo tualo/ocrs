@@ -60,7 +60,8 @@ int main( int argc, char** argv ){
   args::ValueFlag<int> pixel_cm_y(parser, "cm_y", "Pixel per CM Y (default 73)", {"cmy"});
   args::ValueFlag<int> blocksize(parser, "blocksize", "adaptiveThreshold Blocksize (default 55)", {"blocksize"});
   args::ValueFlag<int> substractmean(parser, "substractmean", "adaptiveThreshold subtractMean (default 20)", {"substractmean"});
-  args::ValueFlag<std::string> machine(parser, "machine", "The machine ID", {"machine"});
+  args::ValueFlag<std::string> machine(parser, "machine", "The machine ID (default 00)", {"machine"});
+  args::ValueFlag<std::string> rescaledfilename(parser, "rescaledfilename", "Save the rescaled original image as", {"rescaledfilename"});
 
 
 
@@ -105,7 +106,8 @@ int main( int argc, char** argv ){
   debugTime("Start");
 
 
-  std::string std_str_machine="0";
+  std::string std_str_machine="00";
+  std::string std_str_rescaledfilename="";
   MYSQL *con = nullptr;
   const char* str_db_host = "localhost";
   const char* str_db_user = "root";
@@ -130,6 +132,7 @@ int main( int argc, char** argv ){
   if (db_name){ str_db_name= (args::get(db_name)).c_str(); }
   if (db_pass){ str_db_password= (args::get(db_pass)).c_str(); }
   if (machine){ std_str_machine=args::get(machine); }
+  if (rescaledfilename){ std_str_rescaledfilename=args::get(rescaledfilename); }
 
   ImageRecognizeEx* ir=ocr_ext(
     con,
@@ -144,9 +147,17 @@ int main( int argc, char** argv ){
     debug==1,
     debugtime==1,
     debugwindow==1,
-    calculateMean==1
+    calculateMean==1,
+    std_str_rescaledfilename
   );
   try{
+
+    /*
+    x=2048/903 *11
+    25
+    */
+    //903/2048
+
     ir->setPixelPerCM(int_pixel_cm_x,int_pixel_cm_y);
     ir->open((args::get(filename)).c_str());
     debugTime("after open");

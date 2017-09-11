@@ -185,6 +185,7 @@ ImageRecognizeEx::ImageRecognizeEx() :
   windowWait(50),
   debug_last_time((double)cv::getTickCount()) {
 
+  bSaveRescaledOriginal=false;
   code="";
   codes="";
   extractAddress = new ExtractAddress();
@@ -202,7 +203,7 @@ void ImageRecognizeEx::correctSize(){
   MYSQL_RES *result;
   MYSQL_ROW row;
   unsigned int num_fields;
-  unsigned int i;
+//  unsigned int i;
   std::string addressfield = "L";
   float result_cols = 0;
   float result_rows = 0;
@@ -219,7 +220,7 @@ void ImageRecognizeEx::correctSize(){
     result = mysql_use_result(con);
     num_fields = mysql_num_fields(result);
     while ((row = mysql_fetch_row(result))){
-       unsigned long *lengths;
+       //unsigned long *lengths;
        result_cols = atof(row[0]);
        result_rows = atof(row[1]);
        addressfield = row[2];
@@ -227,12 +228,25 @@ void ImageRecognizeEx::correctSize(){
        std::cout << "result_rows "  << result_rows << std::endl;
        // length is messured exact by the fp machine
        // the height is fixed by the camera
+
        rescale_rows = result_rows*oneCM / ((double)orignalImage.rows)*1.0;
+       std::cout << "rescale_rows "  << rescale_rows << " --- " << orignalImage.rows*rescale_rows << std::endl;
+
        cv::resize(orignalImage, orignalImage, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
        showImage(orignalImage);
+
     }
     mysql_free_result(result);
   }
+
+  if (bSaveRescaledOriginal==true){
+    cv::imwrite(sSaveRescaledOriginal.c_str(),orignalImage);
+  }
+}
+
+void ImageRecognizeEx::saveRescaledOriginal(std::string filename){
+  bSaveRescaledOriginal=true;
+  sSaveRescaledOriginal=filename;
 }
 
 ImageRecognizeEx::~ImageRecognizeEx() {

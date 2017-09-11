@@ -27,7 +27,8 @@ ImageRecognizeEx* ocr_ext(
   bool debug,
   bool debugtime,
   bool debugwindow,
-  bool calculateMean
+  bool calculateMean,
+  std::string saveRescaledAs
 ){
 
 
@@ -66,6 +67,10 @@ ImageRecognizeEx* ocr_ext(
     ir->setMachine(std_str_machine);
     ir->setDBConnection(con);
     ir->setCalcMean(calculateMean);
+    if (saveRescaledAs.length()>0){
+      ir->saveRescaledOriginal(saveRescaledAs);
+    }
+
 
 
     return ir;
