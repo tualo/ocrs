@@ -27,6 +27,7 @@ ExtractAddress* ImageRecognizeEx::texts(){
 
       bc_roi = orignalImage(roi->rect());
       //res = barcode_internal(bc_roi,barcodeFP);
+      std::cout << "before usingRoi" << std::endl;
       if (usingRoi(orignalImage,roi->rect(),roi->rotate(),roi->rotateSteps())){
 
         extractAddress->setString(resultText);
@@ -37,16 +38,16 @@ ExtractAddress* ImageRecognizeEx::texts(){
           std::cout << "street: " << extractAddress->getStreetName() << std::endl;
           std::cout << "housenumber: " << extractAddress->getHouseNumber() << std::endl;
         }
+
+        // draw result roi oly if there is an address
+        cv::rectangle(
+          roiImage,
+          roi->rect(),
+          cv::Scalar(0,205, 0),
+          5
+        );
       }
-
-      cv::rectangle(
-        roiImage,
-        roi->rect(),
-        cv::Scalar(0,205, 0),
-        5
-      );
       showImage(roiImage);
-
   }
   return extractAddress;
 }

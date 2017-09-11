@@ -170,6 +170,10 @@ int main( int argc, char** argv ){
     debugTime("after barcode");
     ir->correctSize();
     debugTime("after correctSize");
+
+    ir->largestContour(false);
+    debugTime("after largestContour");
+
     ir->texts();
     debugTime("after text");
   }catch(cv::Exception cv_error){

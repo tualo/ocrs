@@ -62,6 +62,7 @@ public:
   void setWait(int val);
   void setPixelPerCM(int x_cm,int y_cm);
 
+  void largestContour(bool useSlow);
   void rescale();
   void barcode();
   void correctSize();
@@ -80,7 +81,10 @@ public:
   cv::Mat roiImage;
 
 private:
-  cv::Mat largestContour(cv::Mat& src);
+  double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
+  cv::Mat largestComplexContour(cv::Mat& src);
+  cv::Mat largestSimpleContour(cv::Mat& src);
+
   bool readMatBinary(std::ifstream& ifs, cv::Mat& in_mat);
   void showImage(cv::Mat& src);
   //bcResult fast_barcode(cv::Mat& im);

@@ -67,6 +67,8 @@ ImageRecognizeEx* ocr_ext(
     ir->setMachine(std_str_machine);
     ir->setDBConnection(con);
     ir->setCalcMean(calculateMean);
+
+
     if (saveRescaledAs.length()>0){
       ir->saveRescaledOriginal(saveRescaledAs);
     }
