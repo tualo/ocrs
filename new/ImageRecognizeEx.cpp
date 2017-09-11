@@ -105,6 +105,7 @@ bool ImageRecognizeEx::readMatBinary(std::ifstream& ifs, cv::Mat& in_mat)
 
 void ImageRecognizeEx::setImage(cv::Mat mat){
   orignalImage = mat.clone();
+  roiImage=orignalImage.clone();
   showImage(orignalImage);
 
 }
@@ -113,6 +114,7 @@ void ImageRecognizeEx::open(const char* filename){
   cv::setUseOptimized(true);
   cv::Mat mat = cv::imread( filename, cv::IMREAD_GRAYSCALE );
   setImage(mat);
+
   showImage(orignalImage);
 
 }
@@ -141,9 +143,9 @@ void ImageRecognizeEx::rescale(){
     }
     showImage(orignalImage);
   }
-  oneCM = x_cm;
   roiImage=orignalImage.clone();
 }
+
 
 
 bool ImageRecognizeEx::is_digits(const std::string &str){
@@ -233,7 +235,8 @@ void ImageRecognizeEx::correctSize(){
        std::cout << "rescale_rows "  << rescale_rows << " --- " << orignalImage.rows*rescale_rows << std::endl;
 
        cv::resize(orignalImage, orignalImage, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
-       showImage(orignalImage);
+       cv::resize(roiImage, roiImage, cv::Size(roiImage.cols*rescale_cols, roiImage.rows*rescale_rows), 0, 0, 3);
+       showImage(roiImage);
 
     }
     mysql_free_result(result);
@@ -242,6 +245,7 @@ void ImageRecognizeEx::correctSize(){
   if (bSaveRescaledOriginal==true){
     cv::imwrite(sSaveRescaledOriginal.c_str(),orignalImage);
   }
+
 }
 
 void ImageRecognizeEx::saveRescaledOriginal(std::string filename){

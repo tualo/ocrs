@@ -161,8 +161,11 @@ int main( int argc, char** argv ){
     ir->setPixelPerCM(int_pixel_cm_x,int_pixel_cm_y);
     ir->open((args::get(filename)).c_str());
     debugTime("after open");
-    ir->rescale();
-    debugTime("after rescale");
+    //only rescale height if param is set up
+    if (pixel_cm_y){
+      ir->rescale();
+      debugTime("after rescale");
+    }
     ir->barcode();
     debugTime("after barcode");
     ir->correctSize();
