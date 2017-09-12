@@ -78,6 +78,7 @@ public:
 
   void saveRescaledOriginal(std::string filename);
 
+  std::string getBarcode();
 
   cv::Mat roiImage;
 

@@ -37,7 +37,7 @@ ImageRecognizeEx* ocr_ext(
 
     mysql_options(con, MYSQL_SET_CHARSET_NAME, str_db_encoding);
     mysql_options(con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
-
+    
     if (con == NULL){
       fprintf(stderr, "%s\n", mysql_error(con));
       exit(1);

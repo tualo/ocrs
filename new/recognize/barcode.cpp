@@ -1,3 +1,6 @@
+std::string ImageRecognizeEx::getBarcode(){
+  return code;
+}
 
 void  ImageRecognizeEx::useBarcodeClahe(bool val){
   barcodeClahe = val;
