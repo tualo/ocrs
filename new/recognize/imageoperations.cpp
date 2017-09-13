@@ -219,3 +219,24 @@ double ImageRecognizeEx::getOrientation(std::vector<cv::Point> &pts, cv::Mat &im
   _debugTime("stop getOrientation");
   return atan2(eigen_vecs[0].y, eigen_vecs[0].x);
 }
+
+
+
+
+cv::Mat ImageRecognizeEx::getResultImage(){
+  cv::Mat resultMat;
+  cv::adaptiveThreshold(orignalImage,resultMat,255,CV_ADAPTIVE_THRESH_GAUSSIAN_C,CV_THRESH_BINARY,blockSize,subtractMean);
+  int x=resultMat.cols /2;
+  int y=resultMat.rows /2;
+  cv::Mat res = cv::Mat(x, y, CV_8UC1);
+  cv::resize(resultMat, res, cv::Size(x, y), 0, 0, 3);
+  resultMat = res;
+  transpose(resultMat, resultMat);
+  flip(resultMat, resultMat,1);
+  return resultMat;
+
+}
+
+cv::Mat ImageRecognizeEx::getOriginalImage(){
+  return oImage;
+}

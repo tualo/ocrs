@@ -92,6 +92,9 @@ public:
 
   cv::Mat roiImage;
 
+  cv::Mat getResultImage();
+  cv::Mat getOriginalImage();
+
 private:
   double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
   cv::Mat largestComplexContour(cv::Mat& src);
@@ -133,6 +136,7 @@ private:
   std::string sSaveRescaledOriginal;
 
   cv::Mat orignalImage;
+  cv::Mat oImage;
 
   int oneCM;
   int x_cm;

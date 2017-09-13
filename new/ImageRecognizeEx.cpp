@@ -105,6 +105,7 @@ bool ImageRecognizeEx::readMatBinary(std::ifstream& ifs, cv::Mat& in_mat)
 
 void ImageRecognizeEx::setImage(cv::Mat mat){
   orignalImage = mat.clone();
+  oImage = mat.clone();
   roiImage=orignalImage.clone();
   showImage(orignalImage);
 
