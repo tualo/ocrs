@@ -49,6 +49,7 @@ public:
   int analysisType;
   int barcode_algorthim;
   int window_wait;
+  bool forceFPCode;
   MYSQL *con;
 
   std::string code;
