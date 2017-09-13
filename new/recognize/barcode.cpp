@@ -72,9 +72,9 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 
     codes="";
     // counting here down
-    for (int thres=15;((thres<220)&&(
+    for (int thres=i_bc_thres_start;((thres<=i_bc_thres_stop)&&(
       res.found==false && codeRetry==false
-    ));thres+=5){
+    ));thres+=i_bc_thres_step){
 
       if (image_clahe.channels()==1){
         cv::threshold(image_clahe,gray,thres,255, CV_THRESH_BINARY );

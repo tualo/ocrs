@@ -191,6 +191,10 @@ ImageRecognizeEx::ImageRecognizeEx() :
   debug_last_time((double)cv::getTickCount()) {
 
 
+  i_bc_thres_start=15;
+  i_bc_thres_stop=220;
+  i_bc_thres_step=5;
+
   meanfactor=1;
 
   bSaveRescaledOriginal=false;
@@ -266,6 +270,13 @@ void ImageRecognizeEx::correctSize(){
   }
 
 }
+
+void ImageRecognizeEx::setBarcodeStepSize(int value){ i_bc_thres_step = value; }
+void ImageRecognizeEx::setBarcodeStartThreshold(int value){ i_bc_thres_start = value; }
+void ImageRecognizeEx::setBarcodeStopThreshold(int value){ i_bc_thres_stop = value; }
+void ImageRecognizeEx::setBarcodeClahe(bool value){ barcodeClahe = value; }
+void ImageRecognizeEx::setBarcodeFP(bool value){ barcodeFP = value; }
+
 
 void ImageRecognizeEx::saveRescaledOriginal(std::string filename){
   bSaveRescaledOriginal=true;

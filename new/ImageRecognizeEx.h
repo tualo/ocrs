@@ -65,6 +65,13 @@ public:
   void largestContour(bool useSlow);
   void rescale();
   void barcode();
+  void setBarcodeStepSize(int value);
+  void setBarcodeStartThreshold(int value);
+  void setBarcodeStopThreshold(int value);
+  
+  void setBarcodeClahe(bool value);
+  void setBarcodeFP(bool value);
+
   void correctSize();
   ExtractAddress* texts();
 
@@ -151,5 +158,8 @@ private:
   std::list<RegionOfInterest*> barcodeRegions;
   std::list<RegionOfInterest*> addressRegions;
 
+  int i_bc_thres_start;
+  int i_bc_thres_stop;
+  int i_bc_thres_step;
 };
 #endif
