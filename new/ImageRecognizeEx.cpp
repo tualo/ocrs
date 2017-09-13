@@ -357,3 +357,6 @@ bool ImageRecognizeEx::forceFPNumber(){
   return res;
 
 }
+
+std::string ImageRecognizeEx::getKundennummer(){ return kundennummer; }
+std::string ImageRecognizeEx::getKostenstelle(){ return kostenstelle; }

@@ -86,6 +86,9 @@ public:
   void setKundennummer(std::string value);
   void setKostenstelle(std::string value);
 
+  std::string getKundennummer();
+  std::string getKostenstelle();
+
   void saveRescaledOriginal(std::string filename);
 
   std::string getBarcode();
