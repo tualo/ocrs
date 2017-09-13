@@ -160,11 +160,21 @@ int main( int argc, char** argv ){
   );
   try{
 
-    /*
-    x=2048/903 *11
-    25
-    */
-    //903/2048
+
+    // kundennummer, kostenstelle aus dem dateinamen ermitteln
+    std::string kundenid = "";
+    std::vector<std::string> strs;
+    boost::split(strs,args::get(filename),boost::is_any_of("N"));
+    if (strs.size()==2){
+      kundenid=strs[0];
+    }
+    std::vector<std::string> kstrs;
+    boost::split(kstrs,kundenid,boost::is_any_of("|"));
+    if (kstrs.size()==2){
+      ir->setKundennummer(kstrs[0]);
+      ir->setKostenstelle(kstrs[1]);
+    }
+    // -- kundennummer, kostenstelle aus dem dateinamen ermitteln
 
     ir->setPixelPerCM(int_pixel_cm_x,int_pixel_cm_y);
     ir->open((args::get(filename)).c_str());

@@ -220,6 +220,9 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 
 void ImageRecognizeEx::barcode(){
   initBarcodeRegions();
+  if (barcodeFP==false){
+    barcodeFP = forceFPNumber();
+  }
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
   _debugTime("start barcode");
   try{

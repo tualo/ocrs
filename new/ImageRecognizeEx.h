@@ -68,7 +68,7 @@ public:
   void setBarcodeStepSize(int value);
   void setBarcodeStartThreshold(int value);
   void setBarcodeStopThreshold(int value);
-  
+
   void setBarcodeClahe(bool value);
   void setBarcodeFP(bool value);
 
@@ -82,6 +82,9 @@ public:
   void setSubtractMean(int value);
   void setMeanFactor(float value);
   bool is_digits(const std::string &str);
+
+  void setKundennummer(std::string value);
+  void setKostenstelle(std::string value);
 
   void saveRescaledOriginal(std::string filename);
 
@@ -111,6 +114,7 @@ private:
   void recalcSubstractMean(cv::Mat m);
   int linearize(cv::Mat& src);
   void _debugTime(std::string str);
+  bool forceFPNumber();
 
   std::vector<std::string> &isplit(const std::string &s, char delim, std::vector<std::string>  &elems);
   std::vector<std::string> isplit(const std::string &s,char delim);
@@ -148,6 +152,8 @@ private:
   std::string code;
   std::string machine;
   std::string addressfield;
+  std::string kundennummer;
+  std::string kostenstelle;
 
   float meanfactor;
 

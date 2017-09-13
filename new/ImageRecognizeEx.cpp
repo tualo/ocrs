@@ -180,6 +180,12 @@ void ImageRecognizeEx::rotateX(cv::Mat& src,float angle,cv::Point center){
 void ImageRecognizeEx::setMeanFactor(float value){
   meanfactor=value;
 }
+void ImageRecognizeEx::setKundennummer(std::string value){
+  kundennummer=value;
+}
+void ImageRecognizeEx::setKostenstelle(std::string value){
+  kostenstelle=value;
+}
 
 ImageRecognizeEx::ImageRecognizeEx() :
   showDebug(false),
@@ -190,7 +196,8 @@ ImageRecognizeEx::ImageRecognizeEx() :
   windowWait(50),
   debug_last_time((double)cv::getTickCount()) {
 
-
+  kundennummer="0";
+  kostenstelle="0";
   i_bc_thres_start=15;
   i_bc_thres_stop=220;
   i_bc_thres_step=5;
@@ -310,4 +317,42 @@ void ImageRecognizeEx::initZipCodeMap(){
     }
     mysql_free_result(result);
   }
+}
+
+
+
+bool ImageRecognizeEx::forceFPNumber(){
+  bool res = false;
+
+  std::string fdate = "date_add(now(), interval -2 minute)";
+  std::string fdateend = "date_add(now(), interval +2 minute)";
+
+  if(const char* env_fdate = std::getenv("FORCEFPDATE")){
+    std::cout << "forceFPNumber FORCEFPDATE" << std::getenv("FORCEFPDATE") <<  std::endl;
+    fdate = "'"+std::string(env_fdate)+ " 00:00:01'";
+    fdateend = "'"+std::string(env_fdate)+ " 23:59:59'";
+  }
+
+
+  if (kundennummer!=""){
+    std::string sql = "select id from  bbs_data where kundennummer = '"+kundennummer+"' and kostenstelle = "+kostenstelle+" and machine_no='"+machine+"0' and createtime>="+fdate+" and createtime<="+fdateend+" order by id desc limit 1";
+    if (mysql_query(con, sql.c_str())){
+
+    }else{
+     MYSQL_RES *result;
+     MYSQL_ROW row;
+     unsigned int num_fields;
+  //   unsigned int i;
+     result = mysql_use_result(con);
+     num_fields = mysql_num_fields(result);
+     while ((row = mysql_fetch_row(result))){
+      std::cout << "forceFPNumber true" << std::endl;
+      res=true;
+     }
+     mysql_free_result(result);
+    }
+
+  }
+  return res;
+
 }
