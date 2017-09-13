@@ -65,8 +65,8 @@ void* processImage(void *data ){
 bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
   bool res = false;
 
-  std::string fdate = "date_add(now(), interval -5 minutes)";
-  std::string fdateend = "date_add(now(), interval +5 minutes)";
+  std::string fdate = "date_add(now(), interval -2 minutes)";
+  std::string fdateend = "date_add(now(), interval +2 minutes)";
 
   if(const char* env_fdate = std::getenv("FORCEFPDATE")){
     std::cout << "forceFPNumber FORCEFPDATE" << std::getenv("FORCEFPDATE") <<  std::endl;
