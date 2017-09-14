@@ -8,7 +8,6 @@ ExtractAddress* ImageRecognizeEx::texts(){
 
   if (addressRegions.empty()){
     std::cout << "There are not Address Regions defined " << std::endl;
-    exit(-1);
   }
 
   RegionOfInterest* roi;
