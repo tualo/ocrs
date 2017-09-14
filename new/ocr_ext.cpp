@@ -102,9 +102,9 @@ ImageRecognizeEx* ocr_ext(
       saveRescaledAs,
       fmeanfactor,
       false,
-      20,
+      10,
       220,
-      5,
+      2,
       false
     );
 }

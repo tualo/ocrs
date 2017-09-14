@@ -29,8 +29,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
     cv::Point point;
     cv::Size ksize(5,5);
 
-    int rel=0;
-    int tmp=0;
+
     bool codeRetry=false;
     if (showDebug){
       std::cout << "barcode_internal " << std::endl;
@@ -76,7 +75,7 @@ std::cout << "before loop " << std::endl;
       res.found==false && codeRetry==false
     ));thres+=i_bc_thres_step){
 
-      std::cout << " loop " << thres << std::endl;
+      //std::cout << " loop " << thres << std::endl;
 
       if (image_clahe.channels()==1){
         cv::threshold(image_clahe,gray,thres,255, CV_THRESH_BINARY );
@@ -113,6 +112,11 @@ std::cout << "before loop " << std::endl;
         std::string code = std::string(symbol->get_data().c_str());
         codes += code+" ";
         std::string type = std::string(symbol->get_type_name().c_str());
+
+std::cout << "*** (type==I2/5) && (is_digits(code)) " << ((type=="I2/5") && (is_digits(code))) << std::endl;
+std::cout << "*** (type!=I2/5) " << ( (type!="I2/5") ) << std::endl;
+std::cout << "*** (code.substr(0,4) != 0000) " << ( code.substr(0,4) != "0000" ) << std::endl;
+
         if ((code.length() > res.code.length())){
           if (
             (
@@ -128,6 +132,7 @@ std::cout << "before loop " << std::endl;
             if (type=="I2/5"){
               res.code = code.substr(0,code.length()-1);
               if (code.length()-1<11){
+
               }else{
                 res.found = true;
               }
@@ -135,65 +140,13 @@ std::cout << "before loop " << std::endl;
               res.code = code;//std::string(symbol->get_data().c_str());
               res.found = true;
             }
+            if (showDebug){
+              std::cout << "Code*: "<< res.found << " c:" << res.code << " type:" << type  << std::endl;
+            }
 
             //resultThres = thres;
             res.type = std::string(symbol->get_type_name().c_str());
-            int loc_size = symbol->get_location_size();
 
-            int min_x=9999;
-            int max_x=0;
-            int min_y=9999;
-            int max_y=0;
-
-            for(int i=0;i<loc_size;i++){
-              tmp = (symbol->get_location_y(i)*100/gray.rows);
-
-              if (max_y<symbol->get_location_y(i)){
-                max_y=symbol->get_location_y(i);
-              }
-              if (min_y>symbol->get_location_y(i)){
-                min_y=symbol->get_location_y(i);
-              }
-
-              if (max_x<symbol->get_location_x(i)){
-                max_x=symbol->get_location_x(i);
-              }
-              if (min_x>symbol->get_location_x(i)){
-                min_x=symbol->get_location_x(i);
-              }
-              if (rel<tmp){
-                rel=tmp;
-                res.point = cv::Point(symbol->get_location_x(i),symbol->get_location_y(i));
-              }
-            }
-
-            int margin = 0;//oneCM*1;
-
-            if (min_x>margin){
-              min_x-=margin;
-            }else{
-              min_x=0;
-            }
-
-            if (min_y>margin){
-              min_y-=margin;
-            }else{
-              min_y=0;
-            }
-
-            if (max_x<gray.cols-margin){
-              max_x+=margin;
-            }else{
-              max_x=gray.cols;
-            }
-
-            if (max_y<gray.rows-margin){
-              max_y+=margin;
-            }else{
-              max_y=gray.rows;
-            }
-            // to do
-            res.rect = cv::Rect(min_x,min_y,max_x-min_x,max_y-min_y);
           }
 
           if (forceFPCode){
@@ -210,10 +163,15 @@ std::cout << "before loop " << std::endl;
       }
       image.set_data(NULL, 0);
       scanner.recycle_image(image);
+
+      std::cerr << "barcode_internal (loop) " << res.found << " c:" << code << std::endl;
+
     }
   }catch(cv::Exception cv_error){
     std::cerr << "barcode_internal()" << cv_error.msg << std::endl;
   }
+  std::cerr << "barcode_internal " << res.found << " c:" << code << std::endl;
+
   _debugTime("stop barcode_internal");
   return res;
 }
@@ -222,6 +180,7 @@ std::cout << "before loop " << std::endl;
 
 void ImageRecognizeEx::barcode(){
   initBarcodeRegions();
+
   if (barcodeFP==false){
     barcodeFP = forceFPNumber();
   }

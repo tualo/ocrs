@@ -193,7 +193,7 @@ ImageRecognizeEx::ImageRecognizeEx() :
   showDebugWindow(false),
   psmAuto(false),
   barcodeClahe(false),
-  barcodeFP(true),
+  barcodeFP(false),
   windowWait(50),
   debug_last_time((double)cv::getTickCount()) {
 
