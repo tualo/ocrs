@@ -410,6 +410,8 @@ void ImageRecognizeEx::initAddressRegions(){
   std::string swidth= std::to_string(width);
 
   std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_address_regions where (machine = '"+machine+"' or machine='*') and (addressposition='"+addressposition+"' or addressposition='*') and maxwidth >= "+swidth+" and minwidth <= "+swidth+" order by addressposition desc,position ";
+  std::cout << "oneCM " << oneCM << std::endl;
+  std::cout << "orignalImage.cols " << oneCM << std::endl;
   std::cout << "sql " << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
