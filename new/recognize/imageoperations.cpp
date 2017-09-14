@@ -36,6 +36,7 @@ int ImageRecognizeEx::linearize(cv::Mat& src){
   if (src.channels()>1){
     throw std::runtime_error("Error: ImageRecognizeEx::linearize not a gray image");
   }
+  std::cout << "blockSize linearize" << blockSize << std::endl;
 
   cv::adaptiveThreshold(
       src,
