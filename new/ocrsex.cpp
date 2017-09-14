@@ -112,7 +112,7 @@ int main( int argc, char** argv ){
 
   std::string std_str_machine="00";
   std::string std_str_rescaledfilename="";
-  MYSQL *con = nullptr;
+
   const char* str_db_host = "localhost";
   const char* str_db_user = "root";
   const char* str_db_name = "sorter";
@@ -141,14 +141,26 @@ int main( int argc, char** argv ){
 
   if (meanfactor){ fmeanfactor=args::get(meanfactor); }
 
+
+  MYSQL *con = mysql_init(NULL);
+//str_db_encoding.c_str()
+  mysql_options(con, MYSQL_SET_CHARSET_NAME, "utf8");
+  mysql_options(con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
+
+  if (con == NULL){
+    fprintf(stderr, "%s\n", mysql_error(con));
+    exit(1);
+  }
+
+  if (mysql_real_connect(con, str_db_host,str_db_user, str_db_password,   str_db_name, 0, NULL, 0) == NULL){
+    fprintf(stderr, "%s\n", mysql_error(con));
+    mysql_close(con);
+    exit(1);
+  }
+
   ImageRecognizeEx* ir=ocr_ext(
     con,
     std_str_machine,
-    str_db_host,
-    str_db_user,
-    str_db_name,
-    str_db_password,
-    str_db_encoding,
     blockSize,
     subtractMean,
     debug==1,

@@ -18,11 +18,6 @@
 ImageRecognizeEx* ocr_ext(
   MYSQL* con,
   std::string std_str_machine,
-  const char* str_db_host,
-  const char* str_db_user,
-  const char* str_db_name,
-  const char* str_db_password,
-  const char* str_db_encoding,
   int blockSize,
   int subtractMean,
   bool debug,
@@ -37,7 +32,7 @@ ImageRecognizeEx* ocr_ext(
   int bc_thres_step,
   bool forceFPCode
 ){
-  con = mysql_init(NULL);
+  /*con = mysql_init(NULL);
 
   mysql_options(con, MYSQL_SET_CHARSET_NAME, str_db_encoding);
   mysql_options(con, MYSQL_INIT_COMMAND, "SET NAMES utf8");
@@ -60,7 +55,7 @@ ImageRecognizeEx* ocr_ext(
     std::cout << "  " << "User: " << str_db_user << std::endl;
   }
 
-
+  */
   ImageRecognizeEx* ir = new ImageRecognizeEx();
   ir->setDebug(debug);
   ir->setDebugWindow(debugwindow);
@@ -86,11 +81,6 @@ ImageRecognizeEx* ocr_ext(
 ImageRecognizeEx* ocr_ext(
   MYSQL* con,
   std::string std_str_machine,
-  const char* str_db_host,
-  const char* str_db_user,
-  const char* str_db_name,
-  const char* str_db_password,
-  const char* str_db_encoding,
   int blockSize,
   int subtractMean,
   bool debug,
@@ -103,11 +93,6 @@ ImageRecognizeEx* ocr_ext(
     return ocr_ext(
       con,
       std_str_machine,
-      str_db_host,
-      str_db_user,
-      str_db_name,
-      str_db_password,
-      str_db_encoding,
       blockSize,
       subtractMean,
       debug,
