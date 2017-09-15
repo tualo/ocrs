@@ -57,6 +57,7 @@ ImageRecognizeEx* ocr_ext(
 
   */
   ImageRecognizeEx* ir = new ImageRecognizeEx();
+  ir->_debugTime("START ImageRecognizeEx");
   ir->setDebug(debug);
   ir->setDebugWindow(debugwindow);
   ir->setDebugTime(debugtime);
