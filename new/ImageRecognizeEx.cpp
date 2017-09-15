@@ -302,6 +302,7 @@ void ImageRecognizeEx::initZipCodeMap(){
   if (showDebug){
     std::cout << "initZipCodeMap ToDo: check customer for locked zipcodes" << std::endl;
   }
+    _debugTime("start initZipCodeMap");
   std::string sql = "select bereiche_plz.plz, sortiergaenge_zuordnung.sortiergang, sortiergaenge_zuordnung.sortierfach, sortiergaenge_zuordnung.regiogruppe from sortiergaenge_zuordnung join bereiche_plz on sortiergaenge_zuordnung.bereich = bereiche_plz.name and sortiergaenge_zuordnung.regiogruppe = bereiche_plz.regiogruppe having sortiergaenge_zuordnung.regiogruppe='Zustellung' ";
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
@@ -321,6 +322,7 @@ void ImageRecognizeEx::initZipCodeMap(){
     }
     mysql_free_result(result);
   }
+  _debugTime("stop initZipCodeMap");
 }
 
 
