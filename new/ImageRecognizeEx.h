@@ -74,6 +74,7 @@ public:
 
   void correctSize();
   ExtractAddress* texts();
+  void _debugTime(std::string str);
 
 
   void setMachine(std::string val);
@@ -119,7 +120,7 @@ private:
   std::string getText(cv::Mat& im);
   void recalcSubstractMean(cv::Mat m);
   int linearize(cv::Mat& src);
-  void _debugTime(std::string str);
+
   bool forceFPNumber();
 
   std::vector<std::string> &isplit(const std::string &s, char delim, std::vector<std::string>  &elems);

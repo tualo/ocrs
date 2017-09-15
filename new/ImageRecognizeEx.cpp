@@ -127,6 +127,7 @@ void ImageRecognizeEx::setPixelPerCM(int _x_cm,int _y_cm){
 }
 
 void ImageRecognizeEx::rescale(){
+  _debugTime("start rescale");
   double rescale_cols=1;
   double rescale_rows=1;
   if (x_cm!=y_cm){
@@ -144,6 +145,7 @@ void ImageRecognizeEx::rescale(){
     showImage(orignalImage);
   }
   roiImage=orignalImage.clone();
+  _debugTime("stop rescale");
 }
 
 
