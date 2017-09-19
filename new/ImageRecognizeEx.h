@@ -103,7 +103,7 @@ private:
   double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
   cv::Mat largestComplexContour(cv::Mat& src);
   cv::Mat largestSimpleContour(cv::Mat& src);
-
+  int calcmeanValue(cv::Mat m);
   bool readMatBinary(std::ifstream& ifs, cv::Mat& in_mat);
   void showImage(cv::Mat& src);
   //bcResult fast_barcode(cv::Mat& im);

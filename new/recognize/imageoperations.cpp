@@ -1,4 +1,37 @@
 
+int ImageRecognizeEx::calcmeanValue(cv::Mat m){
+  int int_mean = 128;
+  cv::Mat mean;
+  cv::Mat stddev;
+  cv::meanStdDev(m,mean,stddev);
+  int idx =0;
+  int minStd = 255;
+  int maxStd = 0;
+  int minMean = 255;
+  int maxMean = 0;
+  for(idx=0;idx<sizeof(stddev.data);idx++){
+    if (minStd>(int)stddev.data[idx]){
+      minStd=(int)stddev.data[idx];
+    }
+    if (maxStd<(int)stddev.data[idx]){
+      maxStd=(int)stddev.data[idx];
+    }
+  }
+
+  for(idx=0;idx<sizeof(mean.data);idx++){
+    if (minMean>(int)mean.data[idx]){
+      minMean=(int)mean.data[idx];
+    }
+    if (maxMean<(int)mean.data[idx]){
+      maxMean=(int)mean.data[idx];
+    }
+  }
+
+  std::cout << "minStd " << minStd << " maxStd " << maxStd << std::endl;
+  std::cout << "minMean " << minMean << " maxMean " << maxMean << std::endl;
+  int_mean = (-1*( (int)mean.data[6] - 128 ));
+  return 255-maxMean;
+}
 
 void ImageRecognizeEx::recalcSubstractMean(cv::Mat m){
   if(calcMean){
@@ -36,59 +69,117 @@ int ImageRecognizeEx::linearize(cv::Mat& src){
   if (src.channels()>1){
     throw std::runtime_error("Error: ImageRecognizeEx::linearize not a gray image");
   }
-  std::cout << "blockSize linearize" << blockSize << std::endl;
+
+  //std::cout << "calcmeanValue(src) " << calcmeanValue(src) << std::endl;
 
   cv::adaptiveThreshold(
       src,
       src,
       255,
       CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-      CV_THRESH_BINARY,
+      CV_THRESH_BINARY,//blockSize,calcmeanValue(src));/*,
       blockSize,
       subtractMean
   );
 
   _debugTime("stop linearize");
   showImage(src);
+  showImage(src);
   return 0;
 }
 
 void ImageRecognizeEx::rotate(cv::Mat& src, int direction){
-  transpose(src, src);
-  flip(src, src, direction);
+  if (direction>0){
+    while(direction>0){
+      transpose(src, src);
+      flip(src, src, direction);
+      direction--;
+    }
+  }else{
+    while(direction<0){
+      transpose(src, src);
+      flip(src, src, direction);
+      direction++;
+    }
+  }
 }
 
 
 
 void ImageRecognizeEx::largestContour(bool useSlow){
   orignalImage = largestSimpleContour(orignalImage);
-  //largestContour(orignalImage);
+  //orignalImage = largestComplexContour(orignalImage);
   //todo resize roi image!!!
 
 }
 
 cv::Mat ImageRecognizeEx::largestSimpleContour(cv::Mat& src){
   _debugTime("start largestSimpleContour");
-  int blength = src.cols;
+
+  cv::Mat thr;
+  cv::threshold(src, thr,subtractMean, 255,cv::THRESH_BINARY);
+
+
+  int blength = thr.cols;
   int i=blength;
-  int firstRow = (int)src.rows*0.1;
-  int midRow = (int)src.rows*0.5;
-  int lastRow = (int)src.rows*0.9;
+  int h=0;
+  int height = thr.rows;
+
+
   double lastAVG = 255;
-  double currentAVG = 255;
+  int currentAVG = 255;
+  int divisor=0;
+  int avglength = 20;
+  double cAVG=0;
+  char avgbuffer[avglength];
+  bzero(avgbuffer,avglength);
+  char cavgbuffer[avglength];
+  bzero(cavgbuffer,avglength);
+  for(;i>199;i--){
 
-  for(;i>0;i--){
+    divisor=0;
+    currentAVG=0;
+    for(h=0;h<height;h+=5){
+      currentAVG += thr.at<uchar>(h,i);
+      divisor++;
+    }
+    currentAVG /=divisor;
+    /*
+    if (currentAVG>lastAVG*2){
+      break;
+    }
+    */
+    //std::cout << "currentAVG at i " << currentAVG << " - " << lastAVG << std::endl;
+    lastAVG=0;
+    cAVG=0;
+    for(h=avglength-1;h>0;h--){
+      avgbuffer[h]=avgbuffer[h-1];
+      lastAVG+=avgbuffer[h];
+    }
+    for(h=avglength-1;h>0;h--){
+      cavgbuffer[h]=cavgbuffer[h-1];
+      cAVG+=cavgbuffer[h];
+    }
+    lastAVG=lastAVG/(avglength-1);
+    cAVG=(cAVG+currentAVG)/(avglength);
 
-     currentAVG = (double)src.at<uchar>(firstRow,i)/3 + (double)src.at<uchar>(midRow,i)/3 + (double)src.at<uchar>(lastRow,i)/3;
-     if (currentAVG>lastAVG*2){
-       break;
-     }
-     lastAVG=currentAVG;
+    //std::cout << "currentAVG at i "<< i << " current " << cAVG << " - last " << lastAVG << std::endl;
+    if ((i<blength-avglength*2) && (cAVG>lastAVG)) {
+      //std::cout << "rising edge " << cAVG << " vs. " << lastAVG << std::endl;
+      break;
+    }
+    avgbuffer[0]=currentAVG;
+    cavgbuffer[0]=currentAVG;
   }
-  std::cout << "largestSimpleContour at i " << i << std::endl;
-  cv::Rect myROI(0, 0, i, src.rows);
+  //std::cout << "largestSimpleContour at i " << i << std::endl;
+  if (i<200){
+    std::cerr << "this should not happen the contour is to small " << i << " use the hole image "<< std::endl;
+    i=blength;
+  }
+  cv::Rect myROI(0, 0, i, thr.rows);
   cv::Mat result = orignalImage(myROI);
   roiImage = roiImage(myROI);
+
   _debugTime("stop largestSimpleContour");
   return result;
 }

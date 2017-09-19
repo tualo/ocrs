@@ -18,6 +18,7 @@ ExtractAddress* ImageRecognizeEx::texts(){
 
 
       roi=*list_iter;
+
       if (showDebug){
         std::cout << "check region image: " << orignalImage.cols << " "  << orignalImage.rows << " oneCM " << oneCM << std::endl;
       }
@@ -102,7 +103,12 @@ bool ImageRecognizeEx::usingRoi(cv::Mat& im,cv::Rect roi2, int irotate, int iste
     if (showDebug){
       std::cout << "irotate: " << irotate << std::endl;
     }
+    std::cout << "substractMeanValue: " << subtractMean << std::endl;
+    std::cout << "calcmeanValue: " << calcmeanValue(c2) << std::endl;
+
+    showImage(c2);
     rotate(c2,irotate);
+    showImage(c2);
   }else{
     if (showDebug){
       std::cout << "do not rotate: " << irotate << std::endl;

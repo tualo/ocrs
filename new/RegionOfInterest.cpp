@@ -55,8 +55,10 @@ cv::Rect RegionOfInterest::rect(){
 
   if (image.cols<(roi.x+roi.width)){
     roi.width=image.cols-roi.x;
+
     std::cerr << "RegionOfInterest::rect width problem, setting to max" << std::endl;
   }
+
   return roi;
 }
 
