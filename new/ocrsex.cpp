@@ -5,6 +5,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/convenience.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 
 #include "opencv2/imgproc/imgproc.hpp"
@@ -31,6 +32,7 @@ void debugTime(std::string str){
 }
 #include "ocr_ext.cpp"
 
+boost::format quicksvfmt("call quicksv('%s','%s','%s','%s','%s', '%s','%s','%s','%s','%s') ");
 
 
 
@@ -42,8 +44,12 @@ int main( int argc, char** argv ){
   args::Flag debugtime(parser, "debugtime", "Show times", {'t', "debugtime"});
 
   args::Flag calculateMean(parser, "calculatemean", "calculatemean for adaptiveThreshold", {"calculatemean"});
+  args::Flag savedb(parser, "savedb", "store results in db", {"savedb"});
+  args::Flag removeorignal(parser, "removeorignal", "remove orignal file", {"removeorignal"});
+
 
   args::ValueFlag<std::string> filename(parser, "filename", "The filename", {'f',"file"});
+  args::ValueFlag<std::string> argresultpath(parser, "resultpath", "The resultpath", {"result"});
 
   args::ValueFlag<std::string> db_host(parser, "host", "The database server host", {'h',"host"});
   args::ValueFlag<std::string> db_name(parser, "name", "The database name", {'n',"name"});
@@ -112,6 +118,7 @@ int main( int argc, char** argv ){
 
   std::string std_str_machine="00";
   std::string std_str_rescaledfilename="";
+  std::string resultpath="/tmp/";
 
   const char* str_db_host = "localhost";
   const char* str_db_user = "root";
@@ -137,6 +144,8 @@ int main( int argc, char** argv ){
   if (db_name){ str_db_name= (args::get(db_name)).c_str(); }
   if (db_pass){ str_db_password= (args::get(db_pass)).c_str(); }
   if (machine){ std_str_machine=args::get(machine); }
+  if (argresultpath){ resultpath=args::get(argresultpath); }
+
   if (rescaledfilename){ std_str_rescaledfilename=args::get(rescaledfilename); }
 
   if (meanfactor){ fmeanfactor=args::get(meanfactor); }
@@ -205,8 +214,89 @@ int main( int argc, char** argv ){
     ir->largestContour(false);
     debugTime("after largestContour");
 
-    ir->texts();
+
+
+
+    ExtractAddress* ea = ir->texts();
     debugTime("after text");
+
+
+    if (ea->foundAddress()){
+      std::cout << "ZipCode " << ea->getZipCode() << std::endl;
+    }else{
+      std::cout << "No ZipCode " << std::endl;
+    }
+    std::string sql = boost::str(quicksvfmt % ir->getBarcode() % ea->getZipCode() % ea->getTown() % ea->getStreetName() % ea->getHouseNumber() % ea->getSortRow() % ea->getSortBox() % ea->getString() % ir->getKundennummer() % ir->getKostenstelle());
+    if (savedb==1){
+      if (mysql_query(con, sql.c_str())){
+        fprintf(stderr, "%s\n", mysql_error(con));
+      }
+    }
+
+    cv::Mat im = ir->getResultImage();
+    std::string prefix = "";
+    std::vector<int> params;
+    std::string code = ir->getBarcode();
+
+
+    if (code==""){
+      // no code
+      prefix = "nocode";
+      struct timeval ts;
+      gettimeofday(&ts,NULL);
+      boost::format cfmt = boost::format("%012d.%06d") % ts.tv_sec % ts.tv_usec;
+      code = cfmt.str();
+      im = ir->getOriginalImage();
+    }else if(ea->foundAddress()){
+      prefix = "good";
+      params.push_back(CV_IMWRITE_JPEG_QUALITY);
+      params.push_back(80);
+    }else{
+      prefix = "noaddress";
+      im = ir->getOriginalImage();
+      params.push_back(CV_IMWRITE_JPEG_QUALITY);
+      params.push_back(80);
+    }
+    boost::format fmt = boost::format("%s%s.%s.jpg") % resultpath % prefix % code;
+    std::string fname = fmt.str();
+    std::cout << fname << std::endl;
+
+
+
+  //  mysql_close(con);
+
+    //double _since_start = ( ((double)cv::getTickCount() - _start_time)/cv::getTickFrequency() );
+    std::cout << "#########################################" << std::endl;
+    std::cout << "code: " << ir->getBarcode() << std::endl;
+    std::cout << "zipcode: " << ea->getZipCode() << std::endl;
+    std::cout << "town: " << ea->getTown() << std::endl;
+    std::cout << "street: " << ea->getStreetName() << std::endl;
+    std::cout << "housenumber: " << ea->getHouseNumber() << std::endl;
+    std::cout << "sortiergang: " << ea->getSortRow() << std::endl;
+    std::cout << "sortierfach: " << ea->getSortBox() << std::endl;
+    //std::cout << "zeit: " << _since_start << "s" << std::endl;
+    std::cout << "#########################################" << std::endl;
+
+    //int system_result;
+    //system_result = system( "curl -u admin:password \"http://192.168.192.244/io.cgi?DOA1=3\"" );
+    //std::cout << "#########################################" << std::endl;
+
+
+
+    //runningTasks--;
+    //mutex.unlock();
+    if (savedb==1){
+      cv::imwrite(fname.c_str(),im,params);
+    }
+    if (removeorignal==1){
+      std::string oname=args::get(filename);
+
+      if ( remove( oname.c_str() ) != 0 ) {
+        perror( "Error deleting file" );
+        exit(1);
+      }
+    }
+
   }catch(cv::Exception cv_error){
     std::cerr << "***" << cv_error.msg << std::endl;
   }
