@@ -6,7 +6,11 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
+#include <boost/chrono.hpp>
 
+#include <stdio.h>
+#include <cstdlib>
+#include <fstream>
 
 #include "opencv2/imgproc/imgproc.hpp"
 #include <pthread.h>
