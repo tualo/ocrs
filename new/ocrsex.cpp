@@ -8,6 +8,7 @@
 #include <boost/format.hpp>
 #include <boost/chrono.hpp>
 
+#include <sys/time.h>
 #include <stdio.h>
 #include <cstdlib>
 #include <fstream>
