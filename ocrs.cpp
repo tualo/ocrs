@@ -456,8 +456,14 @@ int main( int argc, char** argv ){
 
         }
         */
-
+        /*
         bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','good','')";
+        if (mysql_query(con, bbs_check_sql.c_str())){
+          fprintf(stderr, "%s\n", mysql_error(con));
+        }
+        */
+
+        bbs_check_sql = "call BBS_CHECK_OCR_ID('"+machine_id+"','good','','"+ir->code+"')";
         if (mysql_query(con, bbs_check_sql.c_str())){
           fprintf(stderr, "%s\n", mysql_error(con));
         }
@@ -483,7 +489,13 @@ int main( int argc, char** argv ){
         if (mysql_query(con, protokollsql.c_str())){
         }
         */
+        /*
         bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','noaddress','nostreet')";
+        if (mysql_query(con, bbs_check_sql.c_str())){
+          fprintf(stderr, "%s\n", mysql_error(con));
+        }
+        */
+        bbs_check_sql = "call BBS_CHECK_OCR_ID('"+machine_id+"','noaddress','nostreet','"+ir->code+"')";
         if (mysql_query(con, bbs_check_sql.c_str())){
           fprintf(stderr, "%s\n", mysql_error(con));
         }
@@ -514,8 +526,14 @@ int main( int argc, char** argv ){
       }else{
         cv::imwrite( newfile.c_str(),ir->orignalImage,params);
       }
-
+      /*
       bbs_check_sql = "call BBS_CHECK_OCR('"+machine_id+"','noaddress','nozipcode')";
+      if (mysql_query(con, bbs_check_sql.c_str())){
+        fprintf(stderr, "%s\n", mysql_error(con));
+      }
+      */
+
+      bbs_check_sql = "call BBS_CHECK_OCR_ID('"+machine_id+"','noaddress','nozipcode','"+ir->code+"')";
       if (mysql_query(con, bbs_check_sql.c_str())){
         fprintf(stderr, "%s\n", mysql_error(con));
       }

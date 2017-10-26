@@ -108,15 +108,25 @@ void ImageRecognize::open(const char* filename){
   */
 
   tess->Init(NULL, (char*)"deu", tesseract::OEM_DEFAULT);
-
+/*
+  std::cout << "cols " << orignalImage.cols << std::endl;
+  std::cout << "cols " << orignalImage.rows << std::endl;
+  std::cout << "scale " << scale << std::endl;
+*/
   cv::Mat minmat = cv::Mat(orignalImage.cols*scale, orignalImage.rows, CV_32FC3);
+//  std::cout << "scale: " << 1 << std::endl;
   cv::resize(orignalImage, minmat, cv::Size(orignalImage.cols*scale, orignalImage.rows), 0, 0, 3);
+//  std::cout << "scale: " << 1 << std::endl;
   orignalImage = minmat;
+//  std::cout << "scale: " << 1 << std::endl;
 
   oneCM = orignalImage.cols/cmWidth;
 
+//  std::cout << "here " << 1 << std::endl;
   cv::Mat mat(  orignalImage.rows*2,orignalImage.cols*2, orignalImage.type(), cv::Scalar(0));
+//  std::cout << "here " << 1 << std::endl;
   cv::Rect roi( cv::Point( orignalImage.cols/2, (orignalImage.rows/2) ), orignalImage.size() );
+//  std::cout << "here " << 2 << std::endl;
 
   orignalImage.copyTo( mat( roi ) );
   //makeResultImage(orignalImage,1);
