@@ -74,13 +74,16 @@ bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
     fdateend = "'"+std::string(env_fdate)+ " 23:59:59'";
   }
 
+
+
   std::vector<std::string> strs;
   boost::split(strs,kunde,boost::is_any_of("|"));
 
   if (strs.size()==2){
     std::string sql = "select id from  bbs_data where kundennummer = '"+strs[0]+"' and kostenstelle = "+strs[1]+" and machine_no='"+maschine+"0' and createtime>="+fdate+" and createtime<="+fdateend+" order by id desc limit 1";
+    std::cout << "forceFPNumber" << sql << std::endl;
     if (mysql_query(con, sql.c_str())){
-
+      fprintf(stderr, "%s\n", mysql_error(con));
     }else{
      MYSQL_RES *result;
      MYSQL_ROW row;
