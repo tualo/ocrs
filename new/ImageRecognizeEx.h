@@ -17,6 +17,7 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 #include <leptonica/allheaders.h>
 #include <tesseract/baseapi.h>
@@ -65,6 +66,10 @@ public:
   void largestContour(bool useSlow);
   void rescale();
   void barcode();
+  void checkPixels();
+  void updateTimeStatistic(double tm);
+  void updateResultfilename(std::string res);
+
   void setBarcodeStepSize(int value);
   void setBarcodeStartThreshold(int value);
   void setBarcodeStopThreshold(int value);
@@ -110,6 +115,11 @@ private:
   bcResult barcode_internal(cv::Mat& im, bool forceFPCode);
   void rotateX(cv::Mat& src,float angle,cv::Point center);
   void rotate(cv::Mat& src, int direction);
+
+  void initStatistics();
+  void updateStatistics(std::string field,std::string val);
+  void updateStatistics(std::string field,double val);
+  void updateStatistics(std::string field,int val);
 
   void initBarcodeRegions();
   void initAddressRegions();
@@ -175,5 +185,13 @@ private:
   int i_bc_thres_start;
   int i_bc_thres_stop;
   int i_bc_thres_step;
+
+  double rescale_cols;
+  double rescale_rows;
+
+
+  boost::format updateStatisticsDouble;//("update ocrs_statistics set `%s` = '%s' where `code`='%9.6f' ");
+  boost::format updateStatisticsString;//("update ocrs_statistics set `%s` = '%s' where `code`='%s' ");
+
 };
 #endif

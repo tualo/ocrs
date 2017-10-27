@@ -215,6 +215,8 @@ void ImageRecognizeEx::barcode(){
             cv::Scalar(205, 0, 0),
             5
           );
+          initStatistics();
+          updateStatistics("state","barcodecode");
           showImage(roiImage);
         }
 
@@ -353,6 +355,7 @@ void ImageRecognizeEx::initBarcodeRegions(){
 
 
     }
+    for(; mysql_next_result(con) == 0;) /* do nothing */;
     mysql_free_result(result);
   }
 
@@ -407,6 +410,7 @@ void ImageRecognizeEx::initAddressRegions(){
        roi->setPixelPerCM(oneCM);
        addressRegions.push_back(roi);
     }
+    for(; mysql_next_result(con) == 0;) /* do nothing */;
     mysql_free_result(result);
   }
 }

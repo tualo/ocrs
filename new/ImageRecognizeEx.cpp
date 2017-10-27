@@ -2,6 +2,7 @@
 #include "recognize/barcode.cpp"
 #include "recognize/imageoperations.cpp"
 #include "recognize/text.cpp"
+#include "recognize/statistics.cpp"
 
 void ImageRecognizeEx::showImage(cv::Mat& src){
   if (showDebugWindow){
@@ -128,8 +129,8 @@ void ImageRecognizeEx::setPixelPerCM(int _x_cm,int _y_cm){
 
 void ImageRecognizeEx::rescale(){
   _debugTime("start rescale");
-  double rescale_cols=1;
-  double rescale_rows=1;
+  rescale_cols=1;
+  rescale_rows=1;
   if (x_cm!=y_cm){
     // only rescale if it's nessesary
     rescale_rows=(double)x_cm/(double)y_cm;
@@ -212,6 +213,10 @@ ImageRecognizeEx::ImageRecognizeEx() :
   codes="";
   addressfield = "L";
 
+  updateStatisticsDouble = boost::format("update ocrs_statistics set `%s` = '%s' where `code`='%9.6f' ");
+  updateStatisticsString = boost::format("update ocrs_statistics set `%s` = '%s' where `code`='%s' ");
+
+
   extractAddress = new ExtractAddress();
 
 
@@ -272,6 +277,7 @@ void ImageRecognizeEx::correctSize(){
 
 
     }
+    for(; mysql_next_result(con) == 0;) /* do nothing */;
     mysql_free_result(result);
   }
 
@@ -322,6 +328,7 @@ void ImageRecognizeEx::initZipCodeMap(){
        //unsigned long *lengths;
        extractAddress->setZipcodeHash(std::string( row[0] ),std::string( row[1] ),std::string( row[2] ));
     }
+    for(; mysql_next_result(con) == 0;) /* do nothing */;
     mysql_free_result(result);
   }
   _debugTime("stop initZipCodeMap");
@@ -357,12 +364,20 @@ bool ImageRecognizeEx::forceFPNumber(){
       std::cout << "forceFPNumber true" << std::endl;
       res=true;
      }
+     for(; mysql_next_result(con) == 0;) /* do nothing */;
      mysql_free_result(result);
     }
 
   }
   return res;
 
+}
+
+void ImageRecognizeEx::updateTimeStatistic(double tm){
+  updateStatistics("running",tm);
+}
+void ImageRecognizeEx::updateResultfilename(std::string res){
+  updateStatistics("resultfilename",res);
 }
 
 std::string ImageRecognizeEx::getKundennummer(){ return kundennummer; }

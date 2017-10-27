@@ -46,6 +46,8 @@ ExtractAddress* ImageRecognizeEx::texts(){
 
 
         if (showDebug){
+          updateStatistics("roi",roi->name());
+          std::cout << "used address roi: " << roi->name() << std::endl;
           std::cout << "zipcode: " << extractAddress->getZipCode() << std::endl;
           std::cout << "town: " << extractAddress->getTown() << std::endl;
           std::cout << "street: " << extractAddress->getStreetName() << std::endl;
@@ -53,6 +55,7 @@ ExtractAddress* ImageRecognizeEx::texts(){
 
           std::cout << "sortiergang: " << extractAddress->getSortRow() << std::endl;
           std::cout << "sortierfach: " << extractAddress->getSortBox() << std::endl;
+          updateStatistics("state","address");
         }
 
         // draw result roi oly if there is an address
@@ -199,6 +202,7 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
         }
         resultThres = lastThreshold;
         _debugTime("stop containsZipCode, found");
+
         return true;
       }
     }

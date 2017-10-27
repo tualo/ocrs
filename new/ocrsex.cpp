@@ -22,6 +22,9 @@
 
 #include "ImageRecognizeEx.h"
 
+#include <opencv2/core/ocl.hpp>
+
+
 double debug_start_time = (double)cv::getTickCount();
 double debug_last_time = (double)cv::getTickCount();
 double debug_window_offset = 0;
@@ -42,11 +45,14 @@ boost::format quicksvfmt("call quicksv('%s','%s','%s','%s','%s', '%s','%s','%s',
 
 
 int main( int argc, char** argv ){
+
+
   args::ArgumentParser parser("Ocrs reconize barcodes and text.", "Take care depending on speed Pixel per CM Y can vary");
   args::HelpFlag help(parser, "help", "Display this help menu", { "help"});
   args::Flag debug(parser, "debug", "Show debug messages", {'d', "debug"});
   args::Flag debugwindow(parser, "debugwindow", "Show debug window", {'w', "debugwindow"});
   args::Flag debugtime(parser, "debugtime", "Show times", {'t', "debugtime"});
+  args::Flag disableopencl(parser, "disableopencl", "disable opencl", {"disableopencl"});
 
   args::Flag calculateMean(parser, "calculatemean", "calculatemean for adaptiveThreshold", {"calculatemean"});
   args::Flag savedb(parser, "savedb", "store results in db", {"savedb"});
@@ -120,6 +126,9 @@ int main( int argc, char** argv ){
   bDebugTime = (debugtime==1);
   debugTime("Start");
 
+  if (disableopencl==1){
+    cv::ocl::setUseOpenCL(false);
+  }
 
   std::string std_str_machine="00";
   std::string std_str_rescaledfilename="";
@@ -220,6 +229,8 @@ int main( int argc, char** argv ){
     debugTime("after largestContour");
 
 
+    ir->checkPixels();
+    ir->barcode();
 
 
     ExtractAddress* ea = ir->texts();
@@ -236,6 +247,7 @@ int main( int argc, char** argv ){
       if (mysql_query(con, sql.c_str())){
         fprintf(stderr, "%s\n", mysql_error(con));
       }
+      for(; mysql_next_result(con) == 0;) /* do nothing */;
     }
 
     cv::Mat im = ir->getResultImage();
@@ -286,13 +298,15 @@ int main( int argc, char** argv ){
     //system_result = system( "curl -u admin:password \"http://192.168.192.244/io.cgi?DOA1=3\"" );
     //std::cout << "#########################################" << std::endl;
 
-
+    ir->updateTimeStatistic(((double)cv::getTickCount() - debug_start_time)/cv::getTickFrequency());
 
     //runningTasks--;
     //mutex.unlock();
     if (savedb==1){
+      ir->updateResultfilename(fname.c_str());
       cv::imwrite(fname.c_str(),im,params);
     }
+
     if (removeorignal==1){
       std::string oname=args::get(filename);
 
