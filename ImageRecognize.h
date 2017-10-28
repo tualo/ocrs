@@ -41,6 +41,7 @@ public:
   bool debug;
   bool headOver;
   bool psmAuto;
+  bool forceFPCode;
   bool windowalltogether;
   bool barcode_light_correction;
   bool light_up_original;
