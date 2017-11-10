@@ -5,13 +5,15 @@
 #include <my_global.h>
 #include <mysql.h>
 
-#ifdef ulonglong
-  #undef ulonglong
+#ifdef int64
+  #undef int64
 #endif
 
-#ifdef longlong
-  #undef longlong
+#ifdef uint64
+  #undef uint64
 #endif
+
+
 
 #include "opencv2/highgui/highgui.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
