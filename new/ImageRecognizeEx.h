@@ -2,16 +2,11 @@
 #ifndef IMAGERECOGNIZEEX_H
 #define IMAGERECOGNIZEEX_H
 
+
 #include <my_global.h>
 #include <mysql.h>
 
-#ifdef int64
-  #undef int64
-#endif
 
-#ifdef uint64
-  #undef uint64
-#endif
 
 
 
