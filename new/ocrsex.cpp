@@ -199,7 +199,7 @@ int main( int argc, char** argv ){
     // kundennummer, kostenstelle aus dem dateinamen ermitteln
     std::string kundenid = "";
     std::vector<std::string> strs;
-    boost::split(strs,args::get(filename),boost::is_any_of("N"));
+    boost::split(strs,boost::filesystem::basename(args::get(filename)),boost::is_any_of("N"));
     if (strs.size()==2){
       kundenid=strs[0];
     }
