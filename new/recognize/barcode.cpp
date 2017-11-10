@@ -164,7 +164,7 @@ std::cout << "*** (code.substr(0,4) != 0000) " << ( code.substr(0,4) != "0000" )
       image.set_data(NULL, 0);
       scanner.recycle_image(image);
 
-      std::cerr << "barcode_internal (loop) " << res.found << " c:" << code << std::endl;
+      //std::cerr << "barcode_internal (loop) " << res.found << " c:" << code << std::endl;
 
     }
   }catch(cv::Exception cv_error){

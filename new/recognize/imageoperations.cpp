@@ -126,12 +126,14 @@ void ImageRecognizeEx::checkPixels(){
     unsigned int num_fields;
     double length;
     double height;
+    bool wasfound=false;
     result = mysql_use_result(con);
     num_fields = mysql_num_fields(result);
     while ((row = mysql_fetch_row(result))){
        length = atof(row[0]);
        height = atof(row[1]);
 
+       wasfound=true;
     }
     for(; mysql_next_result(con) == 0;) /* do nothing */;
     mysql_free_result(result);
@@ -141,18 +143,27 @@ void ImageRecognizeEx::checkPixels(){
     updateStatistics("letter_length",length);
     updateStatistics("image_rows",orignalImage.rows);
     updateStatistics("image_cols",orignalImage.cols);
+
     updateStatistics("CMY", (orignalImage.rows/rescale_rows/(length/100)) ) ;
     updateStatistics("CMX", (orignalImage.cols/rescale_cols/(height/100)) );
 
 
     if (showDebug){
      std::cout << "################################################" << std::endl;
+     if (wasfound==true){
+       std::cout << "FOUND SIZE FROM MACHINE " << std::endl;
+     }
      std::cout << "LETTERSIZE height " << height << ", length " << length << std::endl;
      std::cout << "IMAGE cols " << orignalImage.cols << ", rows " << orignalImage.rows << std::endl;
      std::cout << "CMY " << (orignalImage.rows/rescale_rows/(length/100)) << std::endl;
      std::cout << "CMX " << (orignalImage.cols/rescale_cols/(height/100)) << " (only valid on DIN LANG)" << std::endl;
      std::cout << "################################################" << std::endl;
+     if (wasfound==false){
+       std::cout << "LETTERSIZE calculated " << orignalImage.rows/y_cm << "cm x " <<  orignalImage.cols/x_cm  << "cm "<<std::endl;
+
+     }
    }
+
   }
   _debugTime("stop checkPixels");
 }
