@@ -5,7 +5,13 @@
 #include <my_global.h>
 #include <mysql.h>
 
-#define _HAL_INTERFACE_HPP_INCLUDED_ 1
+#ifdef ulonglong
+  #undef ulonglong
+#endif
+
+#ifdef longlong
+  #undef longlong
+#endif
 
 #include "opencv2/highgui/highgui.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
