@@ -2,6 +2,11 @@
 #ifndef IMAGERECOGNIZEEX_H
 #define IMAGERECOGNIZEEX_H
 
+#include <my_global.h>
+#include <mysql.h>
+
+#define _HAL_INTERFACE_HPP_INCLUDED_ 1
+
 #include "opencv2/highgui/highgui.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
 //#include "opencv2/imgproc/imgproc.hpp"
@@ -26,13 +31,6 @@
 
 
 
-#define HAVE_BOOL 1
-#define HAVE_UINT64 1
-#define HAVE_INT64 1
-
-
-#include <my_global.h>
-#include <mysql.h>
 
 
 #include "RegionOfInterest.h"
