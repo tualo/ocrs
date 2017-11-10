@@ -3,9 +3,6 @@
 #define IMAGERECOGNIZEEX_H
 
 
-#include <my_global.h>
-#include <mysql.h>
-
 
 
 
@@ -32,6 +29,9 @@
 #include <tesseract/strngs.h>
 #include <zbar.h>
 
+
+#include <my_global.h>
+#include <mysql.h>
 
 
 

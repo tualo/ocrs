@@ -200,7 +200,9 @@ int main( int argc, char** argv ){
     std::string kundenid = "";
     std::vector<std::string> strs;
     boost::filesystem::path filepath(args::get(filename));
-    boost::split(strs,boost::filesystem::basename(filepath),boost::is_any_of("N"));
+    std::string filebasename = boost::filesystem::basename(filepath);
+
+    boost::split(strs,filebasename,boost::is_any_of("N"));
     if (strs.size()==2){
       kundenid=strs[0];
     }
