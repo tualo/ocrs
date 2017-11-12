@@ -16,6 +16,35 @@ create table ocrs_statistics
 alter table ocrs_statistics add createtime datetime default current_timestamp;
 alter table ocrs_statistics add running fixed(15,6) default 0;
 
+SUBSTRING_INDEX(Path, '/', -1) AS
+
+create or replace view view_ocrs_statistics as
+select
+  ocrs_statistics.code,
+  ocrs_statistics.cmx,
+  ocrs_statistics.cmy,
+  ocrs_statistics.letter_height,
+  ocrs_statistics.letter_length,
+  ocrs_statistics.image_cols,
+  ocrs_statistics.image_rows,
+  ocrs_statistics.roi,
+  ocrs_statistics.state,
+  ocrs_statistics.orignalfilename,
+  ocrs_statistics.resultfilename,
+  concat('/probe/',SUBSTRING_INDEX(ocrs_statistics.resultfilename, '/', -1)) url,
+  quicksv_table.zipcode,
+  quicksv_table.customerno,
+  quicksv_table.costcenter,
+  quicksv_table.town,
+  quicksv_table.sortrow,
+  quicksv_table.sortbox
+
+from
+  ocrs_statistics
+  left join
+  quicksv_table
+  on ocrs_statistics.code=quicksv_table.code
+;
 */
 void ImageRecognizeEx::initStatistics(){
   std::string sql = "insert into ocrs_statistics (code,orignalfilename,resultfilename,cmx,cmy,letter_height,letter_length,image_cols,image_rows,roi) values ('"+code+"','"+fileName+"','',0,0,0,0,0,0,'') on duplicate key update code=values(code)";
