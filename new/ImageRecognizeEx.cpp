@@ -108,9 +108,7 @@ void ImageRecognizeEx::setImage(cv::Mat mat){
   orignalImage = mat.clone();
   oImage = mat.clone();
   roiImage=orignalImage.clone();
-  if (showDebug){
-    std::cout << "open x "<< orignalImage.cols << " y " << orignalImage.rows << std::endl;
-  }
+  
   showImage(orignalImage);
 
 }
@@ -118,10 +116,7 @@ void ImageRecognizeEx::open(const char* filename){
   fileName = filename;
   cv::setUseOptimized(true);
   cv::Mat mat = cv::imread( filename, cv::IMREAD_GRAYSCALE );
-  if (showDebug){
-    std::cout << cv::getBuildInformation() << std::endl << std::endl << std::endl;
-    std::cout << "open mat x "<< mat.cols << " y " << mat.rows  << std::endl;
-  }
+
   setImage(mat);
 
   showImage(orignalImage);
