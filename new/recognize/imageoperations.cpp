@@ -155,7 +155,9 @@ void ImageRecognizeEx::checkPixels(){
      }
      std::cout << "LETTERSIZE height " << height << ", length " << length << std::endl;
      std::cout << "IMAGE cols " << orignalImage.cols << ", rows " << orignalImage.rows << std::endl;
+     std::cout << "CMY SHOULD BE " << (orignalImage.rows/(length/100)) << std::endl;
      std::cout << "CMY " << (orignalImage.rows/rescale_rows/(length/100)) << std::endl;
+     std::cout << "CMX SHOULD BE" << (orignalImage.cols/(height/100)) << " " << std::endl;
      std::cout << "CMX " << (orignalImage.cols/rescale_cols/(height/100)) << " (only valid on DIN LANG)" << std::endl;
      std::cout << "################################################" << std::endl;
      if (wasfound==false){
