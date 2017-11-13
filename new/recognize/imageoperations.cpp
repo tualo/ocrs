@@ -30,7 +30,11 @@ int ImageRecognizeEx::calcmeanValue(cv::Mat m){
   std::cout << "minStd " << minStd << " maxStd " << maxStd << std::endl;
   std::cout << "minMean " << minMean << " maxMean " << maxMean << std::endl;
   int_mean = (-1*( (int)mean.data[6] - 128 ));
-  return 255-maxMean;
+  if (minMean>minStd){
+    return minMean;
+  }
+  return minStd;
+  //return cv::max(minMean,minStd);//255-maxMean;
 }
 
 void ImageRecognizeEx::recalcSubstractMean(cv::Mat m){
@@ -70,7 +74,7 @@ int ImageRecognizeEx::linearize(cv::Mat& src){
     throw std::runtime_error("Error: ImageRecognizeEx::linearize not a gray image");
   }
 
-  //std::cout << "calcmeanValue(src) " << calcmeanValue(src) << std::endl;
+  std::cout << "blockSize " << blockSize << std::endl;
 
   cv::adaptiveThreshold(
       src,
@@ -144,9 +148,16 @@ void ImageRecognizeEx::checkPixels(){
     updateStatistics("image_rows",orignalImage.rows);
     updateStatistics("image_cols",orignalImage.cols);
 
-    updateStatistics("CMY", (orignalImage.rows/rescale_rows/(length/100)) ) ;
+    updateStatistics("CMY", (orignalImage.rows/rescale_rows/(length/100)) );
     updateStatistics("CMX", (orignalImage.cols/rescale_cols/(height/100)) );
 
+    updateStatistics("CALC_CMY", (orignalImage.rows/(length/100)) );
+    updateStatistics("CALC_CMX", (orignalImage.cols/(height/100)) );
+
+    if (wasfound==true){
+      setPixelPerCM((orignalImage.cols/(height/100)),(orignalImage.rows/(length/100)));
+      rescale();
+    }
 
     if (showDebug){
      std::cout << "################################################" << std::endl;

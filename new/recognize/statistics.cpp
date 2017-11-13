@@ -15,9 +15,29 @@ create table ocrs_statistics
 );
 alter table ocrs_statistics add createtime datetime default current_timestamp;
 alter table ocrs_statistics add running fixed(15,6) default 0;
+alter table ocrs_statistics add calc_cmx fixed(15,6) default 0;
+alter table ocrs_statistics add calc_cmy fixed(15,6) default 0;
+
+
+72.741900		/probe/noaddress.22002666644.jpg		barcodecode	/largedisk/image/14107|1N001510309388.656114.tiff	/largedisk/result/noaddress.22002666644.jpg	71.959800	2286.000000	1240.000000	1645.000000	902.000000	22002666644
+
+
+/largedisk/ocrs/new/ocrsex -dt -h 192.168.1.96 -n deg -u sorter -x sorter \
+  --cmx 72 \
+  --cmy 72 \
+  -f "/largedisk/image/14107|1N001510309462.545156.tiff" \
+  --substractmean 18 \
+  --savedb \
+  --result /largedisk/result/ \
+  --machine 22 \
+  --rescaledfilename
+
+72.419400	* DL und C5  - L	/probe/good.22002666728.jpg	Cospedn	address	/largedisk/image/14107|1N001510309462.545156.tiff	/largedisk/result/good.22002666728.jpg	71.980900	2302.000000	1240.000000	1657.000000	898.000000	22002666728	07751
+72.661300		/probe/noaddress.22002666729.jpg		barcodecode	/largedisk/image/14107|1N001510309463.220315.tiff	/largedisk/result/noaddress.22002666729.jpg	71.959800	2286.000000	1240.000000	1645.000000	901.000000	22002666729
 
 SUBSTRING_INDEX(Path, '/', -1) AS
-
+delete from quicksv_table;
+delete from ocrs_statistics;
 create or replace view view_ocrs_statistics as
 select
   ocrs_statistics.code,
@@ -57,7 +77,7 @@ void ImageRecognizeEx::initStatistics(){
 
 void ImageRecognizeEx::updateStatistics(std::string field,double val){
   std::string sql = boost::str(updateStatisticsDouble % field % val % code );
-  std::cout << "updateStatistics (double) " << sql << std::endl;
+  std::cout << "updateStatistics (double) " << field << " " << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));
@@ -66,7 +86,7 @@ void ImageRecognizeEx::updateStatistics(std::string field,double val){
 
 void ImageRecognizeEx::updateStatistics(std::string field,int val){
   std::string sql = boost::str(updateStatisticsString % field % val % code );
-  std::cout << "updateStatistics (int) " << sql << std::endl;
+  std::cout << "updateStatistics (int) "<< field << " "  << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));
@@ -75,7 +95,7 @@ void ImageRecognizeEx::updateStatistics(std::string field,int val){
 
 void ImageRecognizeEx::updateStatistics(std::string field,std::string val){
   std::string sql = boost::str(updateStatisticsString % field % val % code );
-  std::cout << "updateStatistics (string) " << sql << std::endl;
+  std::cout << "updateStatistics (string) "<< field << " "  << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));

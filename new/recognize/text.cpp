@@ -106,8 +106,6 @@ bool ImageRecognizeEx::usingRoi(cv::Mat& im,cv::Rect roi2, int irotate, int iste
     if (showDebug){
       std::cout << "irotate: " << irotate << std::endl;
     }
-    std::cout << "substractMeanValue: " << subtractMean << std::endl;
-    std::cout << "calcmeanValue: " << calcmeanValue(c2) << std::endl;
 
     showImage(c2);
     rotate(c2,irotate);
@@ -158,10 +156,22 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
   const boost::regex plz_regex("\\d{5}\\s");
   const boost::regex no_plz_regex("\\d{6}\\s");
 
-  recalcSubstractMean(im);
+  /*
+  cv::Scalar cmean = cv::mean(im);
+  if(showDebug){
+    std::cout << "mean " << cmean[0] << " " << cmean[1] << " "  << cmean[2] << std::endl;
+    //[0];
+  }
+  */
+  //subtractMean = calcmeanValue(im);
+
+  //recalcSubstractMean(im);
+  unpaper(im);
+
+  //lastThreshold = linearize(im);//,-0.30);
 
 
-  lastThreshold = linearize(im);//,-0.30);
+  showImage(im);
   std::string s1 = getText(im);
 
   boost::replace_all(s1,code,"-------------");
@@ -221,6 +231,8 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
 
 std::string ImageRecognizeEx::getText(cv::Mat& im){
   _debugTime("start getText");
+
+
 /*  cv::Mat tim = im.clone();
   _debugTime("start getText, cloned");
   cv::cvtColor(tim, tim, CV_GRAY2BGR);

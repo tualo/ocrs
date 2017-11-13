@@ -3,6 +3,7 @@
 #include "recognize/imageoperations.cpp"
 #include "recognize/text.cpp"
 #include "recognize/statistics.cpp"
+#include "recognize/unpaper.cpp"
 
 void ImageRecognizeEx::showImage(cv::Mat& src){
   if (showDebugWindow){
@@ -108,7 +109,7 @@ void ImageRecognizeEx::setImage(cv::Mat mat){
   orignalImage = mat.clone();
   oImage = mat.clone();
   roiImage=orignalImage.clone();
-  
+
   showImage(orignalImage);
 
 }

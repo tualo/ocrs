@@ -110,6 +110,9 @@ private:
   cv::Mat largestComplexContour(cv::Mat& src);
   cv::Mat largestSimpleContour(cv::Mat& src);
   int calcmeanValue(cv::Mat m);
+  void unpaper(cv::Mat& src);
+  cv::Mat canny(cv::Mat src);
+  cv::Mat sobel(cv::Mat gray);
   bool readMatBinary(std::ifstream& ifs, cv::Mat& in_mat);
   void showImage(cv::Mat& src);
   //bcResult fast_barcode(cv::Mat& im);
