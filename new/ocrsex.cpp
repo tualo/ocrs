@@ -43,7 +43,6 @@ void debugTime(std::string str){
 boost::format quicksvfmt("call quicksv('%s','%s','%s','%s','%s', '%s','%s','%s','%s','%s') ");
 
 
-
 int main( int argc, char** argv ){
 
 

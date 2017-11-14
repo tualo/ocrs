@@ -22,14 +22,8 @@ alter table ocrs_statistics add calc_cmy fixed(15,6) default 0;
 72.741900		/probe/noaddress.22002666644.jpg		barcodecode	/largedisk/image/14107|1N001510309388.656114.tiff	/largedisk/result/noaddress.22002666644.jpg	71.959800	2286.000000	1240.000000	1645.000000	902.000000	22002666644
 
 
-/largedisk/ocrs/new/ocrsex -dt -h 192.168.1.96 -n deg -u sorter -x sorter \
-  --cmx 72 \
-  --cmy 72 \
-  -f "/largedisk/image/14107|1N001510309462.545156.tiff" \
-  --substractmean 18 \
-  --savedb \
-  --result /largedisk/result/ \
-  --machine 22 \
+/largedisk/ocrs/new/ocrsex -dt -h 192.168.1.96 -n deg -u sorter -x sorter --cmx 72  --cmy 72  -f "/largedisk/image/14107|1N001510309462.545156.tiff" --substractmean 18 --savedb --result /largedisk/result/ --machine 22
+
   --rescaledfilename
 
 72.419400	* DL und C5  - L	/probe/good.22002666728.jpg	Cospedn	address	/largedisk/image/14107|1N001510309462.545156.tiff	/largedisk/result/good.22002666728.jpg	71.980900	2302.000000	1240.000000	1657.000000	898.000000	22002666728	07751
@@ -57,8 +51,9 @@ select
   quicksv_table.costcenter,
   quicksv_table.town,
   quicksv_table.sortrow,
-  quicksv_table.sortbox
-
+  quicksv_table.sortbox,
+  quicksv_table.match_zipcode,
+  quicksv_table.match_town
 from
   ocrs_statistics
   left join
