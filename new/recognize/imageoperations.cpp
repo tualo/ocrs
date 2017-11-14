@@ -30,11 +30,7 @@ int ImageRecognizeEx::calcmeanValue(cv::Mat m){
   std::cout << "minStd " << minStd << " maxStd " << maxStd << std::endl;
   std::cout << "minMean " << minMean << " maxMean " << maxMean << std::endl;
   int_mean = (-1*( (int)mean.data[6] - 128 ));
-  if (minMean>minStd){
-    return minMean;
-  }
-  return minStd;
-  //return cv::max(minMean,minStd);//255-maxMean;
+  return minMean;//255-maxMean;
 }
 
 void ImageRecognizeEx::recalcSubstractMean(cv::Mat m){
@@ -74,7 +70,7 @@ int ImageRecognizeEx::linearize(cv::Mat& src){
     throw std::runtime_error("Error: ImageRecognizeEx::linearize not a gray image");
   }
 
-  std::cout << "blockSize " << blockSize << std::endl;
+  //std::cout << "calcmeanValue(src) " << calcmeanValue(src) << std::endl;
 
   cv::adaptiveThreshold(
       src,
