@@ -196,30 +196,32 @@ void ImageRecognizeEx::barcode(){
     cv::Mat bc_roi;
     for(std::list<RegionOfInterest*>::iterator list_iter = barcodeRegions.begin();
       list_iter != barcodeRegions.end(); list_iter++){
-        roi=*list_iter;
-        roi->setImage(orignalImage);
-        bc_roi = orignalImage(roi->rect());
-        res = barcode_internal(bc_roi,barcodeFP);
-        cv::rectangle(
-          roiImage,
-          roi->rect(),
-          cv::Scalar(205, 205, 0),
-          5
-        );
-        showImage(roiImage);
-        if (res.found==true){
-          code = res.code;
+
+        if (res.found==false){
+          roi=*list_iter;
+          roi->setImage(orignalImage);
+          bc_roi = orignalImage(roi->rect());
+          res = barcode_internal(bc_roi,barcodeFP);
           cv::rectangle(
             roiImage,
             roi->rect(),
-            cv::Scalar(205, 0, 0),
+            cv::Scalar(205, 205, 0),
             5
           );
-          initStatistics();
-          updateStatistics("state","barcodecode");
           showImage(roiImage);
+          if (res.found==true){
+            code = res.code;
+            cv::rectangle(
+              roiImage,
+              roi->rect(),
+              cv::Scalar(205, 0, 0),
+              5
+            );
+            initStatistics();
+            updateStatistics("state","barcodecode");
+            showImage(roiImage);
+          }
         }
-
     }
   }catch(cv::Exception cv_error){
     std::cerr << "barcode()" << cv_error.msg << std::endl;

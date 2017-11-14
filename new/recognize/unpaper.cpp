@@ -19,23 +19,26 @@ void ImageRecognizeEx::unpaper(cv::Mat& src){
   }
   cv::Mat test;
   cv::Mat test_inv;
+
+  cv::GaussianBlur(src,test,cv::Size(13,13),2,2);
   cv::adaptiveThreshold(
-      src,
+      test,
       test,
       255,
       CV_ADAPTIVE_THRESH_GAUSSIAN_C,
       CV_THRESH_BINARY,//blockSize,calcmeanValue(src));/*,
-      bs,
-      subtractMean
+      85,
+      5
   );
-  cv::GaussianBlur(test,test,cv::Size(13,13),2,2);
+  cv::GaussianBlur(test,test,cv::Size(3,3),2,2);
+
   //cv::imshow("1. \"blur\"", test);
 
 //  cv::threshold(test, test_inv, 150, 255, cv::THRESH_BINARY_INV);
 //  cv::imshow("2. \"blur thres\"", test_inv);
 
   cv::threshold(test, test, 150, 255, cv::THRESH_BINARY);
-//  cv::imshow("2. \"blur thres norm\"", test);
+  //cv::imshow("2. \"blur thres norm\"", test);
 
   cv::adaptiveThreshold(
       src,
@@ -81,6 +84,9 @@ void ImageRecognizeEx::unpaper(cv::Mat& src){
 
   cv::waitKey(0);
 */
+//cv::Mat x;
+//cv::bitwise_or(src,test,x);
+//cv::waitKey(0);
   cv::bitwise_or(src,test,src);
 }
 

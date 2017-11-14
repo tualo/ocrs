@@ -20,6 +20,8 @@ and b.regiogruppe=fast_access_tour.regiogruppe
 group by plz
 
 
+insert into bbs_barcode_regions (machine,name,x,y,w,h,rotate,position,rotate_steps) values ('*','Sichtfenster',5,0.5,4,30,0,99,0);
+  
 DELIMITER $$
 DROP  PROCEDURE `quicksv`;
 CREATE  PROCEDURE `quicksv`(
