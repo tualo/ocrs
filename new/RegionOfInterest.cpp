@@ -46,7 +46,7 @@ cv::Rect RegionOfInterest::rect(){
   }
   if (image.rows<(roi.y+roi.height)){
     roi.height=image.rows-roi.y;
-    std::cerr << "RegionOfInterest::rect height problem, setting to max" << std::endl;
+  //  std::cerr << "RegionOfInterest::rect height problem, setting to max" << std::endl;
   }
 
   if (image.cols<(roi.x)){
@@ -56,7 +56,7 @@ cv::Rect RegionOfInterest::rect(){
   if (image.cols<(roi.x+roi.width)){
     roi.width=image.cols-roi.x;
 
-    std::cerr << "RegionOfInterest::rect width problem, setting to max" << std::endl;
+//    std::cerr << "RegionOfInterest::rect width problem, setting to max" << std::endl;
   }
 
   return roi;

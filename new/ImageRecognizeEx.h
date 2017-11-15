@@ -142,6 +142,7 @@ private:
 
   bool showDebug;
   bool showDebugWindow;
+  bool showDebugWindowUnpaper;
   bool showDebugTime;
   bool psmAuto;
   bool barcodeClahe;

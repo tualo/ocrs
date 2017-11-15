@@ -1,6 +1,6 @@
 
 void ImageRecognizeEx::unpaper(cv::Mat& src){
-
+showDebugWindowUnpaper=false;
 
   cv::Scalar cm = cv::mean(src);
 
@@ -18,7 +18,14 @@ void ImageRecognizeEx::unpaper(cv::Mat& src){
     subtractMean*=-1;
   }
   cv::Mat test;
-  cv::Mat test_inv;
+  cv::Mat blurred_avg;
+  cv::GaussianBlur(src,blurred_avg,cv::Size(13,13),2,2);
+  cv::Scalar blurred_sum = cv::sum(blurred_avg);
+  int light_mean = blurred_sum[0]/(blurred_avg.rows*blurred_avg.cols);
+  if (showDebugWindowUnpaper){
+    std::cout << "blurred_sum avg>>>" << blurred_sum[0]/(blurred_avg.rows*blurred_avg.cols)  << std::endl;
+    cv::imshow("blurred_avg", blurred_avg);
+  }
 
   cv::GaussianBlur(src,test,cv::Size(13,13),2,2);
   cv::adaptiveThreshold(
@@ -32,23 +39,36 @@ void ImageRecognizeEx::unpaper(cv::Mat& src){
   );
   cv::GaussianBlur(test,test,cv::Size(3,3),2,2);
 
-  //cv::imshow("1. \"blur\"", test);
+  if (showDebugWindowUnpaper){
+    cv::imshow("1. \"blur\"", test);
+  }
 
 //  cv::threshold(test, test_inv, 150, 255, cv::THRESH_BINARY_INV);
 //  cv::imshow("2. \"blur thres\"", test_inv);
 
   cv::threshold(test, test, 180, 255, cv::THRESH_BINARY);
-  //cv::imshow("2. \"blur thres norm\"", test);
+  if (showDebugWindowUnpaper){
+    cv::imshow("2. \"blur thres norm\"", test);
+  }
   cv::Mat atMask;
+  blockSize=3;
+  subtractMean=1;
+  if (light_mean>200){
+    blockSize=13;
+    subtractMean=9;
+  }
   cv::adaptiveThreshold(
       src,
       src,
       255,
       CV_ADAPTIVE_THRESH_GAUSSIAN_C,
       CV_THRESH_BINARY,//blockSize,calcmeanValue(src));/*,
-      3,
-      1
+      blockSize,
+      subtractMean
   );
+  if (showDebugWindowUnpaper){
+    cv::imshow("adaptiveThreshold src", src);
+  }
   int count_black = cv::countNonZero(src);
 
   std::cout << "black>>>" << count_black  << std::endl;
@@ -58,7 +78,9 @@ void ImageRecognizeEx::unpaper(cv::Mat& src){
   atMask=src.clone();
   cv::GaussianBlur(atMask,atMask,cv::Size(7,7),2,2);
 
-//  cv::imshow("atMask ", atMask);
+  if (showDebugWindowUnpaper){
+    cv::imshow("atMask ", atMask);
+  }
   if (fb<0.85){
     cv::threshold(atMask, atMask, 120, 255, cv::THRESH_BINARY);
   }else if (fb>0.95){
@@ -66,19 +88,32 @@ void ImageRecognizeEx::unpaper(cv::Mat& src){
   }else{
     cv::threshold(atMask, atMask, 160, 255, cv::THRESH_BINARY);
   }
+
+
   int erosion_size=1;
 
   cv::Mat element = cv::getStructuringElement( cv::MORPH_ELLIPSE,
                                      cv::Size( 2*erosion_size + 1, 2*erosion_size+1 ),
                                      cv::Point( erosion_size, erosion_size ) );
 
- cv::erode( atMask, atMask, element );
- cv::erode( test, test, element );
-//  cv::imshow("atMask threshold", atMask);
-  cv::bitwise_or(src,atMask,src);
-//  cv::imshow("adaptiveThreshold ", src);
+  cv::erode( atMask, atMask, element );
+  cv::erode( test, test, element );
+  if (showDebugWindowUnpaper){
+    cv::imshow("atMask threshold", atMask);
+  }
+  if (light_mean<200){
 
-//cv::waitKey(0);
+    // zu helle bilder nicht mit einer blurred mask versehen
+    cv::bitwise_or(src,atMask,src);
+  }
+
+  if (showDebugWindowUnpaper){
+    cv::imshow("adaptiveThreshold ", src);
+  }
+
+  if (showDebugWindowUnpaper){
+    cv::waitKey(0);
+  }
   cv::bitwise_or(src,test,src);
 }
 

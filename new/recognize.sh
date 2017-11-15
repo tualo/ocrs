@@ -1,6 +1,6 @@
 f=$1
 name=`basename "$f"`
-./ocrsex -dt -h 127.0.0.1 -n deg -u root -x "" \
+./ocrsex -dtw -h 127.0.0.1 -n deg -u root -x "" \
   --blocksize=85 \
   --cmx 78 \
   --cmy 78 \
