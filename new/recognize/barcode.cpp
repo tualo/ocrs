@@ -71,9 +71,15 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 std::cout << "before loop " << std::endl;
     codes="";
     // counting here down
+    /*
     for (int thres=i_bc_thres_start;((thres<=i_bc_thres_stop)&&(
       res.found==false && codeRetry==false
     ));thres+=i_bc_thres_step){
+      */
+
+      for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
+        res.found==false && codeRetry==false
+      ));thres-=i_bc_thres_step){
 
       //std::cout << " loop " << thres << std::endl;
 
