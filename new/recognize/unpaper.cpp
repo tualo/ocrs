@@ -37,55 +37,47 @@ void ImageRecognizeEx::unpaper(cv::Mat& src){
 //  cv::threshold(test, test_inv, 150, 255, cv::THRESH_BINARY_INV);
 //  cv::imshow("2. \"blur thres\"", test_inv);
 
-  cv::threshold(test, test, 150, 255, cv::THRESH_BINARY);
+  cv::threshold(test, test, 180, 255, cv::THRESH_BINARY);
   //cv::imshow("2. \"blur thres norm\"", test);
-
+  cv::Mat atMask;
   cv::adaptiveThreshold(
       src,
       src,
       255,
       CV_ADAPTIVE_THRESH_GAUSSIAN_C,
       CV_THRESH_BINARY,//blockSize,calcmeanValue(src));/*,
-      bs,
-      subtractMean
+      3,
+      1
   );
+  int count_black = cv::countNonZero(src);
 
-/*
-  cv::bitwise_or(src,test,src);
+  std::cout << "black>>>" << count_black  << std::endl;
+  double fb = ((double)count_black/((double)src.cols*(double)src.rows));
+  std::cout << "black>>>" << fb  << std::endl;
 
+  atMask=src.clone();
+  cv::GaussianBlur(atMask,atMask,cv::Size(7,7),2,2);
 
-  cv::Mat x;
-  cv::bitwise_xor(src,test_inv,x);
-  cv::imshow("xor", x);
+//  cv::imshow("atMask ", atMask);
+  if (fb<0.85){
+    cv::threshold(atMask, atMask, 120, 255, cv::THRESH_BINARY);
+  }else if (fb>0.95){
+    cv::threshold(atMask, atMask, 190, 255, cv::THRESH_BINARY);
+  }else{
+    cv::threshold(atMask, atMask, 160, 255, cv::THRESH_BINARY);
+  }
+  int erosion_size=1;
 
-  cv::bitwise_not(src,test_inv,x);
-  cv::imshow("not", x);
+  cv::Mat element = cv::getStructuringElement( cv::MORPH_ELLIPSE,
+                                     cv::Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                                     cv::Point( erosion_size, erosion_size ) );
 
+ cv::erode( atMask, atMask, element );
+ cv::erode( test, test, element );
+//  cv::imshow("atMask threshold", atMask);
+  cv::bitwise_or(src,atMask,src);
+//  cv::imshow("adaptiveThreshold ", src);
 
-  cv::bitwise_and(src,test_inv,x);
-  cv::imshow("and", x);
-
-  cv::bitwise_or(src,test_inv,x);
-  cv::imshow("or", x);
-
-
-  cv::bitwise_xor(src,test,x);
-  cv::imshow("xor n", x);
-
-  cv::bitwise_not(src,test,x);
-  cv::imshow("not n", x);
-
-
-  cv::bitwise_and(src,test,x);
-  cv::imshow("and n ", x);
-
-  cv::bitwise_or(src,test,x);
-  cv::imshow("or n", x);
-
-  cv::waitKey(0);
-*/
-//cv::Mat x;
-//cv::bitwise_or(src,test,x);
 //cv::waitKey(0);
   cv::bitwise_or(src,test,src);
 }

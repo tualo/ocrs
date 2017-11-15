@@ -45,6 +45,7 @@ select
   ocrs_statistics.state,
   ocrs_statistics.orignalfilename,
   ocrs_statistics.resultfilename,
+  ocrs_statistics.new_ok,
   concat('/probe/',SUBSTRING_INDEX(ocrs_statistics.resultfilename, '/', -1)) url,
   quicksv_table.zipcode,
   quicksv_table.customerno,
@@ -53,7 +54,20 @@ select
   quicksv_table.sortrow,
   quicksv_table.sortbox,
   quicksv_table.match_zipcode,
-  quicksv_table.match_town
+  quicksv_table.match_town,
+  quicksv_table.old_ocr_state,
+  quicksv_table.old_sv_model,
+  quicksv_table.old_sv_plz,
+  if(
+    (quicksv_table.old_sv_plz<>quicksv_table.zipcode) or
+    (quicksv_table.old_sv_model<>'Maschine') or
+    (quicksv_table.old_ocr_state<>'good') or
+    (quicksv_table.match_zipcode='-----'),
+    'obacht',
+    ''
+  ) info,
+  quicksv_table.old_sv_produkt,
+  if( (quicksv_table.old_sv_model='Maschine' and quicksv_table.match_zipcode<>'-----' and quicksv_table.old_sv_plz<>quicksv_table.match_zipcode),'sichten','') hinweis
 from
   ocrs_statistics
   left join

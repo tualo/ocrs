@@ -1,11 +1,12 @@
 f=$1
 name=`basename "$f"`
-./ocrsex -dt -h 127.0.0.1 -n deg -u root -x "" --blocksize=85 \
+./ocrsex -dtw -h 127.0.0.1 -n deg -u root -x "" \
+  --blocksize=85 \
   --cmx 72 \
   --cmy 72 \
   -f "$f" \
   --substractmean 25 \
-  --machine 22 \
+  --machine 21 \
   --savedb
 #  --result /largedisk/result/ \
 #  --machine 22 \
