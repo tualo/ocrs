@@ -250,7 +250,7 @@ std::string ImageRecognizeEx::getText(cv::Mat& im){
   tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
   tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
   tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
-  tess->SetVariable("textord_min_linesize","1.0");
+  tess->SetVariable("textord_min_linesize","0.8");
   tess->Recognize(0);
 
 
