@@ -53,7 +53,7 @@ showDebugWindowUnpaper=false;
   cv::Mat atMask;
   blockSize=3;
   subtractMean=1;
-  if (light_mean>200){
+  if (light_mean>140){
     blockSize=13;
     subtractMean=9;
   }
