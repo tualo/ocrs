@@ -4,19 +4,24 @@ showDebugWindowUnpaper=false;
 
   cv::Scalar cm = cv::mean(src);
 
+if (showDebugWindowUnpaper){
   std::cout << "mean "<< cm[0] << std::endl;
+}
   //x_cm
-  int bs = x_cm/10 * 2; // 3mm
+  int bs = x_cm; // 3mm
   if (bs%2==0){
     bs+=1;
   }
   if (bs<3){
     bs=3;
   }
+  subtractMean=11;
+  /*
   subtractMean = (128-cm[0])/2;
   if (subtractMean<0){
     subtractMean*=-1;
   }
+  */
   cv::Mat test;
   cv::Mat blurred_avg;
   cv::GaussianBlur(src,blurred_avg,cv::Size(13,13),2,2);
@@ -51,8 +56,8 @@ showDebugWindowUnpaper=false;
     cv::imshow("2. \"blur thres norm\"", test);
   }
   cv::Mat atMask;
-  blockSize=3;
-  subtractMean=1;
+  //blockSize=3;
+  //subtractMean=1;
   if (light_mean>140){
     blockSize=13;
     subtractMean=9;

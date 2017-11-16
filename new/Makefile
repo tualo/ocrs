@@ -45,6 +45,7 @@ clean			:
 	$(RM) ExtractAddress.o
 	$(RM) glob_posix.o
 	$(RM) ImageRecognizeEx.o
+	$(RM) test_reg.o
 
 
 install		: $(NAME)

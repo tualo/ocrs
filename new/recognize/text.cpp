@@ -40,7 +40,8 @@ ExtractAddress* ImageRecognizeEx::texts(){
         5
       );
       if (usingRoi(orignalImage,roi->rect(),roi->rotate(),roi->rotateSteps())){
-
+        
+        extractAddress->setZipcodeRegexText(zipcodeRegexText);
         extractAddress->setString(resultText);
         extractAddress->extract();
 
@@ -93,7 +94,7 @@ bool ImageRecognizeEx::usingRoi(cv::Mat& im,cv::Rect roi2, int irotate, int iste
   _debugTime("start usingRoi");
   //const char* out;
   std::vector<std::string> lines;
-  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex plz_regex(zipcodeRegexText);
   const boost::regex no_plz_regex("\\d{6}\\s");
   boost::cmatch char_matches;
 
@@ -153,7 +154,7 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
   int m=0;
   int lastThreshold=0;
   std::vector<std::string> lines;
-  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex plz_regex(zipcodeRegexText);
   const boost::regex no_plz_regex("\\d{6}\\s");
 
   /*
@@ -248,9 +249,10 @@ std::string ImageRecognizeEx::getText(cv::Mat& im){
 
   //showImage(tim,5000);
   tess->SetImage((uchar*)im.data, im.size().width, im.size().height, im.channels(), im.step1());
-  tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
+  //tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
+  //tess->SetVariable("tessedit_char_whitelist", "0123456789ABCEFGHJKLMNPSRTUVWXYZabcdefghjkmnopqrstuvwxyzäöüÄÖÜß/éè -");
   tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
-  tess->SetVariable("textord_min_linesize","0.8");
+  tess->SetVariable("textord_min_linesize","1.5");
   tess->Recognize(0);
 
 
@@ -261,7 +263,7 @@ std::string ImageRecognizeEx::getText(cv::Mat& im){
   std::string intermedia (out);
 
 
-  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex plz_regex(zipcodeRegexText);
   const boost::regex no_plz_regex("\\d{6}\\s");
 
 

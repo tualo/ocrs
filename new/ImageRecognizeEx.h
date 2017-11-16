@@ -104,6 +104,8 @@ public:
 
   cv::Mat getResultImage();
   cv::Mat getOriginalImage();
+  void setZipcodeRegexText(std::string str);
+
 
 private:
   double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
@@ -177,6 +179,8 @@ private:
   std::string addressfield;
   std::string kundennummer;
   std::string kostenstelle;
+
+  std::string zipcodeRegexText;
 
   float meanfactor;
 

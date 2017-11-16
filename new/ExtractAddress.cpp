@@ -16,17 +16,29 @@ std::vector<std::string> split(const std::string &s,char delim){
   return elems;
 }
 
+
+void ExtractAddress::setZipcodeRegexText(std::string str){
+  zipcodeRegexText = str;
+}
+
 void ExtractAddress::setString(std::string text){
   orignalString = text;
 }
 
+std::string ExtractAddress::sqlCleaned(std::string str){
+  boost::regex re("[^0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß\\s]");
+  std::string result = boost::regex_replace(str, re, " ");
+  return result;
+}
+
+
 std::string ExtractAddress::getString(){
-  return orignalString;
+  return sqlCleaned(orignalString);
 }
 
 std::string ExtractAddress::getTown(){
   boost::trim_right(town);
-  return town;
+  return sqlCleaned(town);
 }
 
 std::string ExtractAddress::getZipCode(){
@@ -36,12 +48,12 @@ std::string ExtractAddress::getZipCode(){
 
 std::string ExtractAddress::getHouseNumber(){
   boost::trim_right(housenumber);
-  return housenumber;
+  return sqlCleaned(housenumber);
 }
 
 std::string ExtractAddress::getStreetName(){
   boost::trim_right(streetName);
-  return streetName;
+  return sqlCleaned(streetName);
 }
 
 
@@ -67,10 +79,10 @@ void ExtractAddress::extract(){
   sortierfach = "NT";
   sortiergang = "NT";
   // postleitzahl muss am anfang sein
-  const boost::regex plz_regex("\\d{5}\\s");
+  const boost::regex plz_regex(zipcodeRegexText);
 
   // hausnummer muss am ende sein
-  const boost::regex hn_regex("\\d+\\s{0,1}[a-zA-Z]{0,1}(\\s+[-/]\\d+){0,1}");
+  const boost::regex hn_regex("([a-zA-Z\\s])+\\d+\\s{0,1}[a-zA-Z]{0,1}(\\s+[-/]\\d+){0,1}");
   boost::cmatch char_matches;
   int mode = 0;
 
@@ -112,6 +124,7 @@ void ExtractAddress::extract(){
       if (boost::regex_search(streetName , hn_regex)==true){
         const boost::sregex_iterator i(line.begin(),line.end(),hn_regex);
         const std::string t = i->str();
+        std::cout << "HN----------:" << t << std::endl;
         housenumber = t;
         streetName = line.replace(line.find(housenumber),housenumber.length(),"");;
         mode++;

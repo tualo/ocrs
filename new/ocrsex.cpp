@@ -82,6 +82,7 @@ int main( int argc, char** argv ){
 
   args::ValueFlag<std::string> machine(parser, "machine", "The machine ID (default 00)", {"machine"});
   args::ValueFlag<std::string> rescaledfilename(parser, "rescaledfilename", "Save the rescaled original image as", {"rescaledfilename"});
+  args::ValueFlag<std::string> paramZipcodeRegexText(parser, "zipcoderegex", "regular expression for zipcodes", {"zipcoderegex"});
 
 
 
@@ -192,6 +193,13 @@ int main( int argc, char** argv ){
     std_str_rescaledfilename,
     fmeanfactor
   );
+
+  std::string zipcodeRegexText = "(O|7|I|i|Q|\\d){5}\\s";
+  if (paramZipcodeRegexText){
+    zipcodeRegexText = args::get(paramZipcodeRegexText);
+  }
+  ir->setZipcodeRegexText(zipcodeRegexText);
+
   try{
 
 
@@ -246,8 +254,10 @@ int main( int argc, char** argv ){
     }
     std::string sql = boost::str(quicksvfmt % ir->getBarcode() % ea->getZipCode() % ea->getTown() % ea->getStreetName() % ea->getHouseNumber() % ea->getSortRow() % ea->getSortBox() % ea->getString() % ir->getKundennummer() % ir->getKostenstelle());
     if (savedb==1){
+      std::cout << sql.c_str() << std::endl;
       if (mysql_query(con, sql.c_str())){
         fprintf(stderr, "%s\n", mysql_error(con));
+
       }
       for(; mysql_next_result(con) == 0;) /* do nothing */;
     }

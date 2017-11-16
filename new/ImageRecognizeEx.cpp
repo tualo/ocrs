@@ -82,6 +82,9 @@ void ImageRecognizeEx::setBlockSize(int value){
 void ImageRecognizeEx::setCalcMean(bool value){
   calcMean=value;
 }
+void ImageRecognizeEx::setZipcodeRegexText(std::string str){
+  zipcodeRegexText = str;
+}
 
 
 bool ImageRecognizeEx::readMatBinary(std::ifstream& ifs, cv::Mat& in_mat)
@@ -208,6 +211,8 @@ ImageRecognizeEx::ImageRecognizeEx() :
   i_bc_thres_start=15;
   i_bc_thres_stop=220;
   i_bc_thres_step=5;
+
+  zipcodeRegexText = "(O|7|I|i|Q|\\d){5}\\s";
 
   meanfactor=1;
 

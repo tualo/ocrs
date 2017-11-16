@@ -21,8 +21,11 @@ class ExtractAddress{
     std::string getTown();
     std::string getSortRow();
     std::string getSortBox();
-    void setZipcodeHash(std::string zipcode,std::string s_sortiergang,std::string s_sortierfach);
+    std::string sqlCleaned(std::string str);
     
+    void setZipcodeRegexText(std::string str);
+    void setZipcodeHash(std::string zipcode,std::string s_sortiergang,std::string s_sortierfach);
+
   private:
     bool hasAddress;
     std::string orignalString;
@@ -32,6 +35,7 @@ class ExtractAddress{
     std::string housenumber;
     std::string sortiergang;
     std::string sortierfach;
+    std::string zipcodeRegexText;
     std::map<std::string,std::string> zipCodeMap;
 
 
