@@ -40,7 +40,7 @@ ExtractAddress* ImageRecognizeEx::texts(){
         5
       );
       if (usingRoi(orignalImage,roi->rect(),roi->rotate(),roi->rotateSteps())){
-        
+
         extractAddress->setZipcodeRegexText(zipcodeRegexText);
         extractAddress->setString(resultText);
         extractAddress->extract();
@@ -252,7 +252,7 @@ std::string ImageRecognizeEx::getText(cv::Mat& im){
   //tess->SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmnopqrstuvwxyzäöüÄÖÜß|/éè -");
   //tess->SetVariable("tessedit_char_whitelist", "0123456789ABCEFGHJKLMNPSRTUVWXYZabcdefghjkmnopqrstuvwxyzäöüÄÖÜß/éè -");
   tess->SetVariable("tessedit_reject_bad_qual_wds","TRUE");
-  tess->SetVariable("textord_min_linesize","1.5");
+  tess->SetVariable("textord_min_linesize","0.8");
   tess->Recognize(0);
 
 
