@@ -106,9 +106,11 @@ SUBSTRING_INDEX(Path, '/', -1) AS
 delete from quicksv_table;
 delete from ocrs_statistics;
 
+alter table ocrs_statistics add machine varchar(10) default '';
+
 */
 void ImageRecognizeEx::initStatistics(){
-  std::string sql = "insert into ocrs_statistics (code,orignalfilename,resultfilename,cmx,cmy,letter_height,letter_length,image_cols,image_rows,roi) values ('"+code+"','"+fileName+"','',0,0,0,0,0,0,'') on duplicate key update code=values(code)";
+  std::string sql = "insert into ocrs_statistics (code,orignalfilename,resultfilename,cmx,cmy,letter_height,letter_length,image_cols,image_rows,roi,machine) values ('"+code+"','"+fileName+"','',0,0,0,0,0,0,'','"+machine+"') on duplicate key update code=values(code),machine=values(machine)";
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));

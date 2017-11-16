@@ -2,8 +2,10 @@
 
 DELIMITER $$
 
-alter table quicksv_table add match_town varchar(100);
-alter table quicksv_table add match_zipcode varchar(10);
+alter table quicksv_table add match_town varchar(100) $$
+alter table quicksv_table add match_zipcode varchar(10) $$
+alter table ocrs_statistics add machine varchar(10) default ''$$
+
 
 DROP TABLE  IF EXISTS ocrhash_complex_town $$
 create table ocrhash_complex_town (id varchar(32) primary key, date_added timestamp ,adr text, plz varchar(255),ort varchar(255) ) engine myisam $$
