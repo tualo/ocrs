@@ -1,37 +1,51 @@
 /*
-create table ocrs_statistics
-(
- code varchar(25) primary key,
- cmx fixed(15,6),
- cmy fixed(15,6),
- letter_height fixed(15,6),
- letter_length fixed(15,6),
- image_cols fixed(15,6),
- image_rows fixed(15,6),
- roi varchar(50),
- state varchar(20),
- orignalfilename varchar(100),
- resultfilename varchar(100)
+
+
+
+CREATE TABLE `ocrs_statistics` (
+  `code` varchar(25) NOT NULL,
+  `cmx` decimal(15,6) DEFAULT NULL,
+  `cmy` decimal(15,6) DEFAULT NULL,
+  `letter_height` decimal(15,6) DEFAULT NULL,
+  `letter_length` decimal(15,6) DEFAULT NULL,
+  `image_cols` decimal(15,6) DEFAULT NULL,
+  `image_rows` decimal(15,6) DEFAULT NULL,
+  `roi` varchar(50) DEFAULT NULL,
+  `state` varchar(20) DEFAULT NULL,
+  `orignalfilename` varchar(100) DEFAULT NULL,
+  `resultfilename` varchar(100) DEFAULT NULL,
+  `createtime` datetime DEFAULT CURRENT_TIMESTAMP,
+  `running` decimal(15,6) DEFAULT '0.000000',
+  `calc_cmx` decimal(15,6) DEFAULT '0.000000',
+  `calc_cmy` decimal(15,6) DEFAULT '0.000000',
+  `new_ok` tinyint(4) DEFAULT '0',
+  PRIMARY KEY (`code`)
 );
-alter table ocrs_statistics add createtime datetime default current_timestamp;
-alter table ocrs_statistics add running fixed(15,6) default 0;
-alter table ocrs_statistics add calc_cmx fixed(15,6) default 0;
-alter table ocrs_statistics add calc_cmy fixed(15,6) default 0;
+
+CREATE TABLE `quicksv_table`  (
+`code` varchar(50) NOT NULL,
+`zipcode` varchar(10) DEFAULT NULL,
+`town` varchar(255) DEFAULT NULL,
+`streetname` varchar(255) DEFAULT NULL,
+`housenumber` varchar(255) DEFAULT NULL,
+`sortrow` varchar(50) DEFAULT NULL,
+`sortbox` varchar(50) DEFAULT NULL,
+`ocrtext` varchar(4000) DEFAULT NULL,
+`customerno` varchar(20) DEFAULT NULL,
+`costcenter` varchar(20) DEFAULT NULL,
+`createtime` datetime DEFAULT NULL,
+`match_town` varchar(100) DEFAULT NULL,
+`match_zipcode` varchar(10) DEFAULT NULL,
+`old_ocr_state` varchar(100) DEFAULT NULL,
+`old_sv_model` varchar(100) DEFAULT NULL,
+`old_sv_plz` varchar(10) DEFAULT NULL,
+`old_sv_produkt` varchar(10) DEFAULT NULL,  PRIMARY KEY (`code`)
+)
+;
 
 
-72.741900		/probe/noaddress.22002666644.jpg		barcodecode	/largedisk/image/14107|1N001510309388.656114.tiff	/largedisk/result/noaddress.22002666644.jpg	71.959800	2286.000000	1240.000000	1645.000000	902.000000	22002666644
 
 
-/largedisk/ocrs/new/ocrsex -dt -h 192.168.1.96 -n deg -u sorter -x sorter --cmx 72  --cmy 72  -f "/largedisk/image/14107|1N001510309462.545156.tiff" --substractmean 18 --savedb --result /largedisk/result/ --machine 22
-
-  --rescaledfilename
-
-72.419400	* DL und C5  - L	/probe/good.22002666728.jpg	Cospedn	address	/largedisk/image/14107|1N001510309462.545156.tiff	/largedisk/result/good.22002666728.jpg	71.980900	2302.000000	1240.000000	1657.000000	898.000000	22002666728	07751
-72.661300		/probe/noaddress.22002666729.jpg		barcodecode	/largedisk/image/14107|1N001510309463.220315.tiff	/largedisk/result/noaddress.22002666729.jpg	71.959800	2286.000000	1240.000000	1645.000000	901.000000	22002666729
-
-SUBSTRING_INDEX(Path, '/', -1) AS
-delete from quicksv_table;
-delete from ocrs_statistics;
 create or replace view view_ocrs_statistics as
 select
   ocrs_statistics.code,
@@ -74,6 +88,24 @@ from
   quicksv_table
   on ocrs_statistics.code=quicksv_table.code
 ;
+
+
+
+
+72.741900		/probe/noaddress.22002666644.jpg		barcodecode	/largedisk/image/14107|1N001510309388.656114.tiff	/largedisk/result/noaddress.22002666644.jpg	71.959800	2286.000000	1240.000000	1645.000000	902.000000	22002666644
+
+
+/largedisk/ocrs/new/ocrsex -dt -h 192.168.1.96 -n deg -u sorter -x sorter --cmx 72  --cmy 72  -f "/largedisk/image/14107|1N001510309462.545156.tiff" --substractmean 18 --savedb --result /largedisk/result/ --machine 22
+
+  --rescaledfilename
+
+72.419400	* DL und C5  - L	/probe/good.22002666728.jpg	Cospedn	address	/largedisk/image/14107|1N001510309462.545156.tiff	/largedisk/result/good.22002666728.jpg	71.980900	2302.000000	1240.000000	1657.000000	898.000000	22002666728	07751
+72.661300		/probe/noaddress.22002666729.jpg		barcodecode	/largedisk/image/14107|1N001510309463.220315.tiff	/largedisk/result/noaddress.22002666729.jpg	71.959800	2286.000000	1240.000000	1645.000000	901.000000	22002666729
+
+SUBSTRING_INDEX(Path, '/', -1) AS
+delete from quicksv_table;
+delete from ocrs_statistics;
+
 */
 void ImageRecognizeEx::initStatistics(){
   std::string sql = "insert into ocrs_statistics (code,orignalfilename,resultfilename,cmx,cmy,letter_height,letter_length,image_cols,image_rows,roi) values ('"+code+"','"+fileName+"','',0,0,0,0,0,0,'') on duplicate key update code=values(code)";

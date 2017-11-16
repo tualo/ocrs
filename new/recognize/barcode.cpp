@@ -119,11 +119,8 @@ std::cout << "before loop " << std::endl;
         codes += code+" ";
         std::string type = std::string(symbol->get_type_name().c_str());
 
-std::cout << "*** (type==I2/5) && (is_digits(code)) " << ((type=="I2/5") && (is_digits(code))) << std::endl;
-std::cout << "*** (type!=I2/5) " << ( (type!="I2/5") ) << std::endl;
-std::cout << "*** (code.substr(0,4) != 0000) " << ( code.substr(0,4) != "0000" ) << std::endl;
 
-        if ((code.length() > res.code.length())){
+        if ((code.length()>5) && (code.length() > res.code.length())) {
           if (
             (
               ( (type=="I2/5") && (is_digits(code)) ) ||
