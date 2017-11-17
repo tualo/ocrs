@@ -21,11 +21,14 @@
 int main( int argc, char** argv ){
  //[[:digit:]]
 
- std::string text1 = "DE-O7613 Königshofen :";
- std::string text2 = "DE-07613 Königshofen :";
+ //std::string text1 = "DE-O7613 Königshofen :";
+ //std::string text2 = "DE-07613 Königshofen :";
+ std::string text1 = "Knießcnsgasse 16 c";
+ std::string text2 = "Knießcnsgasse 16 c";
  std::cout << "start " << std::endl;
 
- std::string regextext = "(O|7|I|i|Q|\\d){5}\\s";
+ //std::string regextext = "(O|7|I|i|Q|\\d){5}\\s";
+ std::string regextext = "\\d+([a-zA-Z]|\\s|-|/|d+)*$";
 
  const boost::regex plz_regex(regextext);
 

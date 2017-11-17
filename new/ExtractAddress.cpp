@@ -82,7 +82,9 @@ void ExtractAddress::extract(){
   const boost::regex plz_regex(zipcodeRegexText);
 
   // hausnummer muss am ende sein
-  const boost::regex hn_regex("([a-zA-Z\\s])+\\d+\\s{0,1}[a-zA-Z]{0,1}(\\s+[-/]\\d+){0,1}");
+  //const boost::regex hn_regex("([a-zA-ZÄäÖöÜüß\\s])+\\d+\\s{0,1}[a-zA-Z]{0,1}(\\s+[-/]\\d+){0,1}");
+  const boost::regex hn_regex("\\d+([a-zA-Z]|\\s|-|/|d+)*$");
+  
   boost::cmatch char_matches;
   int mode = 0;
 
@@ -101,10 +103,14 @@ void ExtractAddress::extract(){
   zipCode = "";
   streetName = "";
 
+
+
   for(int i=0; i< elems.size();i++){
     std::string line = elems.at(i);
 
     if (mode==0){
+
+      boost::replace_all(line," ","");
       boost::match_flag_type flags = boost::match_default;
       if (boost::regex_search(elems.at(i).c_str() , char_matches , plz_regex, flags)==true){
         // todo extract zip code

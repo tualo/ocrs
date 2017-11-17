@@ -177,6 +177,7 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
 
   boost::replace_all(s1,code,"-------------");
   boost::replace_all(s1,"\n\n","\n");
+
   lines = isplit(s1,'\n');
   if (lines.size()<3){
     _debugTime("stop containsZipCode");
@@ -201,7 +202,9 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
 
     m = lines.size()-1;
     for(i=m;i>0;i--){
-      if ((boost::regex_search(lines.at(i) , plz_regex)==true)&&(boost::regex_search(lines.at(i) , no_plz_regex)==false)){
+      std::string ln=lines.at(i);
+      boost::replace_all(ln," ","");
+      if ((boost::regex_search(ln , plz_regex)==true)&&(boost::regex_search(ln , no_plz_regex)==false)){
         s1="";
         for(j=0;j<=i;j++){
           s1+=lines.at(j)+"\n";

@@ -194,7 +194,7 @@ int main( int argc, char** argv ){
     fmeanfactor
   );
 
-  std::string zipcodeRegexText = "(O|7|I|i|Q|\\d){5}\\s";
+  std::string zipcodeRegexText = "(O|7|I|i|Q|\\d){5}";
   if (paramZipcodeRegexText){
     zipcodeRegexText = args::get(paramZipcodeRegexText);
   }
