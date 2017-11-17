@@ -120,6 +120,7 @@ void ImageRecognizeEx::initStatistics(){
 
 
 void ImageRecognizeEx::updateStatistics(std::string field,double val){
+  updateStatisticsDouble = boost::format("update ocrs_statistics set `%s` = '%s' where `code`='%9.6f' ");
   std::string sql = boost::str(updateStatisticsDouble % field % val % code );
   std::cout << "updateStatistics (double) " << field << " " << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
@@ -129,6 +130,7 @@ void ImageRecognizeEx::updateStatistics(std::string field,double val){
 }
 
 void ImageRecognizeEx::updateStatistics(std::string field,int val){
+  updateStatisticsString = boost::format("update ocrs_statistics set `%s` = '%s' where `code`='%s' ");
   std::string sql = boost::str(updateStatisticsString % field % val % code );
   std::cout << "updateStatistics (int) "<< field << " "  << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
@@ -138,6 +140,7 @@ void ImageRecognizeEx::updateStatistics(std::string field,int val){
 }
 
 void ImageRecognizeEx::updateStatistics(std::string field,std::string val){
+  updateStatisticsString = boost::format("update ocrs_statistics set `%s` = '%s' where `code`='%s' ");
   std::string sql = boost::str(updateStatisticsString % field % val % code );
   std::cout << "updateStatistics (string) "<< field << " "  << sql << std::endl;
   if (mysql_query(con, sql.c_str())){

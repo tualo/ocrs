@@ -68,7 +68,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
       image_clahe=part.clone();
     }
 
-std::cout << "before loop " << std::endl;
+std::cout << "before loop " << "i_bc_thres_stop" << i_bc_thres_stop << std::endl;
     codes="";
     // counting here down
     /*
@@ -204,6 +204,7 @@ void ImageRecognizeEx::barcode(){
           roi=*list_iter;
           roi->setImage(orignalImage);
           bc_roi = orignalImage(roi->rect());
+          cv::GaussianBlur(bc_roi,bc_roi,cv::Size(3,3),2,2);
           res = barcode_internal(bc_roi,barcodeFP);
           cv::rectangle(
             roiImage,

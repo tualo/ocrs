@@ -209,7 +209,7 @@ ImageRecognizeEx::ImageRecognizeEx() :
   kundennummer="0";
   kostenstelle="0";
   i_bc_thres_start=15;
-  i_bc_thres_stop=220;
+  i_bc_thres_stop=180;
   i_bc_thres_step=5;
 
   zipcodeRegexText = "(O|7|I|i|Q|\\d){5}\\s";
@@ -221,9 +221,7 @@ ImageRecognizeEx::ImageRecognizeEx() :
   codes="";
   addressfield = "L";
 
-  updateStatisticsDouble = boost::format("update ocrs_statistics set `%s` = '%s' where `code`='%9.6f' ");
-  updateStatisticsString = boost::format("update ocrs_statistics set `%s` = '%s' where `code`='%s' ");
-
+  
 
   extractAddress = new ExtractAddress();
 
