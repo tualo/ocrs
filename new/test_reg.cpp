@@ -18,6 +18,9 @@
 #include <vector>
 #include <string>
 
+
+#include "ExtractAddress.h"
+
 int main( int argc, char** argv ){
  //[[:digit:]]
 
@@ -43,6 +46,18 @@ int main( int argc, char** argv ){
    std::cout << "found plz text 2 " << std::endl;
  }
  std::cout << std::endl;
+
+
+std::string text_adr = "\n MINI Phnrmn GmbH   Kurz  Stlaßo l   30938 Burgwedel Fuhrbefg\n Frau DL med   \n Ulla Berger\n Fachärztin für Allgemeinmedizin\n Knießensgasse 16 e ß     \n 993 10 Bornheim";
+ExtractAddress *ea = new ExtractAddress();
+ea->setZipcodeRegexText("(D|O|7|I|i|Q|\\d){5}");
+ea->setString(text_adr);
+ea->extract();
+
+std::cout << "zipcode: " << ea->getZipCode() << std::endl;
+std::cout << "town: " << ea->getTown() << std::endl;
+std::cout << "street: " << ea->getStreetName() << std::endl;
+std::cout << "housenumber: " << ea->getHouseNumber() << std::endl;
 
 
  exit(-1);
