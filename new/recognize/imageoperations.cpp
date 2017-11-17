@@ -145,13 +145,21 @@ void ImageRecognizeEx::checkPixels(){
     updateStatistics("image_cols",orignalImage.cols);
 
     updateStatistics("CMY", (orignalImage.rows/rescale_rows/(length/100)) );
-    updateStatistics("CMX", (orignalImage.cols/rescale_cols/(height/100)) );
+    /*if (height<1260){
+      //updateStatistics("CMX",(orignalImage.cols/rescale_cols/(height/100)) );
+      updateStatistics("CMX",x_cm);
+    }else{
+      updateStatistics("CMX",x_cm);
+    }
+    */
+    updateStatistics("CMX",x_cm);
+    //
 
     updateStatistics("CALC_CMY", (orignalImage.rows/(length/100)) );
-    updateStatistics("CALC_CMX", (orignalImage.cols/(height/100)) );
+    updateStatistics("CALC_CMX",(orignalImage.cols/rescale_cols/(height/100)) );
 
     if (wasfound==true){
-      setPixelPerCM((orignalImage.cols/(height/100)),(orignalImage.rows/(length/100)));
+      setPixelPerCM(x_cm,(orignalImage.rows/(length/100)));
       rescale();
     }
 
