@@ -1,6 +1,23 @@
-
-
 DELIMITER $$
+CREATE FUNCTION numbertoletter(in_val varchar(255))
+  RETURNS TEXT
+  LANGUAGE SQL
+BEGIN
+SET in_val = replace(in_val,'1','i');
+SET in_val = replace(in_val,'7','i');
+SET in_val = replace(in_val,'0','o');
+
+SET in_val = replace(in_val,'9',' ');
+SET in_val = replace(in_val,'2',' ');
+SET in_val = replace(in_val,'3',' ');
+SET in_val = replace(in_val,'4',' ');
+SET in_val = replace(in_val,'5',' ');
+SET in_val = replace(in_val,'6',' ');
+SET in_val = replace(in_val,'8',' ');
+
+  RETURN in_val;
+END;
+$$
 
 alter table quicksv_table add match_town varchar(100) $$
 alter table quicksv_table add match_zipcode varchar(10) $$
@@ -70,7 +87,7 @@ BEGIN
 
   SELECT zipcode,town INTO qplz,qort FROM quicksv_table where code = in_code;
 
-  SET q =concat(qplz,concat(' ',qort));
+  SET q =concat(qplz,concat(' ',numbertoletter(qort)));
   SELECT
       b.plz,
       b.ort,

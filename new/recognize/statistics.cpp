@@ -60,6 +60,7 @@ select
   ocrs_statistics.orignalfilename,
   ocrs_statistics.resultfilename,
   ocrs_statistics.new_ok,
+  ocrs_statistics.machine,
   concat('/probe/',SUBSTRING_INDEX(ocrs_statistics.resultfilename, '/', -1)) url,
   quicksv_table.zipcode,
   quicksv_table.customerno,
