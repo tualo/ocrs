@@ -126,6 +126,10 @@ void ImageRecognizeEx::checkPixels(){
     unsigned int num_fields;
     double length;
     double height;
+
+    length=600;
+    height=600;
+
     bool wasfound=false;
     result = mysql_use_result(con);
     num_fields = mysql_num_fields(result);
