@@ -104,7 +104,7 @@ ImageRecognizeEx* ocr_ext(
       fmeanfactor,
       false,
       10,
-      220,
+      200,
       2,
       false
     );
