@@ -118,13 +118,15 @@ void ImageRecognizeEx::setImage(cv::Mat mat){
 }
 void ImageRecognizeEx::open(const char* filename){
   fileName = filename;
-  cv::setUseOptimized(true);
-  cv::Mat mat = cv::imread( filename, cv::IMREAD_GRAYSCALE );
-
-  setImage(mat);
-
-  showImage(orignalImage);
-
+  try{
+    cv::setUseOptimized(true);
+    cv::Mat mat = cv::imread( filename, cv::IMREAD_GRAYSCALE );
+    setImage(mat);
+    showImage(orignalImage);
+  } catch (cv::Exception& e) {
+      std::cerr << "Error opening file \"" << filename << "\". Reason: " << e.msg << std::endl;
+      exit(1);
+  }
 }
 void ImageRecognizeEx::setPixelPerCM(int _x_cm,int _y_cm){
   x_cm=_x_cm;
@@ -221,7 +223,7 @@ ImageRecognizeEx::ImageRecognizeEx() :
   codes="";
   addressfield = "L";
 
-  
+
 
   extractAddress = new ExtractAddress();
 
