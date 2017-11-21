@@ -22,8 +22,10 @@
 
 #include "ImageRecognizeEx.h"
 
-#include <opencv2/core/ocl.hpp>
 
+#ifdef HAVE_OPENCL
+#include <opencv2/core/ocl.hpp>
+#endif
 
 double debug_start_time = (double)cv::getTickCount();
 double debug_last_time = (double)cv::getTickCount();
@@ -127,7 +129,9 @@ int main( int argc, char** argv ){
   debugTime("Start");
 
   if (disableopencl==1){
+    #ifdef HAVE_OPENCL
     cv::ocl::setUseOpenCL(false);
+    #endif
   }
 
   std::string std_str_machine="00";
