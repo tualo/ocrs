@@ -136,8 +136,11 @@ void ImageRecognizeEx::checkPixels(){
     while ((row = mysql_fetch_row(result))){
        length = atof(row[0]);
        height = atof(row[1]);
+       if (length==0){
 
-       wasfound=true;
+       }else{
+         wasfound=true;
+       }
     }
     for(; mysql_next_result(con) == 0;) /* do nothing */;
     mysql_free_result(result);
