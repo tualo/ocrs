@@ -118,6 +118,7 @@ void ImageRecognizeEx::setImage(cv::Mat mat){
 }
 void ImageRecognizeEx::open(const char* filename){
   fileName = filename;
+  std::cout << "opening file \"" << filename << "\"." << std::endl;
   try{
     cv::setUseOptimized(true);
     cv::Mat mat = cv::imread( filename, cv::IMREAD_GRAYSCALE );
