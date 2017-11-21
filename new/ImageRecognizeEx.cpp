@@ -282,9 +282,10 @@ void ImageRecognizeEx::correctSize(){
            std::cout << "result_rows "  << result_rows << " will not be used" << std::endl;
            rescale_rows=1;
          }
+       }else{
+         rescale_rows = result_rows*oneCM / ((double)orignalImage.rows)*1.0;
        }
-       
-       rescale_rows = result_rows*oneCM / ((double)orignalImage.rows)*1.0;
+
        if (showDebug){
          std::cout << "rescale_rows "  << rescale_rows << " --- " << orignalImage.rows*rescale_rows << std::endl;
        }
