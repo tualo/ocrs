@@ -132,6 +132,8 @@ void ImageRecognizeEx::open(const char* filename){
 void ImageRecognizeEx::setPixelPerCM(int _x_cm,int _y_cm){
   x_cm=_x_cm;
   y_cm=_y_cm;
+  std::cout << "set x_cm \"" << x_cm << "\"." << std::endl;
+  std::cout << "set y_cm \"" << y_cm << "\"." << std::endl;
 
   oneCM = x_cm;
 }
@@ -271,6 +273,7 @@ void ImageRecognizeEx::correctSize(){
        if (showDebug){
          std::cout << "result_cols "  << result_cols << std::endl;
          std::cout << "result_rows "  << result_rows << std::endl;
+         std::cout << "oneCM "  << oneCM << std::endl;
         }
        // length is messured exact by the fp machine
        // the height is fixed by the camera
