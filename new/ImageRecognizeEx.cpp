@@ -279,19 +279,20 @@ void ImageRecognizeEx::correctSize(){
        // the height is fixed by the camera
        if (result_rows==0){
          if (showDebug){
-           std::cout << "rescale_rows "  << rescale_rows << " will not be used" << std::endl;
+           std::cout << "result_rows "  << result_rows << " will not be used" << std::endl;
+           rescale_rows=1;
          }
-       }else{
-         rescale_rows = result_rows*oneCM / ((double)orignalImage.rows)*1.0;
-         if (showDebug){
-           std::cout << "rescale_rows "  << rescale_rows << " --- " << orignalImage.rows*rescale_rows << std::endl;
-         }
-
-         cv::resize(orignalImage, orignalImage, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
-         cv::resize(roiImage, roiImage, cv::Size(roiImage.cols*rescale_cols, roiImage.rows*rescale_rows), 0, 0, 3);
-         showImage(roiImage);
-
        }
+       
+       rescale_rows = result_rows*oneCM / ((double)orignalImage.rows)*1.0;
+       if (showDebug){
+         std::cout << "rescale_rows "  << rescale_rows << " --- " << orignalImage.rows*rescale_rows << std::endl;
+       }
+
+       cv::resize(orignalImage, orignalImage, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
+       cv::resize(roiImage, roiImage, cv::Size(roiImage.cols*rescale_cols, roiImage.rows*rescale_rows), 0, 0, 3);
+       showImage(roiImage);
+
     }
     for(; mysql_next_result(con) == 0;) /* do nothing */;
     mysql_free_result(result);
