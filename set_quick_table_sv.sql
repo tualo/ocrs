@@ -1,4 +1,5 @@
 DELIMITER $$
+DROP FUNCTION numbertoletter$$
 CREATE FUNCTION numbertoletter(in_val varchar(255))
   RETURNS TEXT
   LANGUAGE SQL
@@ -14,6 +15,23 @@ SET in_val = replace(in_val,'4',' ');
 SET in_val = replace(in_val,'5',' ');
 SET in_val = replace(in_val,'6',' ');
 SET in_val = replace(in_val,'8',' ');
+
+  RETURN in_val;
+END;
+$$
+
+DROP FUNCTION lettertonumber$$
+CREATE FUNCTION lettertonumber(in_val varchar(255))
+  RETURNS TEXT
+  LANGUAGE SQL
+BEGIN
+
+SET in_val = replace(in_val,'i','1');
+SET in_val = replace(in_val,'I','1');
+SET in_val = replace(in_val,'L','1');
+SET in_val = replace(in_val,'|','1');
+SET in_val = replace(in_val,'J','1');
+SET in_val = replace(in_val,'A','4');
 
   RETURN in_val;
 END;
@@ -87,7 +105,7 @@ BEGIN
 
   SELECT zipcode,town INTO qplz,qort FROM quicksv_table where code = in_code;
 
-  SET q =concat(qplz,concat(' ',numbertoletter(qort)));
+  SET q =concat(lettertonumber(qplz),concat(' ',numbertoletter(qort) ));
   SELECT
       b.plz,
       b.ort,
@@ -119,4 +137,5 @@ BEGIN
 
 END $$
 DELIMITER ;
+
 call SET_QUICK_TABLE_SV_LOOP();

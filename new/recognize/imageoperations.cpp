@@ -145,9 +145,16 @@ void ImageRecognizeEx::checkPixels(){
     for(; mysql_next_result(con) == 0;) /* do nothing */;
     mysql_free_result(result);
 
-
+    if (wasfound==false){
+      if (showDebug){
+       std::cout << "# y_cm " << y_cm << " x_cm " << x_cm << " r " <<orignalImage.rows << std::endl;
+      }
+      length=orignalImage.rows/y_cm *100;
+      height=orignalImage.cols/x_cm *100;
+    }
     updateStatistics("letter_height",height);
     updateStatistics("letter_length",length);
+
     updateStatistics("image_rows",orignalImage.rows);
     updateStatistics("image_cols",orignalImage.cols);
 
@@ -184,7 +191,10 @@ void ImageRecognizeEx::checkPixels(){
      std::cout << "################################################" << std::endl;
      if (wasfound==false){
        std::cout << "LETTERSIZE calculated " << orignalImage.rows/y_cm << "cm x " <<  orignalImage.cols/x_cm  << "cm "<<std::endl;
-
+       if (showDebug){
+         std::cout << "CMX calculated (based on DIN Lang)" << (orignalImage.cols/(1240/100)) << std::endl;
+         std::cout << "CMY calculated (based on DIN Lang)" << (orignalImage.rows/(2271/100)) << std::endl;
+       }
      }
    }
 

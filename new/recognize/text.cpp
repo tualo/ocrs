@@ -146,6 +146,76 @@ bool ImageRecognizeEx::usingRoi(cv::Mat& im,cv::Rect roi2, int irotate, int iste
   return false;
 }
 
+bool ImageRecognizeEx::containsZipCodePure(cv::Mat& im,cv::Mat& orig){
+  _debugTime("before containsZipCode pure");
+  int i=0;
+  int j=0;
+  int m=0;
+  int lastThreshold=0;
+  std::vector<std::string> lines;
+  const boost::regex plz_regex(zipcodeRegexText);
+  const boost::regex no_plz_regex("\\d{6}\\s");
+
+lastThreshold = linearize(im);
+  showImage(im);
+
+  std::string s1 = getText(im);
+
+  boost::replace_all(s1,code,"-------------");
+  boost::replace_all(s1,"\n\n","\n");
+
+  lines = isplit(s1,'\n');
+  if (lines.size()<3){
+    _debugTime("stop containsZipCode pure");
+    return false;
+  }
+  std::vector<std::string>::iterator it;
+  for (it = lines.begin(); it != lines.end(); it++){
+    if ((*it).length()<3){
+      lines.erase(it,it);
+    }
+  }
+  if (showDebug){
+    std::cout << "erase lines " << lines.size() << std::endl;
+  }
+
+
+  if (showDebug){
+    std::cout << "Lines found" << lines.size() << std::endl;
+  }
+
+  if ((lines.size()>1)&&(lines.size()<15)){
+
+    m = lines.size()-1;
+    for(i=m;i>0;i--){
+      std::string ln=lines.at(i);
+      boost::replace_all(ln," ","");
+      if ((boost::regex_search(ln , plz_regex)==true)&&(boost::regex_search(ln , no_plz_regex)==false)){
+        s1="";
+        for(j=0;j<=i;j++){
+          s1+=lines.at(j)+"\n";
+        }
+        resultText=s1;
+        ocrText = s1.c_str();
+        if (showDebug){
+          std::cout << "ImageRecognize::contains ZipCode" << std::endl << resultText << std::endl << std::endl;
+        }
+        resultThres = lastThreshold;
+        _debugTime("stop containsZipCode pure, found");
+
+        return true;
+      }
+    }
+
+  }else{
+    if (showDebug){
+      std::cout << "dont think it is an address (less than 2 or more than 15 lines)" << std::endl;
+    }
+  }
+
+  _debugTime("stop containsZipCode pure");
+  return false;
+}
 
 bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
   _debugTime("before containsZipCode");
@@ -167,12 +237,15 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
   //subtractMean = calcmeanValue(im);
 
   //recalcSubstractMean(im);
+  cv::Mat input_im=im.clone();
+
   unpaper(im);
 
   //lastThreshold = linearize(im);//,-0.30);
 
 
   showImage(im);
+
   std::string s1 = getText(im);
 
   boost::replace_all(s1,code,"-------------");
@@ -181,7 +254,9 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
   lines = isplit(s1,'\n');
   if (lines.size()<3){
     _debugTime("stop containsZipCode");
-    return false;
+
+    return containsZipCodePure(input_im,orig);
+    //return false;
   }
   std::vector<std::string>::iterator it;
   for (it = lines.begin(); it != lines.end(); it++){
@@ -228,7 +303,8 @@ bool ImageRecognizeEx::containsZipCode(cv::Mat& im,cv::Mat& orig){
   }
 
   _debugTime("stop containsZipCode");
-  return false;
+  return containsZipCodePure(input_im,orig);
+  //return false;
 }
 
 

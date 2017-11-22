@@ -79,6 +79,17 @@ void ImageRecognizeEx::setBlockSize(int value){
   blockSize=value;
 }
 
+
+
+void ImageRecognizeEx::setLightSubtractMean(int value){
+  lightSubtractMean =value;
+}
+
+
+void ImageRecognizeEx::setLightBlockSize(int value){
+  lightBlockSize=value;
+}
+
 void ImageRecognizeEx::setCalcMean(bool value){
   calcMean=value;
 }
@@ -154,6 +165,7 @@ void ImageRecognizeEx::rescale(){
       cv::resize(orignalImage, result, cv::Size(orignalImage.cols*rescale_cols, orignalImage.rows*rescale_rows), 0, 0, 3);
       orignalImage=result;
     }
+    y_cm=x_cm;
     showImage(orignalImage);
   }
   roiImage=orignalImage.clone();
@@ -227,6 +239,8 @@ ImageRecognizeEx::ImageRecognizeEx() :
   addressfield = "L";
 
 
+  lightSubtractMean=5;
+  lightBlockSize=45;
 
   extractAddress = new ExtractAddress();
 
@@ -246,6 +260,7 @@ tess->Init(NULL, (char*)"deu", tesseract::OEM_TESSERACT_ONLY);
 }
 
 void ImageRecognizeEx::correctSize(){
+  /*
   MYSQL_RES *result;
   MYSQL_ROW row;
   unsigned int num_fields;
@@ -295,10 +310,10 @@ void ImageRecognizeEx::correctSize(){
        showImage(roiImage);
 
     }
-    for(; mysql_next_result(con) == 0;) /* do nothing */;
+    for(; mysql_next_result(con) == 0;)
     mysql_free_result(result);
   }
-
+  */
   if (bSaveRescaledOriginal==true){
     cv::imwrite(sSaveRescaledOriginal.c_str(),orignalImage);
   }

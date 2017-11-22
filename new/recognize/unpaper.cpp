@@ -51,7 +51,8 @@ if (showDebugWindowUnpaper){
 //  cv::threshold(test, test_inv, 150, 255, cv::THRESH_BINARY_INV);
 //  cv::imshow("2. \"blur thres\"", test_inv);
 
-  cv::threshold(test, test, 180, 255, cv::THRESH_BINARY);
+  cv::threshold(test, test, light_mean+20, 255, cv::THRESH_BINARY);
+//  cv::threshold(test, test, 200, 255, cv::THRESH_BINARY);
   if (showDebugWindowUnpaper){
     cv::imshow("2. \"blur thres norm\"", test);
   }
@@ -59,9 +60,15 @@ if (showDebugWindowUnpaper){
   //blockSize=3;
   //subtractMean=1;
   if (light_mean>140){
-    blockSize=13;
-    subtractMean=9;
-  }
+    blockSize=lightBlockSize;//45;
+    subtractMean=lightSubtractMean;//5;
+  }/*else if (light_mean<85){
+    blockSize=15;//45;
+    subtractMean=15;//5;
+  }*/
+  std::cout << "adaptiveThreshold src light_mean>>>" << light_mean  << std::endl;
+  std::cout << "adaptiveThreshold src blockSize>>>" << blockSize  << std::endl;
+  std::cout << "adaptiveThreshold src subtractMean>>>" << subtractMean  << std::endl;
   cv::adaptiveThreshold(
       src,
       src,

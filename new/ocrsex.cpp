@@ -57,6 +57,7 @@ int main( int argc, char** argv ){
 
   args::Flag calculateMean(parser, "calculatemean", "calculatemean for adaptiveThreshold", {"calculatemean"});
   args::Flag savedb(parser, "savedb", "store results in db", {"savedb"});
+  args::Flag dbsettings(parser, "dbsettings", "get the setting by machine nr from bbs_machine table", {"dbsettings"});
   args::Flag removeorignal(parser, "removeorignal", "remove orignal file", {"removeorignal"});
 
 
@@ -85,6 +86,7 @@ int main( int argc, char** argv ){
   args::ValueFlag<std::string> machine(parser, "machine", "The machine ID (default 00)", {"machine"});
   args::ValueFlag<std::string> rescaledfilename(parser, "rescaledfilename", "Save the rescaled original image as", {"rescaledfilename"});
   args::ValueFlag<std::string> paramZipcodeRegexText(parser, "zipcoderegex", "regular expression for zipcodes", {"zipcoderegex"});
+
 
 
 
@@ -147,7 +149,11 @@ int main( int argc, char** argv ){
   int int_pixel_cm_x = 73;
   int int_pixel_cm_y = 73;
   int blockSize=55;
+  int lightBlockSize=45;
+
   int subtractMean=20;
+  int lightSubtractMean=5;
+
   float fmeanfactor=1;
 
 
@@ -163,11 +169,13 @@ int main( int argc, char** argv ){
   if (db_pass){ str_db_password= (args::get(db_pass)).c_str(); }
   if (machine){ std_str_machine=args::get(machine); }
   if (argresultpath){ resultpath=args::get(argresultpath); }
-
   if (rescaledfilename){ std_str_rescaledfilename=args::get(rescaledfilename); }
-
   if (meanfactor){ fmeanfactor=args::get(meanfactor); }
 
+  std::string zipcodeRegexText = "(\\d){5}";
+  if (paramZipcodeRegexText){
+    zipcodeRegexText = args::get(paramZipcodeRegexText);
+  }
 
   MYSQL *con = mysql_init(NULL);
 //str_db_encoding.c_str()
@@ -185,6 +193,46 @@ int main( int argc, char** argv ){
     exit(1);
   }
 
+  if (dbsettings){
+    /*
+
+    alter table bbs_maschine add x_cm integer default 72;
+    alter table bbs_maschine add y_cm integer default 72;
+
+    alter table bbs_maschine add default_blocksize integer default 20;
+    alter table bbs_maschine add light_blocksize integer default 45;
+    alter table bbs_maschine add default_subtractmean integer default 20;
+    alter table bbs_maschine add light_subtractmean integer default 5;
+
+    */
+    std::string sql = "select x_cm,y_cm,default_blocksize,light_blocksize,default_subtractmean,light_subtractmean from bbs_maschine where prefix = '"+std_str_machine+"' ";
+    if (mysql_query(con, sql.c_str())){
+      std::cout << "EE " << sql << std::endl;
+      fprintf(stderr, "%s\n", mysql_error(con));
+    }else{
+      MYSQL_RES *result;
+      MYSQL_ROW row;
+      unsigned int num_fields;
+
+      result = mysql_use_result(con);
+      num_fields = mysql_num_fields(result);
+      while ((row = mysql_fetch_row(result))){
+         //unsigned long *lengths;
+         int_pixel_cm_x = atof(row[0]);
+         int_pixel_cm_y = atof(row[1]);
+         blockSize = atof(row[2]);
+         lightBlockSize = atof(row[3]);
+
+         subtractMean = atof(row[4]);
+         lightSubtractMean = atof(row[5]);
+
+      }
+      for(; mysql_next_result(con) == 0;) /* do nothing */;
+      mysql_free_result(result);
+    }
+  }
+
+
   ImageRecognizeEx* ir=ocr_ext(
     con,
     std_str_machine,
@@ -198,10 +246,9 @@ int main( int argc, char** argv ){
     fmeanfactor
   );
 
-  std::string zipcodeRegexText = "(D|O|7|I|i|Q|\\d){5}";
-  if (paramZipcodeRegexText){
-    zipcodeRegexText = args::get(paramZipcodeRegexText);
-  }
+  ir->setLightSubtractMean(lightSubtractMean);
+  ir->setLightBlockSize(lightSubtractMean);
+
   ir->setZipcodeRegexText(zipcodeRegexText);
 
   try{

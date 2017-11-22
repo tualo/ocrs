@@ -87,6 +87,9 @@ public:
   void setDBConnection(MYSQL *connection);
   void setBlockSize(int value);
   void setSubtractMean(int value);
+  void setLightBlockSize(int value);
+  void setLightSubtractMean(int value);
+
   void setMeanFactor(float value);
   bool is_digits(const std::string &str);
 
@@ -133,6 +136,7 @@ private:
 
   bool usingRoi(cv::Mat& im,cv::Rect roi2,int irotate,int istep_rotate);
   bool containsZipCode(cv::Mat& im,cv::Mat& orig);
+  bool containsZipCodePure(cv::Mat& im,cv::Mat& orig);
   std::string getText(cv::Mat& im);
   void recalcSubstractMean(cv::Mat m);
   int linearize(cv::Mat& src);
@@ -165,6 +169,8 @@ private:
   int windowWait;
   int subtractMean;
   int blockSize;
+  int lightSubtractMean;
+  int lightBlockSize;
   int resultThres;
 
   double debug_last_time;
