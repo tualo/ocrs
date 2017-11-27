@@ -363,7 +363,6 @@ int main( int argc, char** argv ){
   }
 
 
-  std::string bbs_check_sql = "";
 
   std::vector<int> params;
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
