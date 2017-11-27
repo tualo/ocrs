@@ -343,7 +343,7 @@ int main( int argc, char** argv ){
   ir->windowalltogether = windowalltogether;
   ir->subtractMean=subtractMean;
   ir->blockSize = blockSize;
-  ir->forceFPCode =forceFPNumber(kundenid,machine_id, con)
+  ir->forceFPCode =forceFPNumber(kundenid,machine_id, con);
   //forceFPNumber(MYSQL *con, std::string kundennummer, std::string kostenstelle)
 
 
