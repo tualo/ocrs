@@ -66,6 +66,7 @@ public:
   int minX;
   float scale;
   float cmWidth;
+  bool forceFPCode;
 
 private:
   cv::Mat largestContour(cv::Mat& src);

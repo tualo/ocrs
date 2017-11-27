@@ -930,6 +930,18 @@ bcResult ImageRecognize::barcode_internal(cv::Mat &part) {
           // to do
           res.rect = cv::Rect(min_x,min_y,max_x-min_x,max_y-min_y);
         }
+
+
+        if (forceFPCode){
+          if ( (type=="I2/5") && (is_digits(code)) && (code.length()-1==11) ){
+
+            res.found = true;
+          }else{
+            // if code does not match
+            res.found = false;
+          }
+        }
+
       }
     }
     image.set_data(NULL, 0);

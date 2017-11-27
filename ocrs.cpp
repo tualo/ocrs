@@ -64,6 +64,48 @@ void* processImage(void *data ){
 
 
 
+bool forceFPNumber(std::string kunde,std::string maschine,MYSQL *con){
+  bool res = false;
+
+  std::string fdate = "date_add(now(), interval -2 minute)";
+  std::string fdateend = "date_add(now(), interval +2 minute)";
+
+  if(const char* env_fdate = std::getenv("FORCEFPDATE")){
+    std::cout << "forceFPNumber FORCEFPDATE" << std::getenv("FORCEFPDATE") <<  std::endl;
+    fdate = "'"+std::string(env_fdate)+ " 00:00:01'";
+    fdateend = "'"+std::string(env_fdate)+ " 23:59:59'";
+  }
+
+
+
+  std::vector<std::string> strs;
+  boost::split(strs,kunde,boost::is_any_of("|"));
+
+  if (strs.size()==2){
+    std::string sql = "select id from  bbs_data where kundennummer = '"+strs[0]+"' and kostenstelle = "+strs[1]+" and machine_no='"+maschine+"0' and createtime>="+fdate+" and createtime<="+fdateend+" order by id desc limit 1";
+    std::cout << "forceFPNumber" << sql << std::endl;
+    if (mysql_query(con, sql.c_str())){
+      fprintf(stderr, "%s\n", mysql_error(con));
+    }else{
+     MYSQL_RES *result;
+     MYSQL_ROW row;
+     unsigned int num_fields;
+  //   unsigned int i;
+     result = mysql_use_result(con);
+     num_fields = mysql_num_fields(result);
+     while ((row = mysql_fetch_row(result))){
+      std::cout << "forceFPNumber true" << std::endl;
+      res=true;
+     }
+     mysql_free_result(result);
+    }
+
+  }
+  return res;
+
+}
+
+
 /**
  * @function main
  */
@@ -253,6 +295,33 @@ int main( int argc, char** argv ){
     exit(1);
   }
 
+
+
+  std::string fullname(argv[1]);
+  boost::filesystem::path bpath(argv[1]);
+  std::string fname = bpath.filename().c_str();
+  std::string kundenid = "";
+  std::string product = "";
+  std::string bbs_check_sql = "";
+
+  std::vector<std::string> strs;
+  boost::split(strs,fname,boost::is_any_of("N"));
+
+  if (strs.size()==2){
+    kundenid=strs[0];
+    fname=strs[1];
+  }
+
+  if (strs.size()==3){
+    kundenid=strs[0];
+    product=strs[1];
+    fname=strs[2];
+  }
+
+  if (force_customer.length()>0){
+    kundenid = force_customer;
+  }
+
   std::string sql = "";
 
   ImageRecognize* ir = new ImageRecognize();
@@ -274,6 +343,8 @@ int main( int argc, char** argv ){
   ir->windowalltogether = windowalltogether;
   ir->subtractMean=subtractMean;
   ir->blockSize = blockSize;
+  ir->forceFPCode =forceFPNumber(kundenid,machine_id, con)
+  //forceFPNumber(MYSQL *con, std::string kundennummer, std::string kostenstelle)
 
 
 
@@ -291,11 +362,7 @@ int main( int argc, char** argv ){
     ir->open(argv[1]);
   }
 
-  std::string fullname(argv[1]);
-  boost::filesystem::path bpath(argv[1]);
-  std::string fname = bpath.filename().c_str();
-  std::string kundenid = "";
-  std::string product = "";
+
   std::string bbs_check_sql = "";
 
   std::vector<int> params;
@@ -303,23 +370,6 @@ int main( int argc, char** argv ){
   params.push_back(80);
 
 
-  std::vector<std::string> strs;
-  boost::split(strs,fname,boost::is_any_of("N"));
-
-  if (strs.size()==2){
-    kundenid=strs[0];
-    fname=strs[1];
-  }
-
-  if (strs.size()==3){
-    kundenid=strs[0];
-    product=strs[1];
-    fname=strs[2];
-  }
-
-  if (force_customer.length()>0){
-    kundenid = force_customer;
-  }
 
   std::string sql_modell = "set @svmodell='"+modell+"'";
   if (mysql_query(con, sql_modell.c_str())){
