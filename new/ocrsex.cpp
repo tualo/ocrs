@@ -58,7 +58,9 @@ int main( int argc, char** argv ){
   args::Flag calculateMean(parser, "calculatemean", "calculatemean for adaptiveThreshold", {"calculatemean"});
   args::Flag savedb(parser, "savedb", "store results in db", {"savedb"});
   args::Flag dbsettings(parser, "dbsettings", "get the setting by machine nr from bbs_machine table", {"dbsettings"});
+  args::Flag bbscheck(parser, "bbscheck", "call BBS_CHECK_OCR_ID", {"bbscheck"});
   args::Flag removeorignal(parser, "removeorignal", "remove orignal file", {"removeorignal"});
+  args::Flag explicitmachine(parser, "explicitmachine", "only that regions", {"explicitmachine"});
 
 
   args::ValueFlag<std::string> filename(parser, "filename", "The filename", {'f',"file"});
@@ -196,6 +198,21 @@ int main( int argc, char** argv ){
   if (dbsettings){
     /*
 
+alter table bbs_maschine add `scale_rows` decimal(15,6) DEFAULT '1.000000';
+alter table bbs_maschine add `label_versatz` int(11) DEFAULT '0';
+alter table bbs_maschine add `datum_versatz` tinyint(4) DEFAULT '0';
+alter table bbs_maschine add `datum` tinyint(4) DEFAULT '1';
+alter table bbs_maschine add `waage` tinyint(4) DEFAULT '3';
+alter table bbs_maschine add `addressfield` varchar(3) DEFAULT 'L';
+alter table bbs_maschine add `stempeln` tinyint(4) DEFAULT '1';
+alter table bbs_maschine add `hotswitch` tinyint(4) DEFAULT '0';
+alter table bbs_maschine add `x_cm` int(11) DEFAULT '72';
+alter table bbs_maschine add `y_cm` int(11) DEFAULT '72';
+alter table bbs_maschine add `default_blocksize` int(11) DEFAULT '20';
+alter table bbs_maschine add `light_blocksize` int(11) DEFAULT '45';
+alter table bbs_maschine add `default_subtractmean` int(11) DEFAULT '20';
+alter table bbs_maschine add `light_subtractmean` int(11) DEFAULT '5';
+
     alter table bbs_maschine add x_cm integer default 72;
     alter table bbs_maschine add y_cm integer default 72;
 
@@ -250,6 +267,7 @@ int main( int argc, char** argv ){
   ir->setLightBlockSize(lightSubtractMean);
 
   ir->setZipcodeRegexText(zipcodeRegexText);
+  ir->setExplicitMachine(explicitmachine==1);
 
   try{
 
@@ -318,6 +336,7 @@ int main( int argc, char** argv ){
     std::vector<int> params;
     std::string code = ir->getBarcode();
 
+    std::string bbs_check_sql = "";
 
     if (code==""){
       // no code
@@ -331,16 +350,26 @@ int main( int argc, char** argv ){
       prefix = "good";
       params.push_back(CV_IMWRITE_JPEG_QUALITY);
       params.push_back(80);
+      bbs_check_sql="call BBS_CHECK_OCR_ID('"+std_str_machine+"','good','','"+code+"')";
     }else{
       prefix = "noaddress";
       im = ir->getOriginalImage();
       params.push_back(CV_IMWRITE_JPEG_QUALITY);
       params.push_back(80);
+      bbs_check_sql="call BBS_CHECK_OCR_ID('"+std_str_machine+"','noaddress','','"+code+"')";
     }
+    if (bbscheck==1){
+      if (bbs_check_sql!=""){
+        if (mysql_query(con, bbs_check_sql.c_str())){
+          fprintf(stderr, "%s\n", mysql_error(con));
+        }
+      }
+    }
+
+
     boost::format fmt = boost::format("%s%s.%s.jpg") % resultpath % prefix % code;
     std::string fname = fmt.str();
     std::cout << fname << std::endl;
-
 
 
   //  mysql_close(con);
