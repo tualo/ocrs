@@ -4,7 +4,8 @@ name=`basename "$f"`
   -f "$f" \
   --machine $2 \
   --savedb \
-  --dbsettings
+  --dbsettings \
+  --explicitmachine
 #  --blocksize=85 \
 #  --cmx 75 \
 #  --cmy 66 \

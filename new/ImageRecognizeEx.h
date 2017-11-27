@@ -109,6 +109,8 @@ public:
   cv::Mat getOriginalImage();
   void setZipcodeRegexText(std::string str);
 
+  void setExplicitMachine(bool value);
+  bool getExplicitMachine();
 
 private:
   double getOrientation(std::vector<cv::Point> &pts, cv::Mat &img);
@@ -204,7 +206,7 @@ private:
   double rescale_cols;
   double rescale_rows;
 
-
+  bool explicitMachine;
   boost::format updateStatisticsDouble;//("update ocrs_statistics set `%s` = '%s' where `code`='%9.6f' ");
   boost::format updateStatisticsString;//("update ocrs_statistics set `%s` = '%s' where `code`='%s' ");
 

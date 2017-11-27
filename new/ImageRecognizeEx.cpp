@@ -214,6 +214,13 @@ void ImageRecognizeEx::setKostenstelle(std::string value){
   kostenstelle=value;
 }
 
+void ImageRecognizeEx::setExplicitMachine(bool value){
+  explicitMachine=value;
+}
+bool ImageRecognizeEx::getExplicitMachine(){
+  return explicitMachine;
+}
+
 ImageRecognizeEx::ImageRecognizeEx() :
   showDebug(false),
   showDebugWindow(false),
@@ -241,6 +248,7 @@ ImageRecognizeEx::ImageRecognizeEx() :
 
   lightSubtractMean=5;
   lightBlockSize=45;
+  explicitMachine=false;
 
   extractAddress = new ExtractAddress();
 

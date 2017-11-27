@@ -68,7 +68,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
       image_clahe=part.clone();
     }
 
-std::cout << "before loop " << "i_bc_thres_stop" << i_bc_thres_stop << std::endl;
+    std::cout << "before loop " << "i_bc_thres_stop" << i_bc_thres_stop << std::endl;
     codes="";
     // counting here down
     /*
@@ -321,8 +321,11 @@ void ImageRecognizeEx::initBarcodeRegions(){
   rotate=values(rotate);
   */
 
-
-  std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_barcode_regions where machine = '"+machine+"' or machine='*' order by position ";
+  std::string ormachine=" or machine='*' ";
+  if (getExplicitMachine()==true){
+    ormachine=" ";
+  }
+  std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_barcode_regions where machine = '"+machine+"' "+ormachine+" order by position ";
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));
@@ -377,7 +380,11 @@ void ImageRecognizeEx::initAddressRegions(){
   int width=orignalImage.cols/oneCM;
   std::string swidth=std::to_string(width);
 
-  std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_address_regions where (machine = '"+machine+"' or machine='*') and (addressposition='"+addressposition+"' or addressposition='*') and maxwidth >= "+swidth+" and minwidth <= "+swidth+" order by addressposition desc,position ";
+  std::string ormachine=" or machine='*' ";
+  if (getExplicitMachine()==true){
+    ormachine=" ";
+  }
+  std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_address_regions where (machine = '"+machine+"' "+ormachine+" ) and (addressposition='"+addressposition+"' or addressposition='*') and maxwidth >= "+swidth+" and minwidth <= "+swidth+" order by addressposition desc,position ";
   std::cout << "oneCM " << oneCM << std::endl;
   std::cout << "orignalImage.cols " << orignalImage.cols << " w " << width << std::endl;
   std::cout << "sql " << sql << std::endl;
