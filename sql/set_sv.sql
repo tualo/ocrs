@@ -1,55 +1,23 @@
 
-DELIMITER ;;;
-DROP FUNCTION `LEVENSHTEIN`;;;
-CREATE FUNCTION `LEVENSHTEIN`(s1 VARCHAR(255), s2 VARCHAR(255)) RETURNS int(11) DETERMINISTIC
-BEGIN
-    DECLARE s1_len, s2_len, i, j, c, c_temp, cost INT;
-    DECLARE s1_char CHAR;
-    DECLARE cv0, cv1 VARBINARY(256);
-    SET s1_len = CHAR_LENGTH(s1), s2_len = CHAR_LENGTH(s2), cv1 = 0x00, j = 1, i = 1, c = 0;
-    IF s1 = s2 THEN
-        RETURN 0;
-    ELSEIF s1_len = 0 THEN
-        RETURN s2_len;
-    ELSEIF s2_len = 0 THEN
-        RETURN s1_len;
-    ELSE
-        WHILE j <= s2_len DO
-            SET cv1 = CONCAT(cv1, UNHEX(HEX(j))), j = j + 1;
-        END WHILE;
-        WHILE i <= s1_len DO
-            SET s1_char = SUBSTRING(s1, i, 1), c = i, cv0 = UNHEX(HEX(i)), j = 1;
-            WHILE j <= s2_len DO
-                SET c = c + 1;
-                IF s1_char = SUBSTRING(s2, j, 1) THEN SET cost = 0; ELSE SET cost = 1; END IF;
-                SET c_temp = CONV(HEX(SUBSTRING(cv1, j, 1)), 16, 10) + cost;
-                IF c > c_temp THEN SET c = c_temp; END IF;
-                SET c_temp = CONV(HEX(SUBSTRING(cv1, j+1, 1)), 16, 10) + 1;
-                IF c > c_temp THEN SET c = c_temp; END IF;
-                SET cv0 = CONCAT(cv0, UNHEX(HEX(c))), j = j + 1;
-            END WHILE;
-            SET cv1 = cv0, i = i + 1;
-        END WHILE;
-    END IF;
-    RETURN c;
-END;;;
-
-DROP FUNCTION `LEVENSHTEIN_RATIO`;;;
-CREATE FUNCTION `LEVENSHTEIN_RATIO`(s1 VARCHAR(255), s2 VARCHAR(255)) RETURNS int(11) DETERMINISTIC
-BEGIN
-    DECLARE s1_len, s2_len, max_len INT;
-    SET s1_len = LENGTH(s1), s2_len = LENGTH(s2);
-    IF s1_len > s2_len THEN SET max_len = s1_len; ELSE SET max_len = s2_len; END IF;
-    RETURN ROUND((1 - LEVENSHTEIN(s1, s2) / max_len) * 100);
-END;;;
-
-DELIMITER ;
-
-
-
-DROP PROCEDURE IF EXISTS SET_SORTBOX;
-
 DELIMITER //
+
+DROP  FUNCTION `getUpdateSVState` //
+CREATE  FUNCTION `getUpdateSVState`()
+RETURNS VARCHAR(5)
+READS SQL DATA
+BEGIN
+  RETURN '99';
+END //
+
+DROP  FUNCTION `getInitialSVState` //
+CREATE  FUNCTION `getInitialSVState`()
+RETURNS VARCHAR(5)
+READS SQL DATA
+BEGIN
+  RETURN '99';
+END //
+
+
 DROP PROCEDURE `SET_SV` //
 CREATE PROCEDURE `SET_SV`(
   IN in_code varchar(20),
@@ -138,8 +106,7 @@ BEGIN
   END IF;
 
 
-  IF (@debug=1)
-  THEN
+  IF (@debug=1) THEN
     select concat('modell',@svmodell) msg;
     select concat('in_sortiergang',in_sortiergang) msg;
     select concat('in_sortierfach',in_sortierfach) msg;
@@ -148,11 +115,11 @@ BEGIN
     select concat('in_product',ifnull(in_product,' NULL')) msg;
   END IF;
 
-IF @debug=1 THEN
+  IF @debug=1 THEN
 
-select concat('nichts wird gespeichert! DEBUG MODE') msg;
+    select concat('nichts wird gespeichert! DEBUG MODE') msg;
 
-ELSE
+  ELSE
 
   IF EXISTS(SELECT * FROM SV_DATEN WHERE ID=in_code)
   THEN
@@ -185,11 +152,7 @@ ELSE
       @sessionuser
     );
 
-
-
-
   ELSE
-
 
     INSERT INTO SV_DATEN
       (
@@ -237,7 +200,6 @@ ELSE
       );
 
 
-      END IF;
 
       INSERT INTO SV_STATI (status,id,datum,zeit,login)
       VALUES (
@@ -248,7 +210,7 @@ ELSE
         @sessionuser
       );
 
-  END IF;
+      END IF;
 
 
     INSERT INTO SV_DATEN_FELDER (
@@ -332,6 +294,7 @@ ELSE
     )
     on duplicate key update wert=values(wert)
     ;
+    END IF;
 
 END //
 

@@ -3,6 +3,7 @@ DROP FUNCTION numbertoletter$$
 CREATE FUNCTION numbertoletter(in_val varchar(255))
   RETURNS TEXT
   LANGUAGE SQL
+  DETERMINISTIC
 BEGIN
 SET in_val = replace(in_val,'1','i');
 SET in_val = replace(in_val,'7','i');
@@ -24,6 +25,7 @@ DROP FUNCTION lettertonumber$$
 CREATE FUNCTION lettertonumber(in_val varchar(255))
   RETURNS TEXT
   LANGUAGE SQL
+  DETERMINISTIC
 BEGIN
 
 SET in_val = replace(in_val,'i','1');
