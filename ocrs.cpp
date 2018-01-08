@@ -366,10 +366,10 @@ int main( int argc, char** argv ){
     std::string ort = "";
 
 
+    std::string sql_addresstext = boost::replace_all_copy(ir->addresstext, "'", " ");
 
     if (ir->addresstext.length()>0){
       ExtractAddress* ea = new ExtractAddress();
-      std::string sql_addresstext = boost::replace_all_copy(ir->addresstext, "'", " ");
 
 
       ea->setString(sql_addresstext);
@@ -503,6 +503,11 @@ int main( int argc, char** argv ){
           fprintf(stderr, "%s\n", mysql_error(con));
         }
 
+        std:string sql_setsv_2 = "call SET_SV('"+ir->code+"','NT','NT','','','','','"+sql_addresstext+"','"+kundenid+"','Standardbrief')";
+        if (mysql_query(con, sql_setsv_2.c_str())){
+          fprintf(stderr, "%s\n", mysql_error(con));
+        }
+
 
         if (store_original!=""){
           cv::imwrite( ( store_original+"noaddress."+ir->code+".jpg" ).c_str(),ir->orignalImage);
@@ -542,6 +547,10 @@ int main( int argc, char** argv ){
       }
 
 
+      std:string sql_setsv_1 = "call SET_SV('"+ir->code+"','NT','NT','','','','','"+sql_addresstext+"','"+kundenid+"','Standardbrief')";
+      if (mysql_query(con, sql_setsv_1.c_str())){
+        fprintf(stderr, "%s\n", mysql_error(con));
+      }
 
 
       if (store_original!=""){
