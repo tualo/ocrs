@@ -43,6 +43,7 @@ void debugTime(std::string str){
 #include "ocr_ext.cpp"
 
 boost::format quicksvfmt("call quicksv('%s','%s','%s','%s','%s', '%s','%s','%s','%s','%s') ");
+std::string version="1.0.001";
 
 
 int main( int argc, char** argv ){

@@ -1,0 +1,15 @@
+Source: ocrs
+Section: unknown
+Priority: optional
+Maintainer: Thomas Hoffmann <thomas.hoffmann@tualo.de>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.6
+Homepage: <insert the upstream URL, if relevant>
+#Vcs-Git: git://anonscm.debian.org/collab-maint/ocrs.git
+#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/ocrs.git
+
+Package: ocrs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Brief OCR Software
+ Mit diesem Programm können Briefe gelesen werden.
