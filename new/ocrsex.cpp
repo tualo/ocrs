@@ -310,7 +310,7 @@ alter table bbs_maschine add `light_subtractmean` int(11) DEFAULT '5';
 
 
     ir->checkPixels();
-    ir->barcode();
+    //ir->barcode();
 
 
     ExtractAddress* ea = ir->texts();
