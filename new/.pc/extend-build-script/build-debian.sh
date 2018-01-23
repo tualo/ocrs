@@ -5,5 +5,3 @@ dh_make -p ocrs_1.0.001 -f /tmp/ocrs-1.0.001.tar.gz
 cd debian
 rm *.ex *.EX README.Debian README.source
 cd ..
-
-# dpkg-source --commit

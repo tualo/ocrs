@@ -43,7 +43,6 @@ void debugTime(std::string str){
 #include "ocr_ext.cpp"
 
 boost::format quicksvfmt("call quicksv('%s','%s','%s','%s','%s', '%s','%s','%s','%s','%s') ");
-std::string version="1.0.001";
 
 
 int main( int argc, char** argv ){
@@ -310,9 +309,7 @@ alter table bbs_maschine add `light_subtractmean` int(11) DEFAULT '5';
 
 
     ir->checkPixels();
-    if (ir->getBarcode()==""){
-      ir->barcode();
-    }
+    ir->barcode();
 
 
     ExtractAddress* ea = ir->texts();

@@ -124,6 +124,7 @@ private:
   void showImage(cv::Mat& src);
   //bcResult fast_barcode(cv::Mat& im);
   bcResult barcode_internal(cv::Mat& im, bool forceFPCode);
+  bcResult barcode_internal_old(cv::Mat& im, bool forceFPCode);
   void rotateX(cv::Mat& src,float angle,cv::Point center);
   void rotate(cv::Mat& src, int direction);
 

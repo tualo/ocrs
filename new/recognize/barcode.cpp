@@ -6,6 +6,7 @@ void  ImageRecognizeEx::useBarcodeClahe(bool val){
   barcodeClahe = val;
 }
 
+
 bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
   _debugTime("start barcode_internal");
 
@@ -15,6 +16,116 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
     throw std::runtime_error("Error: ImageRecognizeEx::barcode_internal not a gray image");
   }
 
+  zbar::ImageScanner scanner;
+  scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ADD_CHECK, 1);
+  scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_EMIT_CHECK, 0);
+
+
+  scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_ADD_CHECK, 1);
+  scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_EMIT_CHECK, 0);
+
+
+  scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ADD_CHECK, 1);
+  scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_EMIT_CHECK, 0);
+
+  cv::Mat grayo=part.clone();
+  zbar::Image* _image;
+  zbar::ImageScanner* _imageScanner;
+  _image = new zbar::Image(grayo.cols, grayo.rows, "Y800", nullptr, 0);
+  _imageScanner = new zbar::ImageScanner();
+  _imageScanner->set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
+  //showImage(grayo,10000);
+
+  _image->set_data((uchar *)grayo.data, grayo.cols * grayo.rows);
+  int n = _imageScanner->scan(*_image);
+  //zbar::Image::SymbolIterator symbol = _image->symbol_begin();
+  //std::cout << "--- "<< strdup(symbol->get_data().c_str()) << std::endl;
+
+  for(zbar::Image::SymbolIterator symbol = _image->symbol_begin(); symbol != _image->symbol_end(); ++symbol) {
+    if (showDebug){
+      std::cout << "without thres Code " << symbol->get_data().c_str() << " Type " << symbol->get_type_name().c_str() << std::endl;
+    }
+    std::string code = std::string(symbol->get_data().c_str());
+    codes += code+" ";
+    std::string type = std::string(symbol->get_type_name().c_str());
+
+
+    if ((code.length()>5) && (code.length() > res.code.length())) {
+      if (
+        (
+          ( (type=="I2/5") && (is_digits(code)) ) ||
+          ( (type!="I2/5")  )
+        ) && (
+          code.substr(0,4) != "0000"
+        )
+      ){
+        if (showDebug){
+          std::cout << "Code Length: " << code.length()-1 << std::endl;
+        }
+        if (type=="I2/5"){
+          res.code = code.substr(0,code.length()-1);
+          if (code.length()-1<11){
+
+          }else{
+            res.found = true;
+          }
+        }else{
+          res.code = code;//std::string(symbol->get_data().c_str());
+          res.found = true;
+        }
+        if (showDebug){
+          std::cout << "Code*: "<< res.found << " c:" << res.code << " type:" << type  << std::endl;
+        }
+
+        //resultThres = thres;
+        res.type = std::string(symbol->get_type_name().c_str());
+
+      }
+
+      if (forceFPCode){
+        if ( (type=="I2/5") && (is_digits(code)) && (code.length()-1==11) ){
+
+          res.found = true;
+        }else{
+          // if code does not match
+          res.found = false;
+        }
+      }
+
+    }
+  }
+  _debugTime("stop barcode_internal -----> "+res.code);
+  return res;
+}
+
+bcResult ImageRecognizeEx::barcode_internal_old(cv::Mat &part, bool forceFPCode) {
+  _debugTime("start barcode_internal");
+
+  bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
+
+  if (part.channels()>1){
+    throw std::runtime_error("Error: ImageRecognizeEx::barcode_internal not a gray image");
+  }
+
+  zbar::ImageScanner scanner;
+  scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ADD_CHECK, 1);
+  scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_EMIT_CHECK, 0);
+
+
+  scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_ADD_CHECK, 1);
+  scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_EMIT_CHECK, 0);
+
+
+  scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ADD_CHECK, 1);
+  scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_EMIT_CHECK, 0);
 
   try{
 
@@ -87,26 +198,12 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
         cv::threshold(image_clahe,gray,thres,255, CV_THRESH_BINARY );
       }else{
         cv::cvtColor(image_clahe, gray, CV_BGR2GRAY);
-        cv::threshold(gray,gray,thres,255, CV_THRESH_BINARY );
+      //  cv::threshold(gray,gray,thres,255, CV_THRESH_BINARY );
       }
-      cv::normalize(gray, norm, min, max, type, dtype, mask);
-      cv::GaussianBlur(norm, norm, ksize, 0);
-
-      zbar::ImageScanner scanner;
-      scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
-
-      scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ENABLE, 1);
-      scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ADD_CHECK, 1);
-      scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_EMIT_CHECK, 0);
-
-      scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_ENABLE, 1);
-      scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_ADD_CHECK, 1);
-      scanner.set_config(zbar::ZBAR_CODE39, zbar::ZBAR_CFG_EMIT_CHECK, 0);
+      //cv::normalize(gray, norm, min, max, type, dtype, mask);
+      //cv::GaussianBlur(norm, norm, ksize, 0);
 
 
-      scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ENABLE, 1);
-      scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ADD_CHECK, 1);
-      scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_EMIT_CHECK, 0);
 
 
       zbar::Image image(norm.cols, norm.rows, "Y800", (uchar *)norm.data, norm.cols * norm.rows);
@@ -204,7 +301,7 @@ void ImageRecognizeEx::barcode(){
           roi=*list_iter;
           roi->setImage(orignalImage);
           bc_roi = orignalImage(roi->rect());
-          cv::GaussianBlur(bc_roi,bc_roi,cv::Size(3,3),2,2);
+          //cv::GaussianBlur(bc_roi,bc_roi,cv::Size(3,3),2,2);
           res = barcode_internal(bc_roi,barcodeFP);
           cv::rectangle(
             roiImage,

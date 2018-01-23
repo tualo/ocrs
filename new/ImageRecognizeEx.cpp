@@ -133,6 +133,26 @@ void ImageRecognizeEx::open(const char* filename){
   try{
     cv::setUseOptimized(true);
     cv::Mat mat = cv::imread( filename, cv::IMREAD_GRAYSCALE );
+
+    /*
+    cv::Mat grayo=mat.clone();
+
+
+    zbar::Image* _image;
+    zbar::ImageScanner* _imageScanner;
+
+    _image = new zbar::Image(grayo.cols, grayo.rows, "Y800", nullptr, 0);
+    _imageScanner = new zbar::ImageScanner();
+    _imageScanner->set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
+    //showImage(grayo,10000);
+
+    _image->set_data((uchar *)grayo.data, grayo.cols * grayo.rows);
+    int n = _imageScanner->scan(*_image);
+    zbar::Image::SymbolIterator symbol = _image->symbol_begin();
+    std::cout << "--- "<< strdup(symbol->get_data().c_str()) << std::endl;
+    std::exit(-1);
+    */
+
     setImage(mat);
     showImage(orignalImage);
   } catch (cv::Exception& e) {
