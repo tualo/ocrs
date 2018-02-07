@@ -20,7 +20,24 @@ MODIFIES SQL DATA
 BEGIN
   DECLARE lvr INT;
 
+  DECLARE force_customer_by_id varchar(255);
+  DECLARE force_product_by_id varchar(255);
+
   SET @adr=replace(in_short_address,'Postfach','');
+
+  IF in_kundenid is null or in_kundenid='' THEN
+    select concat(kundennummer,'|',kostenstelle) into in_kundenid from bbs_data where id = in_code;
+  END IF;
+
+  select name into force_customer_by_id from sv_registered_code_customer where id = in_code;
+  select name into force_product_by_id from sv_registered_code_product where id = in_code;
+  IF force_customer_by_id is not null THEN
+    SET in_kundenid = force_customer_by_id;
+  END IF;
+  IF force_product_by_id is not null THEN
+    SET in_product = force_product_by_id;
+  END IF;
+
 
   SELECT
     strasse,
@@ -264,4 +281,5 @@ SET @debug=1;
 CALL SET_SORTBOX('70191','70191','41','','','TEST', @stortiergang, @stortierfach, @strasse, @plz, @ort);
 SELECT @stortiergang,@stortierfach,@str,@plz,@ort;
 
-CALL SET_SORTBOX('Steueißéöollmächtigte g 92 07352 Bad Lobcnstein1','07352',92,'1234','test','test',@sg,@sf,@str,@plz,@ort); select @sg,@sf,@str,@plz,@ort;
+CALL SET_SORTBOX('Steueißéöollmächtigte g 92 07352 Bad Lobcnstein1','07352',92,'1234','test','2900000007',@sg,@sf,@str,@plz,@ort); select @sg,@sf,@str,@plz,@ort;
+select * from sv_daten where id = '2900000007'\G
