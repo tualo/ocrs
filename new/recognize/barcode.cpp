@@ -18,6 +18,14 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 
   zbar::ImageScanner scanner;
   scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
+
+  scanner.set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ASCII, 1);
+
+   
+  scanner.set_config(zbar::ZBAR_, zbar::ZBAR_CFG_ENABLE, 1);
+  scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ADD_CHECK, 1);
+  scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_EMIT_CHECK, 0);
+
   scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ENABLE, 1);
   scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ADD_CHECK, 1);
   scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_EMIT_CHECK, 0);
@@ -326,9 +334,9 @@ void ImageRecognizeEx::barcode(){
               5
             );
             */
-            initStatistics();
-            updateStatistics("state","barcodecode");
-            showImage(roiImage);
+            //initStatistics();
+            //updateStatistics("state","barcodecode");
+            //showImage(roiImage);
           }
           std::cout << "2 " << std::endl;
         }
