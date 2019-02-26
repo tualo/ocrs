@@ -256,6 +256,8 @@ ImageRecognizeEx::ImageRecognizeEx() :
   i_bc_thres_stop=180;
   i_bc_thres_step=5;
 
+  barcode_internal_counter=1000000;
+
   zipcodeRegexText = "(O|7|I|i|Q|\\d){5}\\s";
 
   meanfactor=1;

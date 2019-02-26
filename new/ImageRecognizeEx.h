@@ -206,6 +206,8 @@ private:
   int i_bc_thres_stop;
   int i_bc_thres_step;
 
+  int barcode_internal_counter;
+
   double rescale_cols;
   double rescale_rows;
 
