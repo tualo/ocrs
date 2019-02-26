@@ -30,6 +30,8 @@
 #include <zbar.h>
 
 
+#define HAVE_INT64
+#define HAVE_UINT64
 #include <my_global.h>
 #include <mysql.h>
 

@@ -72,7 +72,8 @@ BEGIN
     quicksv_table
   where
     quicksv_table.match_town is null
-    and quicksv_table.ocrtext<>'';
+    and quicksv_table.ocrtext<>''
+    and createtime>=date_add(now(),interval -1 day);
 
   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
   OPEN curs;
@@ -136,6 +137,47 @@ BEGIN
     match_town=ifnull(found_ort,'-----'),
     match_zipcode=ifnull(found_plz,'-----')
   where code = in_code;
+
+  if found_plz is not null THEN
+    select
+        concat(match_zipcode,' ',match_town),
+        match_zipcode,
+        housenumber,
+        concat( customerno,'|',costcenter ),
+        '',
+        code
+    into     
+        @in_short_address,
+        @in_zipcode,
+        @in_housenumber,
+        @in_kundenid,
+        @in_product,
+        @in_code
+    from quicksv_table where code = in_code;
+    select 
+      @in_short_address,
+      @in_zipcode,
+      @in_housenumber,
+      @in_kundenid,
+      @in_product,
+      @in_code;
+
+    call SET_SORTBOX(
+      @in_short_address,
+      @in_zipcode,
+      @in_housenumber,
+      @in_kundenid,
+      @in_product,
+      @in_code,
+
+
+      @out_sortiergang,
+      @out_sortierfach,
+      @out_strasse,
+      @out_plz,
+      @out_ort
+    );
+  END IF;
 
 END $$
 DELIMITER ;

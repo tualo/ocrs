@@ -34,6 +34,9 @@ LDFLAGS    := $(shell mysql_config --libs_r)
 
 ifeq ($(OS),Darwin)
 LDLIBS     := $(shell mysql_config --libs) $(shell pkg-config zbar --cflags --libs) $(shell pkg-config opencv --libs) $(TESSERACT_LDLIBS) -lboost_system -lboost_regex -lboost_filesystem -lboost_thread-mt -lboost_chrono -lboost_iostreams -lboost_atomic-mt -lboost_date_time -lpthread
+LDLIBS     := -L/usr/local/Cellar/mariadb/10.3.8/lib  -lmariadb -lz -liconv $(shell pkg-config zbar --cflags --libs) $(shell pkg-config opencv --libs) $(TESSERACT_LDLIBS) -lboost_system -lboost_regex -lboost_filesystem -lboost_thread-mt -lboost_chrono -lboost_iostreams -lboost_atomic-mt -lboost_date_time -lpthread
+LDFLAGS    := -L/usr/local/Cellar/mariadb/10.3.8/lib  -lmariadb -lz -liconv
+
 else
 LDLIBS     := $(shell mysql_config --libs) $(shell pkg-config zbar --cflags --libs) $(shell pkg-config opencv --libs) $(TESSERACT_LDLIBS) -lboost_system -lboost_regex -lboost_filesystem -lboost_thread -lboost_chrono -lboost_iostreams -lboost_atomic -lboost_date_time -lpthread
 endif

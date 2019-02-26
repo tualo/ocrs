@@ -66,6 +66,18 @@ if (showDebugWindowUnpaper){
     blockSize=15;//45;
     subtractMean=15;//5;
   }*/
+
+  // BLOCKSIZE TOO SMALL!!!
+  if (blockSize<20){
+    std::cout << "adaptiveThreshold src BLOCKSIZE too small use fixed !"   << std::endl;
+    blockSize=31;
+  }
+
+  blockSize=95;
+  subtractMean=27;
+
+
+
   std::cout << "adaptiveThreshold src light_mean>>>" << light_mean  << std::endl;
   std::cout << "adaptiveThreshold src blockSize>>>" << blockSize  << std::endl;
   std::cout << "adaptiveThreshold src subtractMean>>>" << subtractMean  << std::endl;
