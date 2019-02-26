@@ -16,13 +16,19 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
     throw std::runtime_error("Error: ImageRecognizeEx::barcode_internal not a gray image");
   }
 
+std::cout << "barcode_internal image_size "<< part.cols  <<"x"<< part.rows << std::endl;
+if (forceFPCode){
+
+std::cout << "barcode_internal force FP Code "  << std::endl;
+}else{
+std::cout << "barcode_internal DONT force FP Code "  << std::endl;
+}
   zbar::ImageScanner scanner;
   scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
 
   scanner.set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ASCII, 1);
 
    
-  scanner.set_config(zbar::ZBAR_, zbar::ZBAR_CFG_ENABLE, 1);
   scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_ADD_CHECK, 1);
   scanner.set_config(zbar::ZBAR_CODE128, zbar::ZBAR_CFG_EMIT_CHECK, 0);
 
