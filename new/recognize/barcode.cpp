@@ -457,7 +457,7 @@ void ImageRecognizeEx::initBarcodeRegions(){
   if (getExplicitMachine()==true){
     ormachine=" ";
   }
-  std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_barcode_regions where machine = '"+machine+"' "+ormachine+" order by position ";
+  std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from (select machine, name, x, y, w, h, rotate, rotate_steps,if(machine='*',position+1000,position) position from bbs_barcode_regions where machine = '"+machine+"' "+ormachine+") abc  order by position";
   std::cout << "sql initBarcodeRegions " << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
