@@ -24,16 +24,30 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
   }
 
 
-
+/*
   boost::format fmt = boost::format("/tmp/barcode_internal_%i.jpg") % barcode_internal_counter;
   std::string fname = fmt.str();
   std::cout << fname << std::endl;
   barcode_internal_counter++;
+  
 
   std::vector<int> params;
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
   params.push_back(100);
   cv::imwrite(fname.c_str(),part,params);
+  */
+
+
+        cv::adaptiveThreshold(
+            part,
+            part,
+            255,
+            CV_ADAPTIVE_THRESH_GAUSSIAN_C,
+            CV_THRESH_BINARY,//blockSize,calcmeanValue(src));/*,
+            25,//blockSize,
+            5
+        );
+
 
   zbar::ImageScanner scanner;
   scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
