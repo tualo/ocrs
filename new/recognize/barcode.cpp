@@ -301,7 +301,7 @@ void ImageRecognizeEx::barcode(){
           roi=*list_iter;
 
           std::cout << "barcodeRegions " << roi.rect().x << " " << roi.rect().y << " " << roi.rect().w <<  " " << roi.rect().h << std::endl;
-          
+
           roi->setImage(orignalImage);
           bc_roi = orignalImage(roi->rect());
           //cv::GaussianBlur(bc_roi,bc_roi,cv::Size(3,3),2,2);
@@ -312,7 +312,9 @@ void ImageRecognizeEx::barcode(){
             cv::Scalar(205, 205, 0),
             5
           );
-          showImage(roiImage);
+          std::cout << "1 " << std::endl;
+
+          //showImage(roiImage);
           if (res.found==true){
             code = res.code;
             cv::rectangle(
@@ -325,6 +327,7 @@ void ImageRecognizeEx::barcode(){
             updateStatistics("state","barcodecode");
             showImage(roiImage);
           }
+          std::cout << "2 " << std::endl;
         }
     }
   }catch(cv::Exception cv_error){
