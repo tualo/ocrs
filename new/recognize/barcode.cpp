@@ -98,7 +98,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 
     }
   }
-  _debugTime("stop barcode_internal -----> "+res.code);
+  _debugTime("stop barcode_internal -----> * "+res.code);
   return res;
 }
 
