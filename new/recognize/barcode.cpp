@@ -32,12 +32,12 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 
   std::vector<int> params;
   params.push_back(CV_IMWRITE_JPEG_QUALITY);
-  params.push_back(80);
+  params.push_back(100);
   cv::imwrite(fname.c_str(),part,params);
 
   zbar::ImageScanner scanner;
   scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
-
+/*
   scanner.set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ASCII, 1);
 
    
@@ -57,7 +57,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
   scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ENABLE, 1);
   scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ADD_CHECK, 1);
   scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_EMIT_CHECK, 0);
-
+*/
   cv::Mat grayo=part.clone();
   zbar::Image* _image;
   zbar::ImageScanner* _imageScanner;
