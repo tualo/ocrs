@@ -300,7 +300,7 @@ void ImageRecognizeEx::barcode(){
         if (res.found==false){
           roi=*list_iter;
 
-          std::cout << "barcodeRegions " << roi->rect().x << " " << roi->rect().y << " " << roi->rect().width <<  " " << roi->rect().height << std::endl;
+          std::cout << "barcodeRegions " << roi->name() << ": " << roi->rect().x << " " << roi->rect().y << " " << roi->rect().width <<  " " << roi->rect().height << std::endl;
           std::cout << "barcodeRegions orignalImage " << orignalImage.cols << " " << orignalImage.rows << std::endl;
 
           roi->setImage(orignalImage);
