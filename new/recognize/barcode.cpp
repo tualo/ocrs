@@ -318,12 +318,14 @@ void ImageRecognizeEx::barcode(){
           //showImage(roiImage);
           if (res.found==true){
             code = res.code;
+            /*
             cv::rectangle(
               roiImage,
               roi->rect(),
               cv::Scalar(205, 0, 0),
               5
             );
+            */
             initStatistics();
             updateStatistics("state","barcodecode");
             showImage(roiImage);
