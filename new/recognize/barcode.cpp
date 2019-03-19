@@ -16,11 +16,11 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
     throw std::runtime_error("Error: ImageRecognizeEx::barcode_internal not a gray image");
   }
 
-  std::cout << "barcode_internal image_size "<< part.cols  <<"x"<< part.rows << std::endl;
+//  std::cout << "barcode_internal image_size "<< part.cols  <<"x"<< part.rows << std::endl;
   if (forceFPCode){
-    std::cout << "barcode_internal force FP Code "  << std::endl;
+//    std::cout << "barcode_internal force FP Code "  << std::endl;
   }else{
-    std::cout << "barcode_internal DONT force FP Code "  << std::endl;
+//    std::cout << "barcode_internal DONT force FP Code "  << std::endl;
   }
 
 
@@ -76,7 +76,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
       5
   );
 
-  std::cout << "grayo "<< "adaptiveThreshold" << std::endl;
+//  std::cout << "grayo "<< "adaptiveThreshold" << std::endl;
   zbar::Image* _image;
   zbar::ImageScanner* _imageScanner;
   _image = new zbar::Image(grayo.cols, grayo.rows, "Y800", nullptr, 0);
@@ -344,8 +344,8 @@ void ImageRecognizeEx::barcode(){
         if (res.found==false){
           roi=*list_iter;
 
-          std::cout << "barcodeRegions " << roi->name() << ": " << roi->rect().x << " " << roi->rect().y << " " << roi->rect().width <<  " " << roi->rect().height << std::endl;
-          std::cout << "barcodeRegions orignalImage " << orignalImage.cols << " " << orignalImage.rows << std::endl;
+//          std::cout << "barcodeRegions " << roi->name() << ": " << roi->rect().x << " " << roi->rect().y << " " << roi->rect().width <<  " " << roi->rect().height << std::endl;
+//          std::cout << "barcodeRegions orignalImage " << orignalImage.cols << " " << orignalImage.rows << std::endl;
 
           roi->setImage(orignalImage);
           bc_roi = orignalImage(roi->rect());
@@ -357,7 +357,7 @@ void ImageRecognizeEx::barcode(){
             cv::Scalar(205, 205, 0),
             5
           );
-          std::cout << "1 " << std::endl;
+          //std::cout << "1 " << std::endl;
 
           //showImage(roiImage);
           if (res.found==true){
@@ -374,7 +374,7 @@ void ImageRecognizeEx::barcode(){
             //updateStatistics("state","barcodecode");
             //showImage(roiImage);
           }
-          std::cout << "2 " << std::endl;
+          //std::cout << "2 " << std::endl;
         }
     }
   }catch(cv::Exception cv_error){
@@ -476,7 +476,7 @@ void ImageRecognizeEx::initBarcodeRegions(){
     ormachine=" ";
   }
   std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from (select machine, name, x, y, w, h, rotate, rotate_steps,if(machine='*',position+1000,position) position from bbs_barcode_regions where machine = '"+machine+"' "+ormachine+") abc  order by position";
-  std::cout << "sql initBarcodeRegions " << sql << std::endl;
+  //std::cout << "sql initBarcodeRegions " << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));
@@ -536,9 +536,9 @@ void ImageRecognizeEx::initAddressRegions(){
     ormachine=" ";
   }
   std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from bbs_address_regions where (machine = '"+machine+"' "+ormachine+" ) and (addressposition='"+addressposition+"' or addressposition='*') and maxwidth >= "+swidth+" and minwidth <= "+swidth+" order by addressposition desc,position ";
-  std::cout << "oneCM " << oneCM << std::endl;
-  std::cout << "orignalImage.cols " << orignalImage.cols << " w " << width << std::endl;
-  std::cout << "sql " << sql << std::endl;
+  //std::cout << "oneCM " << oneCM << std::endl;
+  //std::cout << "orignalImage.cols " << orignalImage.cols << " w " << width << std::endl;
+  //std::cout << "sql " << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));
