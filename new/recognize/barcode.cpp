@@ -95,7 +95,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
     }
     std::string code = std::string(symbol->get_data().c_str());
     codes += code+" ";
-    codelist.add(code);
+    codelist.push_back(code);
 
     std::string type = std::string(symbol->get_type_name().c_str());
 
