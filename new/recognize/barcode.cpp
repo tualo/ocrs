@@ -64,16 +64,16 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
   scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ADD_CHECK, 1);
   scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_EMIT_CHECK, 0);
 */
-
+/*
 for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
         res.found==false  
       ));thres-=i_bc_thres_step){
-
-
+*/
   cv::Mat grayo=part.clone();
+/*
   std::cout << "grayo "<< "threshold before adaptiveThreshold "  << thres << std::endl;
   cv::threshold(grayo,grayo,thres,255, CV_THRESH_BINARY );
-  /*
+  */
     cv::adaptiveThreshold(
       grayo,
       grayo,
@@ -83,7 +83,7 @@ for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
       15,//blockSize,
       5
   );
-  */
+  
 
   zbar::Image* _image;
   zbar::ImageScanner* _imageScanner;
@@ -152,7 +152,7 @@ for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
 
     }
   }
-  }
+  //} // for
   _debugTime("stop barcode_internal -----> * "+res.code);
   return res;
 }
