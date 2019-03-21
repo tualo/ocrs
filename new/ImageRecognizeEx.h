@@ -104,6 +104,7 @@ public:
   void saveRescaledOriginal(std::string filename);
 
   std::string getBarcode();
+  std::list<std::string> barcodelist();
 
   cv::Mat roiImage;
 
@@ -185,6 +186,7 @@ private:
   std::string resultText;
   std::string allTogether;
   std::string codes;
+  std::list<std::string> codelist;
   std::string code;
   std::string machine;
   std::string addressfield;

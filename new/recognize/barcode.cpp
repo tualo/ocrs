@@ -95,6 +95,8 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
     }
     std::string code = std::string(symbol->get_data().c_str());
     codes += code+" ";
+    codelist.add(code);
+
     std::string type = std::string(symbol->get_type_name().c_str());
 
 
@@ -320,7 +322,9 @@ bcResult ImageRecognizeEx::barcode_internal_old(cv::Mat &part, bool forceFPCode)
   return res;
 }
 
-
+std::list<std::string> ImageRecognizeEx::barcodelist(){
+  return codelist;
+}
 
 void ImageRecognizeEx::barcode(){
   initBarcodeRegions();
@@ -349,7 +353,8 @@ void ImageRecognizeEx::barcode(){
 
           roi->setImage(orignalImage);
           bc_roi = orignalImage(roi->rect());
-          //cv::GaussianBlur(bc_roi,bc_roi,cv::Size(3,3),2,2);
+
+          cv::GaussianBlur(bc_roi,bc_roi,cv::Size(3,3),2,2);
           res = barcode_internal(bc_roi,barcodeFP);
           cv::rectangle(
             roiImage,
