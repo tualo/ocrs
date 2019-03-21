@@ -202,7 +202,7 @@ void ImageRecognizeEx::barcode(){
           //std::cout << "1 " << std::endl;
 
           //showImage(roiImage);
-          if (res.found==true){
+          //if (res.found==true){
             code = res.code;
             /*
             cv::rectangle(
@@ -215,7 +215,7 @@ void ImageRecognizeEx::barcode(){
             //initStatistics();
             //updateStatistics("state","barcodecode");
             //showImage(roiImage);
-          }
+          //}
           //std::cout << "2 " << std::endl;
         }
     }
