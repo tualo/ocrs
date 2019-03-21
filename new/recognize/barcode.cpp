@@ -66,7 +66,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
 */
 
 for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
-        res.found==false && codeRetry==false
+        res.found==false  
       ));thres-=i_bc_thres_step){
 
   cv::Mat grayo=part.clone();
