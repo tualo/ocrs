@@ -70,6 +70,8 @@ for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
       ));thres-=i_bc_thres_step){
 
   cv::Mat grayo=part.clone();
+  std::cout << "grayo "<< "adaptiveThreshold "  << thres << std::endl;
+  cv::threshold(grayo,grayo,thres,255, CV_THRESH_BINARY );
 
     cv::adaptiveThreshold(
       grayo,
@@ -77,11 +79,10 @@ for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
       255,
       CV_ADAPTIVE_THRESH_GAUSSIAN_C,
       CV_THRESH_BINARY,//blockSize,calcmeanValue(src));/*,
-      thres,//blockSize,
+      15,//blockSize,
       5
   );
 
-  std::cout << "grayo "<< "adaptiveThreshold "  << thres << std::endl;
   zbar::Image* _image;
   zbar::ImageScanner* _imageScanner;
   _image = new zbar::Image(grayo.cols, grayo.rows, "Y800", nullptr, 0);
