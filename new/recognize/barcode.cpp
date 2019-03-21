@@ -64,6 +64,11 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
   scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_ADD_CHECK, 1);
   scanner.set_config(zbar::ZBAR_I25, zbar::ZBAR_CFG_EMIT_CHECK, 0);
 */
+
+for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
+        res.found==false && codeRetry==false
+      ));thres-=i_bc_thres_step){
+
   cv::Mat grayo=part.clone();
 
     cv::adaptiveThreshold(
@@ -72,7 +77,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
       255,
       CV_ADAPTIVE_THRESH_GAUSSIAN_C,
       CV_THRESH_BINARY,//blockSize,calcmeanValue(src));/*,
-      25,//blockSize,
+      thres,//blockSize,
       5
   );
 
@@ -143,6 +148,7 @@ bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
       }
 
     }
+  }
   }
   _debugTime("stop barcode_internal -----> * "+res.code);
   return res;
