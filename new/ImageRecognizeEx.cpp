@@ -267,7 +267,7 @@ ImageRecognizeEx::ImageRecognizeEx() :
   codes="";
   addressfield = "L";
 
-  codelist = new std::list<string>();
+  codelist = new std::list<std::string>();
 
   lightSubtractMean=5;
   lightBlockSize=45;
