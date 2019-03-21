@@ -81,7 +81,7 @@ for (int thres=i_bc_thres_stop;((thres>=i_bc_thres_start)&&(
       5
   );
 
-//  std::cout << "grayo "<< "adaptiveThreshold" << std::endl;
+  std::cout << "grayo "<< "adaptiveThreshold "  << thres << std::endl;
   zbar::Image* _image;
   zbar::ImageScanner* _imageScanner;
   _image = new zbar::Image(grayo.cols, grayo.rows, "Y800", nullptr, 0);
