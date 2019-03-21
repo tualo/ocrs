@@ -182,7 +182,7 @@ void ImageRecognizeEx::barcode(){
     for(std::list<RegionOfInterest*>::iterator list_iter = barcodeRegions.begin();
       list_iter != barcodeRegions.end(); list_iter++){
 
-        if (res.found==false){
+       // if (res.found==false){
           roi=*list_iter;
 
 //          std::cout << "barcodeRegions " << roi->name() << ": " << roi->rect().x << " " << roi->rect().y << " " << roi->rect().width <<  " " << roi->rect().height << std::endl;
@@ -217,7 +217,7 @@ void ImageRecognizeEx::barcode(){
             //showImage(roiImage);
           //}
           //std::cout << "2 " << std::endl;
-        }
+        //}
     }
   }catch(cv::Exception cv_error){
     std::cerr << "barcode()" << cv_error.msg << std::endl;
