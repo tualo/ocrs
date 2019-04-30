@@ -73,7 +73,9 @@ std::cout << "Code: "<< code << " " << type  << std::endl;
 
       } 
   }
-return res;
+
+  _debugTime("stop barcode_internal -----> * "+res.code);
+  return res;
 
 }
 
