@@ -16,6 +16,7 @@ bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string("")
   FindCodes *fc = new FindCodes();
   fc->detectCodes(part);
 
+showImage(part);
 
   std::list<Barcode*> barcodes = fc->codes();
   std::list<Barcode*>::const_iterator it;
@@ -24,7 +25,7 @@ bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string("")
       std::string type = ((Barcode*)*it)->type();
       codes += code+" ";
       codelist.push_back(code);
-
+std::cout << "Code: "<< code << " " << type  << std::endl;
 
       if ((code.length()>5) && (code.length() > res.code.length())) {
             if (
@@ -35,9 +36,9 @@ bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string("")
                 code.substr(0,4) != "0000"
               )
             ){
-              if (showDebug){
+              //if (showDebug){
                 std::cout << "Code Length: " << code.length()-1 << std::endl;
-              }
+              //}
               if (type=="I2/5"){
                 res.code = code.substr(0,code.length()-1);
                 if (code.length()-1<11){
@@ -48,6 +49,7 @@ bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string("")
               }else{
                 res.code = code;//std::string(symbol->get_data().c_str());
                 res.found = true;
+                std::cout << "Code Length: " << code.length()-1 << std::endl;
               }
               if (showDebug){
                 std::cout << "Code*: "<< res.found << " c:" << res.code << " type:" << type  << std::endl;
@@ -385,7 +387,7 @@ void ImageRecognizeEx::initBarcodeRegions(){
     ormachine=" ";
   }
   std::string sql = "select machine, name, x, y, w, h, rotate, rotate_steps from (select machine, name, x, y, w, h, rotate, rotate_steps,if(machine='*',position+1000,position) position from bbs_barcode_regions where machine = '"+machine+"' "+ormachine+") abc  order by position";
-  //std::cout << "sql initBarcodeRegions " << sql << std::endl;
+  std::cout << "sql initBarcodeRegions " << sql << std::endl;
   if (mysql_query(con, sql.c_str())){
     std::cout << "EE " << sql << std::endl;
     fprintf(stderr, "%s\n", mysql_error(con));
