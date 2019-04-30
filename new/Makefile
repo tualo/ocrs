@@ -45,7 +45,7 @@ endif
 all				: $(NAME)
 
 $(NAME)			: $(NAME).o
-	$(LD) $(LDFLAGS) -o $@ RegionOfInterest.o ExtractAddress.o glob_posix.o ImageRecognizeEx.o ocrsex.o $(LDLIBS)
+	$(LD) $(LDFLAGS) -o $@ RegionOfInterest.o ExtractAddress.o glob_posix.o Barcode.o FindCodes.o ImageRecognizeEx.o ocrsex.o  $(LDLIBS)
 
 SOURCES := $(shell find . -name '*.cpp')
 HEADERS := $(shell find . -name '*.h')
@@ -55,7 +55,10 @@ $(NAME).o: $(SOURCES) $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./RegionOfInterest.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./glob_posix.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./ExtractAddress.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./recognize/imagecodes/Barcode.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./recognize/imagecodes/FindCodes.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./ImageRecognizeEx.cpp
+	
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./ocrsex.cpp
 
 clean			:

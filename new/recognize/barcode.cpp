@@ -8,8 +8,74 @@ void  ImageRecognizeEx::useBarcodeClahe(bool val){
 
 
 bcResult ImageRecognizeEx::barcode_internal(cv::Mat &part, bool forceFPCode) {
+
+bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
+
   _debugTime("start barcode_internal");
 
+  FindCodes *fc = new FindCodes();
+  fc->detectCodes(part);
+
+
+  std::list<Barcode*> barcodes = fc->codes();
+  std::list<Barcode*>::const_iterator it;
+  for (it = barcodes.begin(); it != barcodes.end(); ++it){
+      std::string code = ((Barcode*)*it)->code();
+      std::string type = ((Barcode*)*it)->type();
+      codes += code+" ";
+      codelist.push_back(code);
+
+
+      if ((code.length()>5) && (code.length() > res.code.length())) {
+            if (
+              (
+                ( (type=="I2/5") && (is_digits(code)) ) ||
+                ( (type!="I2/5")  )
+              ) && (
+                code.substr(0,4) != "0000"
+              )
+            ){
+              if (showDebug){
+                std::cout << "Code Length: " << code.length()-1 << std::endl;
+              }
+              if (type=="I2/5"){
+                res.code = code.substr(0,code.length()-1);
+                if (code.length()-1<11){
+
+                }else{
+                  res.found = true;
+                }
+              }else{
+                res.code = code;//std::string(symbol->get_data().c_str());
+                res.found = true;
+              }
+              if (showDebug){
+                std::cout << "Code*: "<< res.found << " c:" << res.code << " type:" << type  << std::endl;
+              }
+
+              //resultThres = thres;
+              res.type = type;
+
+            }
+
+            if (forceFPCode){
+              if ( (type=="I2/5") && (is_digits(code)) && (code.length()-1==11) ){
+
+                res.found = true;
+              }else{
+                // if code does not match
+                res.found = false;
+              }
+            }
+
+
+      } 
+  }
+return res;
+
+}
+
+bcResult ImageRecognizeEx::barcode_internal_X(cv::Mat &part, bool forceFPCode) {
   bcResult res = {cv::Point(0,0),cv::Rect(0,0,1,1),std::string(""),std::string(""),false};
 
   if (part.channels()>1){
